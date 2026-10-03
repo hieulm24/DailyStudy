@@ -11,7 +11,7 @@
             Kho tài liệu & Liên kết (Resource Hub)
           </h2>
           <p class="text-sm sm:text-base text-slate-500 mt-1">
-            Lưu trữ tài liệu Word, Excel, PDF, đề thi TOEIC và bookmark các trang web học tập hữu ích
+            Lưu trữ tài liệu Tiếng Anh, tài liệu chuyên ngành IT & Lập trình, cùng bookmark liên kết học tập hữu ích
           </p>
         </div>
       </div>
@@ -29,28 +29,53 @@
 
     <!-- Main Navigation Tabs -->
     <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+      <!-- Tab 1: Tài liệu Tiếng Anh -->
       <button
         type="button"
         :class="[
           'flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-md transition-all',
-          activeTab === 'DOCUMENTS'
+          activeTab === 'DOCUMENTS_ENGLISH'
             ? 'bg-brand-600 text-white shadow-xs'
             : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
         ]"
-        @click="activeTab = 'DOCUMENTS'"
+        @click="switchTab('DOCUMENTS_ENGLISH')"
       >
-        <Files class="w-4 h-4" />
-        <span>Tệp tài liệu (Files)</span>
+        <GraduationCap class="w-4 h-4" />
+        <span>Tài liệu Tiếng Anh</span>
         <span
           :class="[
             'px-2 py-0.5 text-xs rounded-full font-bold',
-            activeTab === 'DOCUMENTS' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700',
+            activeTab === 'DOCUMENTS_ENGLISH' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700',
           ]"
         >
-          {{ docStats?.totalDocuments || 0 }}
+          {{ totalEnglishCount }}
         </span>
       </button>
 
+      <!-- Tab 2: Tài liệu IT -->
+      <button
+        type="button"
+        :class="[
+          'flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-md transition-all',
+          activeTab === 'DOCUMENTS_IT'
+            ? 'bg-brand-600 text-white shadow-xs'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+        ]"
+        @click="switchTab('DOCUMENTS_IT')"
+      >
+        <Code2 class="w-4 h-4" />
+        <span>Tài liệu IT</span>
+        <span
+          :class="[
+            'px-2 py-0.5 text-xs rounded-full font-bold',
+            activeTab === 'DOCUMENTS_IT' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700',
+          ]"
+        >
+          {{ totalItCount }}
+        </span>
+      </button>
+
+      <!-- Tab 3: Liên kết học tập -->
       <button
         type="button"
         :class="[
@@ -59,7 +84,7 @@
             ? 'bg-brand-600 text-white shadow-xs'
             : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
         ]"
-        @click="activeTab = 'LINKS'"
+        @click="switchTab('LINKS')"
       >
         <Globe class="w-4 h-4" />
         <span>Liên kết học tập (Links)</span>
@@ -75,24 +100,25 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- TAB 1: DOCUMENTS (FILES) -->
+    <!-- TAB 1 & 2: DOCUMENTS (ENGLISH / IT) -->
     <!-- ============================================================ -->
-    <!-- ============================================================ -->
-    <!-- TAB 1: DOCUMENTS (FILES) -->
-    <!-- ============================================================ -->
-    <div v-if="activeTab === 'DOCUMENTS'" class="space-y-6">
+    <div v-if="activeTab === 'DOCUMENTS_ENGLISH' || activeTab === 'DOCUMENTS_IT'" class="space-y-6">
       <!-- Statistics Counters Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         <!-- Tổng tài liệu -->
         <div class="bg-white p-5 sm:p-6 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between hover:border-brand-300 hover:shadow-sm transition-all min-h-[115px]">
           <div class="flex items-center justify-between">
-            <span class="text-sm font-bold text-slate-700">Tổng Tài Liệu</span>
+            <span class="text-sm font-bold text-slate-700">
+              {{ activeTab === 'DOCUMENTS_IT' ? 'Tài Liệu IT' : 'Tài Liệu Tiếng Anh' }}
+            </span>
             <div class="w-9 h-9 rounded-md bg-brand-50 text-brand-600 flex items-center justify-center border border-brand-100/60">
-              <Files class="w-5 h-5" />
+              <component :is="activeTab === 'DOCUMENTS_IT' ? Code2 : GraduationCap" class="w-5 h-5" />
             </div>
           </div>
           <div class="mt-2">
-            <div class="text-3xl sm:text-4xl font-extrabold text-brand-600 tracking-tight">{{ docStats?.totalDocuments || 0 }}</div>
+            <div class="text-3xl sm:text-4xl font-extrabold text-brand-600 tracking-tight">
+              {{ activeTab === 'DOCUMENTS_IT' ? totalItCount : totalEnglishCount }}
+            </div>
             <span class="text-xs sm:text-sm text-slate-400 mt-1 block">tệp đã tải lên</span>
           </div>
         </div>
@@ -254,19 +280,38 @@
             <div class="flex items-center gap-2">
               <span class="text-xs font-semibold text-slate-500">Danh mục:</span>
               <select
+                v-if="activeTab === 'DOCUMENTS_ENGLISH'"
                 v-model="docFilter.category"
                 class="text-sm bg-white border border-slate-200 text-slate-700 rounded-md px-3.5 py-2 shadow-xs focus:outline-none focus:border-brand-500 font-medium"
                 @change="() => loadDocuments(0)"
               >
-                <option value="">Tất cả danh mục</option>
+                <option value="">Tất cả danh mục Tiếng Anh</option>
                 <option value="TOEIC">Đề thi & Tài liệu TOEIC</option>
                 <option value="VOCABULARY">Từ vựng (Vocabulary)</option>
                 <option value="GRAMMAR">Ngữ pháp (Grammar)</option>
                 <option value="LISTENING">Luyện nghe (Listening)</option>
                 <option value="SPEAKING">Luyện nói (Speaking)</option>
                 <option value="TEST_EXAM">Đề thi thử (Practice Test)</option>
-                <option value="GENERAL">Tài liệu chung</option>
+                <option value="GENERAL">Tài liệu tiếng Anh chung</option>
                 <option value="OTHER">Khác</option>
+              </select>
+
+              <select
+                v-else-if="activeTab === 'DOCUMENTS_IT'"
+                v-model="docFilter.category"
+                class="text-sm bg-white border border-slate-200 text-slate-700 rounded-md px-3.5 py-2 shadow-xs focus:outline-none focus:border-brand-500 font-medium"
+                @change="() => loadDocuments(0)"
+              >
+                <option value="">Tất cả danh mục IT</option>
+                <option value="IT_DEV">Lập trình & Coding</option>
+                <option value="IT_BACKEND">Backend (Java, Spring Boot)</option>
+                <option value="IT_FRONTEND">Frontend (Vue, React, Web)</option>
+                <option value="IT_DATABASE">Cơ sở dữ liệu (Database)</option>
+                <option value="IT_SYSTEM">Kiến trúc hệ thống (System Arch)</option>
+                <option value="IT_DEVOPS">DevOps & CI/CD & Docker</option>
+                <option value="IT_PROJECT">Tài liệu dự án & Design Spec</option>
+                <option value="IT_GENERAL">Tài liệu IT chung</option>
+                <option value="IT_OTHER">Khác</option>
               </select>
             </div>
 
@@ -292,7 +337,7 @@
 
           <!-- Total indicator -->
           <div class="text-xs text-slate-500 font-medium">
-            Hiển thị <strong class="text-slate-800">{{ documents.length }}</strong> tài liệu
+            Hiển thị <strong class="text-slate-800">{{ filteredDocuments.length }}</strong> tài liệu
           </div>
         </div>
       </div>
@@ -305,15 +350,17 @@
 
       <!-- Empty State -->
       <div
-        v-else-if="documents.length === 0"
+        v-else-if="filteredDocuments.length === 0"
         class="bg-white p-12 text-center rounded-md border border-slate-200 shadow-xs space-y-3"
       >
         <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
           <FolderArchive class="w-8 h-8" />
         </div>
-        <h3 class="text-base font-bold text-slate-800">Chưa có tài liệu nào trong kho</h3>
+        <h3 class="text-base font-bold text-slate-800">
+          {{ activeTab === 'DOCUMENTS_IT' ? 'Chưa có tài liệu IT nào trong kho' : 'Chưa có tài liệu tiếng Anh nào trong kho' }}
+        </h3>
         <p class="text-sm text-slate-500 max-w-md mx-auto">
-          Tải lên các file Excel danh sách từ vựng, tài liệu Word ngữ pháp, PDF đề thi TOEIC để ôn tập và tra cứu bất cứ lúc nào.
+          {{ activeTab === 'DOCUMENTS_IT' ? 'Tải lên các file tài liệu kiến trúc, database schema, spec dự án, cheatsheets IT để tra cứu nhanh.' : 'Tải lên các file Excel từ vựng, tài liệu Word ngữ pháp, PDF đề thi TOEIC để ôn tập và tra cứu bất cứ lúc nào.' }}
         </p>
         <AppButton variant="primary" size="md" :icon="Upload" class="mt-2" @click="openUploadModal">
           + Tải lên tài liệu đầu tiên
@@ -323,7 +370,7 @@
       <!-- GRID VIEW -->
       <div v-else-if="viewMode === 'GRID'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div
-          v-for="doc in documents"
+          v-for="doc in filteredDocuments"
           :key="doc.id"
           class="bg-white p-5 rounded-md border border-slate-200 hover:border-brand-300 hover:shadow-sm transition-all flex flex-col justify-between group"
         >
@@ -335,7 +382,7 @@
                   <component :is="getFileTypeStyles(doc.fileType).icon" :class="['w-6 h-6', getFileTypeStyles(doc.fileType).color]" />
                 </div>
                 <div>
-                  <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700">
+                  <span :class="['inline-block px-2 py-0.5 text-xs font-semibold rounded-md border', getCategoryBadgeClass(doc.category)]">
                     {{ getCategoryLabel(doc.category) }}
                   </span>
                   <span class="text-xs text-slate-400 block mt-0.5">{{ doc.formattedFileSize }}</span>
@@ -436,7 +483,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              <tr v-for="(doc, index) in documents" :key="doc.id" class="hover:bg-slate-50/70 transition-colors">
+              <tr v-for="(doc, index) in filteredDocuments" :key="doc.id" class="hover:bg-slate-50/70 transition-colors">
                 <td class="py-3 px-3 text-center font-bold text-slate-400 font-mono text-xs">
                   #{{ docPage * docPageSize + index + 1 }}
                 </td>
@@ -457,7 +504,7 @@
                   </span>
                 </td>
                 <td class="py-3 px-4">
-                  <span class="px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700">
+                  <span :class="['px-2 py-0.5 rounded-md text-xs font-medium border', getCategoryBadgeClass(doc.category)]">
                     {{ getCategoryLabel(doc.category) }}
                   </span>
                 </td>
@@ -508,7 +555,7 @@
       </div>
 
       <!-- Documents Pagination -->
-      <div v-if="documents.length > 0" class="bg-white rounded-md border border-slate-200 shadow-xs">
+      <div v-if="filteredDocuments.length > 0" class="bg-white rounded-md border border-slate-200 shadow-xs">
         <AppPagination
           :current-page="docPage"
           :total-pages="docTotalPages"
@@ -520,9 +567,9 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- TAB 2: STUDY LINKS (BOOKMARKS) -->
+    <!-- TAB 3: STUDY LINKS (BOOKMARKS) -->
     <!-- ============================================================ -->
-    <div v-else class="space-y-5">
+    <div v-else-if="activeTab === 'LINKS'" class="space-y-5">
       <!-- Filter Bar for Links -->
       <div class="bg-white p-4.5 rounded-md border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div class="flex-1 max-w-md">
@@ -760,14 +807,27 @@
             v-model="uploadForm.category"
             class="w-full text-sm border border-slate-200 rounded-md px-3 py-2 bg-white text-slate-800 focus:outline-none focus:border-brand-500 shadow-xs"
           >
-            <option value="TOEIC">Đề thi & Tài liệu TOEIC</option>
-            <option value="VOCABULARY">Từ vựng (Vocabulary)</option>
-            <option value="GRAMMAR">Ngữ pháp (Grammar)</option>
-            <option value="LISTENING">Luyện nghe (Listening)</option>
-            <option value="SPEAKING">Luyện nói (Speaking)</option>
-            <option value="TEST_EXAM">Đề thi thử (Practice Test)</option>
-            <option value="GENERAL">Tài liệu chung</option>
-            <option value="OTHER">Khác</option>
+            <optgroup label="Tài liệu Tiếng Anh">
+              <option value="TOEIC">Đề thi & Tài liệu TOEIC</option>
+              <option value="VOCABULARY">Từ vựng (Vocabulary)</option>
+              <option value="GRAMMAR">Ngữ pháp (Grammar)</option>
+              <option value="LISTENING">Luyện nghe (Listening)</option>
+              <option value="SPEAKING">Luyện nói (Speaking)</option>
+              <option value="TEST_EXAM">Đề thi thử (Practice Test)</option>
+              <option value="GENERAL">Tài liệu tiếng Anh chung</option>
+              <option value="OTHER">Khác</option>
+            </optgroup>
+            <optgroup label="Tài liệu IT (Công nghệ & Lập trình)">
+              <option value="IT_DEV">Lập trình & Coding</option>
+              <option value="IT_BACKEND">Backend (Java, Spring Boot, API)</option>
+              <option value="IT_FRONTEND">Frontend (Vue, React, Tailwind)</option>
+              <option value="IT_DATABASE">Cơ sở dữ liệu (SQL Server, Postgres)</option>
+              <option value="IT_SYSTEM">Kiến trúc hệ thống & Microservices</option>
+              <option value="IT_DEVOPS">DevOps & CI/CD & Docker</option>
+              <option value="IT_PROJECT">Tài liệu dự án & Design Spec</option>
+              <option value="IT_GENERAL">Tài liệu IT chung</option>
+              <option value="IT_OTHER">Khác</option>
+            </optgroup>
           </select>
         </div>
 
@@ -820,14 +880,27 @@
             v-model="editDocForm.category"
             class="w-full text-sm border border-slate-200 rounded-md px-3 py-2 bg-white text-slate-800 focus:outline-none focus:border-brand-500 shadow-xs"
           >
-            <option value="TOEIC">Đề thi & Tài liệu TOEIC</option>
-            <option value="VOCABULARY">Từ vựng (Vocabulary)</option>
-            <option value="GRAMMAR">Ngữ pháp (Grammar)</option>
-            <option value="LISTENING">Luyện nghe (Listening)</option>
-            <option value="SPEAKING">Luyện nói (Speaking)</option>
-            <option value="TEST_EXAM">Đề thi thử (Practice Test)</option>
-            <option value="GENERAL">Tài liệu chung</option>
-            <option value="OTHER">Khác</option>
+            <optgroup label="Tài liệu Tiếng Anh">
+              <option value="TOEIC">Đề thi & Tài liệu TOEIC</option>
+              <option value="VOCABULARY">Từ vựng (Vocabulary)</option>
+              <option value="GRAMMAR">Ngữ pháp (Grammar)</option>
+              <option value="LISTENING">Luyện nghe (Listening)</option>
+              <option value="SPEAKING">Luyện nói (Speaking)</option>
+              <option value="TEST_EXAM">Đề thi thử (Practice Test)</option>
+              <option value="GENERAL">Tài liệu tiếng Anh chung</option>
+              <option value="OTHER">Khác</option>
+            </optgroup>
+            <optgroup label="Tài liệu IT (Công nghệ & Lập trình)">
+              <option value="IT_DEV">Lập trình & Coding</option>
+              <option value="IT_BACKEND">Backend (Java, Spring Boot, API)</option>
+              <option value="IT_FRONTEND">Frontend (Vue, React, Tailwind)</option>
+              <option value="IT_DATABASE">Cơ sở dữ liệu (SQL Server, Postgres)</option>
+              <option value="IT_SYSTEM">Kiến trúc hệ thống & Microservices</option>
+              <option value="IT_DEVOPS">DevOps & CI/CD & Docker</option>
+              <option value="IT_PROJECT">Tài liệu dự án & Design Spec</option>
+              <option value="IT_GENERAL">Tài liệu IT chung</option>
+              <option value="IT_OTHER">Khác</option>
+            </optgroup>
           </select>
         </div>
 
@@ -966,7 +1039,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import type {
   LearningDocument,
@@ -981,7 +1054,8 @@ import AppModal from '../../components/common/AppModal.vue';
 import AppPagination from '../../components/common/AppPagination.vue';
 import {
   FolderArchive,
-  Files,
+  GraduationCap,
+  Code2,
   HardDrive,
   FileSpreadsheet,
   FileText,
@@ -1007,8 +1081,8 @@ import {
 
 const route = useRoute();
 
-// Main Tab: 'DOCUMENTS' | 'LINKS'
-const activeTab = ref<'DOCUMENTS' | 'LINKS'>('DOCUMENTS');
+// Main Tab: 'DOCUMENTS_ENGLISH' | 'DOCUMENTS_IT' | 'LINKS'
+const activeTab = ref<'DOCUMENTS_ENGLISH' | 'DOCUMENTS_IT' | 'LINKS'>('DOCUMENTS_ENGLISH');
 const viewMode = ref<'GRID' | 'TABLE'>('GRID');
 
 // Documents state
@@ -1022,10 +1096,54 @@ const docTotalElements = ref(0);
 const docFilter = reactive({
   search: '',
   category: '',
+  group: 'ENGLISH',
   fileType: '',
   isFavorite: undefined as boolean | undefined,
   sortBy: 'createdAt',
   sortDirection: 'DESC',
+});
+
+// Robust reactive counts that work with or without backend restart
+const totalEnglishCount = computed(() => {
+  if (docStats.value?.totalEnglish !== undefined && docStats.value?.totalEnglish !== null) {
+    return docStats.value.totalEnglish;
+  }
+  if (!docStats.value) return 0;
+  if (docStats.value.countByCategory) {
+    let it = 0;
+    for (const [cat, cnt] of Object.entries(docStats.value.countByCategory)) {
+      if (cat && cat.toUpperCase().startsWith('IT')) {
+        it += cnt;
+      }
+    }
+    return Math.max(0, (docStats.value.totalDocuments || 0) - it);
+  }
+  return docStats.value.totalDocuments || 0;
+});
+
+const totalItCount = computed(() => {
+  if (docStats.value?.totalIt !== undefined && docStats.value?.totalIt !== null) {
+    return docStats.value.totalIt;
+  }
+  if (!docStats.value || !docStats.value.countByCategory) return 0;
+  let it = 0;
+  for (const [cat, cnt] of Object.entries(docStats.value.countByCategory)) {
+    if (cat && cat.toUpperCase().startsWith('IT')) {
+      it += cnt;
+    }
+  }
+  return it;
+});
+
+// Strictly filter documents between English and IT tabs
+const filteredDocuments = computed(() => {
+  let list = documents.value;
+  if (activeTab.value === 'DOCUMENTS_IT') {
+    list = list.filter(d => d.category && d.category.toUpperCase().startsWith('IT'));
+  } else if (activeTab.value === 'DOCUMENTS_ENGLISH') {
+    list = list.filter(d => !d.category || !d.category.toUpperCase().startsWith('IT'));
+  }
+  return list;
 });
 
 // Study Links state
@@ -1082,9 +1200,30 @@ const deleteType = ref<'DOC' | 'LINK'>('DOC');
 const itemToDelete = ref<{ id: number; title: string } | null>(null);
 const isDeleting = ref(false);
 
+function switchTab(tab: 'DOCUMENTS_ENGLISH' | 'DOCUMENTS_IT' | 'LINKS') {
+  activeTab.value = tab;
+  if (tab === 'DOCUMENTS_ENGLISH') {
+    docFilter.group = 'ENGLISH';
+    docFilter.category = '';
+    loadDocuments(0);
+  } else if (tab === 'DOCUMENTS_IT') {
+    docFilter.group = 'IT';
+    docFilter.category = '';
+    loadDocuments(0);
+  } else if (tab === 'LINKS') {
+    loadLinks(0);
+  }
+}
+
 onMounted(async () => {
   if (route.query.tab === 'links') {
     activeTab.value = 'LINKS';
+  } else if (route.query.tab === 'it') {
+    activeTab.value = 'DOCUMENTS_IT';
+    docFilter.group = 'IT';
+  } else {
+    activeTab.value = 'DOCUMENTS_ENGLISH';
+    docFilter.group = 'ENGLISH';
   }
   await Promise.all([loadDocuments(), loadDocStats(), loadLinks()]);
 
@@ -1145,7 +1284,7 @@ async function toggleFavoriteDoc(doc: LearningDocument) {
 function openUploadModal() {
   selectedFile.value = null;
   uploadForm.title = '';
-  uploadForm.category = 'TOEIC';
+  uploadForm.category = activeTab.value === 'DOCUMENTS_IT' ? 'IT_DEV' : 'TOEIC';
   uploadForm.description = '';
   showUploadModal.value = true;
 }
@@ -1363,13 +1502,43 @@ function getFileTypeStyles(fileType: string) {
 
 function getCategoryLabel(category?: string) {
   switch (category) {
-    case 'TOEIC': return 'Đề thi & Tài liệu TOEIC';
+    case 'TOEIC': return 'Đề thi TOEIC';
     case 'VOCABULARY': return 'Từ vựng';
     case 'GRAMMAR': return 'Ngữ pháp';
     case 'LISTENING': return 'Luyện nghe';
     case 'SPEAKING': return 'Luyện nói';
     case 'TEST_EXAM': return 'Đề thi thử';
+    case 'GENERAL': return 'Tài liệu Tiếng Anh';
+    case 'IT_DEV': return 'Lập trình / Dev';
+    case 'IT_BACKEND': return 'Backend (Java/Spring)';
+    case 'IT_FRONTEND': return 'Frontend (Vue/Web)';
+    case 'IT_DATABASE': return 'Cơ sở dữ liệu';
+    case 'IT_SYSTEM': return 'Kiến trúc hệ thống';
+    case 'IT_DEVOPS': return 'DevOps & Docker';
+    case 'IT_PROJECT': return 'Tài liệu Dự án';
+    case 'IT_GENERAL': return 'Tài liệu IT';
+    case 'IT_OTHER': return 'IT Khác';
     default: return 'Tài liệu chung';
+  }
+}
+
+function getCategoryBadgeClass(category?: string) {
+  switch (category) {
+    case 'TOEIC': return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+    case 'VOCABULARY': return 'bg-blue-50 text-blue-700 border-blue-200';
+    case 'GRAMMAR': return 'bg-purple-50 text-purple-700 border-purple-200';
+    case 'LISTENING': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    case 'SPEAKING': return 'bg-rose-50 text-rose-700 border-rose-200';
+    case 'TEST_EXAM': return 'bg-amber-50 text-amber-700 border-amber-200';
+    case 'IT_DEV': return 'bg-cyan-50 text-cyan-700 border-cyan-200';
+    case 'IT_BACKEND': return 'bg-sky-50 text-sky-700 border-sky-200';
+    case 'IT_FRONTEND': return 'bg-teal-50 text-teal-700 border-teal-200';
+    case 'IT_DATABASE': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    case 'IT_SYSTEM': return 'bg-violet-50 text-violet-700 border-violet-200';
+    case 'IT_DEVOPS': return 'bg-orange-50 text-orange-700 border-orange-200';
+    case 'IT_PROJECT': return 'bg-blue-50 text-blue-700 border-blue-200';
+    case 'IT_GENERAL': return 'bg-slate-100 text-slate-700 border-slate-200';
+    default: return 'bg-slate-100 text-slate-700 border-slate-200';
   }
 }
 

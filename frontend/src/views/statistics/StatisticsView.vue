@@ -550,12 +550,12 @@
     <AppModal
       v-model="showDayDetailModal"
       :title="`Chi tiết công việc ngày: ${selectedModalDateFormatted}`"
-      size="xl"
+      size="2xl"
     >
       <div class="space-y-5 py-2">
         <!-- Day summary stats inside modal -->
-        <div class="p-4 bg-slate-50/80 rounded-md border border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm">
-          <div class="flex items-center gap-6">
+        <div class="p-4 sm:p-5 bg-slate-50/90 rounded-md border border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs sm:text-sm shadow-2xs">
+          <div class="flex flex-wrap items-center gap-6 sm:gap-8">
             <div>
               <span class="text-slate-500 font-medium">Tổng số việc:</span>
               <strong class="ml-1.5 text-slate-900 font-extrabold text-sm sm:text-base">{{ modalTasks.length }}</strong>
@@ -576,7 +576,7 @@
 
           <router-link
             :to="`/tasks?date=${selectedModalDate}`"
-            class="inline-flex items-center gap-1.5 font-bold text-xs sm:text-sm text-brand-600 hover:text-brand-800 hover:underline bg-white px-3 py-1.5 rounded-md border border-brand-200/80 shadow-2xs"
+            class="inline-flex items-center gap-1.5 font-bold text-xs sm:text-sm text-brand-600 hover:text-brand-800 hover:underline bg-white px-3.5 py-1.5 rounded-md border border-brand-200/80 shadow-2xs transition-colors"
           >
             <span>Mở trang quản lý ngày này</span>
             <ExternalLink class="w-4 h-4" />
@@ -584,31 +584,31 @@
         </div>
 
         <!-- Task Items in Modal -->
-        <div v-if="isLoadingModalTasks" class="p-10 text-center text-slate-400 text-sm">
+        <div v-if="isLoadingModalTasks" class="p-12 text-center text-slate-400 text-sm">
           <RefreshCw class="w-6 h-6 animate-spin mx-auto mb-2 text-brand-500" />
           Đang tải chi tiết các công việc...
         </div>
 
-        <div v-else-if="modalTasks.length === 0" class="p-10 text-center text-slate-400 text-sm">
+        <div v-else-if="modalTasks.length === 0" class="p-12 text-center text-slate-400 text-sm">
           Không có việc nào được ghi nhận cho ngày này.
         </div>
 
-        <div v-else class="overflow-x-auto border border-slate-200 rounded-md max-h-[65vh]">
-          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+        <div v-else class="overflow-x-auto border border-slate-200 rounded-md max-h-[72vh]">
+          <table class="w-full min-w-[850px] text-left border-collapse text-xs sm:text-sm">
             <thead>
-              <tr class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px] sm:text-xs">
-                <th class="py-3 px-3 w-14 text-center">STT</th>
-                <th class="py-3 px-3 w-16 text-center">Xong</th>
-                <th class="py-3 px-4 min-w-[240px]">Nội dung công việc</th>
-                <th class="py-3 px-3.5 text-center w-28">Phân loại</th>
-                <th class="py-3 px-3.5 text-center w-28">Mức độ ưu tiên</th>
-                <th class="py-3 px-3.5 text-center w-24">Thời gian</th>
-                <th class="py-3 px-3.5 text-center w-32">Trạng thái</th>
+              <tr class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200 uppercase tracking-wider text-[11px] sm:text-xs whitespace-nowrap">
+                <th class="py-3.5 px-3.5 w-14 text-center">STT</th>
+                <th class="py-3.5 px-3.5 w-16 text-center">Xong</th>
+                <th class="py-3.5 px-4 min-w-[320px]">Nội dung công việc</th>
+                <th class="py-3.5 px-4 text-center w-32 whitespace-nowrap">Phân loại</th>
+                <th class="py-3.5 px-4 text-center w-32 whitespace-nowrap">Mức độ ưu tiên</th>
+                <th class="py-3.5 px-4 text-center w-28 whitespace-nowrap">Thời gian</th>
+                <th class="py-3.5 px-4 text-center w-36 whitespace-nowrap">Trạng thái</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <tr
-                v-for="(task, idx) in modalTasks"
+                v-for="(task, idx) in sortedModalTasks"
                 :key="task.id"
                 :class="[
                   'hover:bg-slate-50/80 transition-colors',
@@ -1120,6 +1120,17 @@ function formatMinutesToReadable(minutes: number): string {
 const modalTotalEstimatedTimeDisplay = computed(() => {
   const total = modalTasks.value.reduce((acc, t) => acc + parseEstimatedMinutes(t.estimatedTime), 0);
   return formatMinutesToReadable(total);
+});
+
+const sortedModalTasks = computed(() => {
+  return [...modalTasks.value].sort((a, b) => {
+    const aDone = a.isCompleted || a.status === 'COMPLETED' ? 1 : 0;
+    const bDone = b.isCompleted || b.status === 'COMPLETED' ? 1 : 0;
+    if (aDone !== bDone) {
+      return aDone - bDone;
+    }
+    return (a.displayOrder || 0) - (b.displayOrder || 0);
+  });
 });
 
 async function openDayDetailModal(date: string) {

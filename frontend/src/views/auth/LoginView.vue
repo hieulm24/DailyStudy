@@ -4,15 +4,15 @@
       <div class="flex justify-center">
         <img
           src="/logo.png"
-          alt="English Tracker Logo"
+          alt="DailyStudy Hub Logo"
           class="w-16 h-16 object-contain rounded-md shadow-sm border border-slate-200 bg-white p-1"
         />
       </div>
       <h2 class="mt-4 text-center text-xl font-bold tracking-tight text-slate-900">
-        English Tracker
+        DailyStudy Hub
       </h2>
       <p class="mt-1 text-center text-xs text-slate-500">
-        Hệ thống theo dõi & tối ưu quá trình tự học tiếng Anh cá nhân
+        Hệ thống quản lý kế hoạch hàng ngày & học tập thông minh
       </p>
     </div>
 

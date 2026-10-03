@@ -26,7 +26,7 @@
         </div>
 
         <!-- Modal Body -->
-        <div class="px-6 py-5 max-h-[calc(100vh-12rem)] overflow-y-auto">
+        <div class="px-6 py-5 max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-7rem)] overflow-y-auto">
           <slot />
         </div>
 
@@ -47,7 +47,7 @@ const props = withDefaults(
   defineProps<{
     modelValue: boolean;
     title?: string;
-    size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+    size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'full';
     closeOnBackdrop?: boolean;
   }>(),
   {
@@ -67,9 +67,13 @@ const sizeClasses = computed(() => {
     case 'lg':
       return 'max-w-3xl';
     case 'xl':
-      return 'max-w-4xl';
-    case 'full':
+      return 'max-w-5xl';
+    case '2xl':
       return 'max-w-6xl';
+    case '3xl':
+      return 'max-w-7xl';
+    case 'full':
+      return 'max-w-[95vw] sm:max-w-[92vw] lg:max-w-7xl';
     case 'md':
     default:
       return 'max-w-xl';

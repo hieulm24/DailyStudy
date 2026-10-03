@@ -86,7 +86,7 @@ const pageTitle = computed(() => {
     case '/settings':
       return 'Cài đặt hệ thống (Settings)';
     default:
-      return 'English Learning Hub';
+      return 'DailyStudy Hub';
   }
 });
 </script>

@@ -1,0 +1,17 @@
+Trong Nước : 
+1. Xuất báo cáo điện đi / đến Non realtime theo kênh thanh toán + Xử lý bất đồng bộ + Sử dụng procedure để tìm kiếm
+Quốc tế :
+1. Xử lý điện Swift về phân hệ	
++ Sử dụng procedure để tìm kiếm
++ Gửi lại điện về kênh phân hệ hoặc lưu trữ
+2. Xử lý lại điện Exception
++ Sử dụng procedure để tìm kiếm
++ Gửi duyệt
++ Phê duyệt 
++ Từ chối
++ Detail 
++ Lịch sử
++ Thêm
++ Sửa
++ Xóa
+3. Xử lý điện lỗi INVALID_FORMAT

@@ -145,6 +145,17 @@ public class DocumentService {
                 ));
             }
 
+            if (StringUtils.hasText(filter.getGroup())) {
+                if ("IT".equalsIgnoreCase(filter.getGroup())) {
+                    predicates.add(cb.like(root.get("category"), "IT%"));
+                } else if ("ENGLISH".equalsIgnoreCase(filter.getGroup())) {
+                    predicates.add(cb.or(
+                            cb.isNull(root.get("category")),
+                            cb.notLike(root.get("category"), "IT%")
+                    ));
+                }
+            }
+
             if (StringUtils.hasText(filter.getCategory())) {
                 predicates.add(cb.equal(root.get("category"), filter.getCategory()));
             }
@@ -281,6 +292,8 @@ public class DocumentService {
 
         List<Document> allDocs = documentRepository.findByUserId(userId);
         long favoriteCount = allDocs.stream().filter(d -> Boolean.TRUE.equals(d.getIsFavorite())).count();
+        long itCount = allDocs.stream().filter(d -> d.getCategory() != null && d.getCategory().toUpperCase().startsWith("IT")).count();
+        long englishCount = Math.max(0, totalDocs - itCount);
 
         Map<String, Long> categoryCount = allDocs.stream()
                 .filter(d -> StringUtils.hasText(d.getCategory()))
@@ -288,6 +301,8 @@ public class DocumentService {
 
         return DocumentStatisticsResponse.builder()
                 .totalDocuments(totalDocs)
+                .totalEnglish(englishCount)
+                .totalIt(itCount)
                 .totalFileSizeBytes(totalBytes != null ? totalBytes : 0L)
                 .formattedTotalSize(formatFileSize(totalBytes != null ? totalBytes : 0L))
                 .totalExcel(excelCount)

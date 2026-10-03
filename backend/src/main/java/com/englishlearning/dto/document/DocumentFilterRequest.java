@@ -9,6 +9,7 @@ import java.time.LocalDate;
 public class DocumentFilterRequest {
     private String search;
     private String category;
+    private String group;
     private String fileType;
     private Boolean isFavorite;
     private String dateRange;

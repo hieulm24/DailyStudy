@@ -286,6 +286,7 @@ export interface LearningDocument {
 export interface DocumentFilter {
   search?: string;
   category?: string;
+  group?: string;
   fileType?: string;
   isFavorite?: boolean;
   dateRange?: string;
@@ -299,6 +300,8 @@ export interface DocumentFilter {
 
 export interface DocumentStatistics {
   totalDocuments: number;
+  totalEnglish?: number;
+  totalIt?: number;
   totalFileSizeBytes: number;
   formattedTotalSize: string;
   totalExcel: number;

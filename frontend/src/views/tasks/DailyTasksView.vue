@@ -925,9 +925,9 @@ const dayEvaluationText = computed(() => {
   return 'Cần cố gắng';
 });
 
-// Filtered Task List
+// Filtered and Sorted Task List (Uncompleted on top, Completed at bottom)
 const filteredTasks = computed(() => {
-  return tasks.value.filter((t) => {
+  const list = tasks.value.filter((t) => {
     // Category filter
     if (selectedCategory.value !== 'ALL' && t.category !== selectedCategory.value) {
       return false;
@@ -951,6 +951,16 @@ const filteredTasks = computed(() => {
       if (!matchTitle && !matchDesc) return false;
     }
     return true;
+  });
+
+  // Sort: Tasks that are NOT completed come first, completed tasks move to the bottom
+  return list.sort((a, b) => {
+    const aDone = a.isCompleted || a.status === 'COMPLETED' ? 1 : 0;
+    const bDone = b.isCompleted || b.status === 'COMPLETED' ? 1 : 0;
+    if (aDone !== bDone) {
+      return aDone - bDone;
+    }
+    return (a.displayOrder || 0) - (b.displayOrder || 0);
   });
 });
 

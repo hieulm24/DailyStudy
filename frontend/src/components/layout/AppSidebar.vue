@@ -10,12 +10,12 @@
       <router-link to="/dashboard" class="flex items-center gap-3.5 group" @click="$emit('close')">
         <img
           src="/logo.png"
-          alt="English Tracker Logo"
+          alt="DailyStudy Hub Logo"
           class="w-10 h-10 shrink-0 object-contain rounded-md"
         />
         <div class="flex flex-col min-w-0">
-          <span class="text-lg font-bold tracking-tight text-slate-900 group-hover:text-brand-600 transition-colors truncate">English Tracker</span>
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Học Tiếng Anh</span>
+          <span class="text-lg font-bold tracking-tight text-slate-900 group-hover:text-brand-600 transition-colors truncate">DailyStudy Hub</span>
+          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Kế hoạch & Học tập</span>
         </div>
       </router-link>
       <button

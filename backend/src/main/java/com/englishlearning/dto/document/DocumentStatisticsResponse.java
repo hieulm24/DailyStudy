@@ -13,6 +13,8 @@ import java.util.Map;
 @AllArgsConstructor
 public class DocumentStatisticsResponse {
     private Long totalDocuments;
+    private Long totalEnglish;
+    private Long totalIt;
     private Long totalFileSizeBytes;
     private String formattedTotalSize;
     private Long totalExcel;

@@ -1,6 +1,6 @@
-# English Tracker - Ứng Dụng Tự Học & Theo Dõi Tiến Độ Tiếng Anh Cá Nhân (Chạy LOCAL)
+# DailyStudy Hub - Hệ Thống Quản Lý Kế Hoạch & Học Tập Cá Nhân (Chạy LOCAL)
 
-Ứng dụng web toàn diện chạy **hoàn toàn cục bộ (LOCAL)** giúp ghi chép, theo dõi và nâng cao 4 kỹ năng tiếng Anh: **Từ vựng (Vocabulary)**, **Ngữ pháp (Grammar)**, **Luyện nghe (Listening)**, **Luyện nói (Speaking)** kết hợp cùng thuật toán ôn tập **Spaced Repetition** và hệ thống **5 Mini-Games** thông minh.
+Ứng dụng web toàn diện chạy **hoàn toàn cục bộ (LOCAL)** giúp quản lý **Kế hoạch & Việc cần làm hàng ngày (Daily Tasks)**, **Kho tài liệu & Liên kết học tập (Resources)**, cùng lộ trình tự học toàn diện 4 kỹ năng tiếng Anh: **Từ vựng (Vocabulary)**, **Ngữ pháp (Grammar)**, **Luyện nghe (Listening)**, **Luyện nói (Speaking)** kết hợp cùng thuật toán ôn tập **Spaced Repetition** và hệ thống **Mini-Games** thông minh.
 
 ---
 
