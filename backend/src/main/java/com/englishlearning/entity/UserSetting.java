@@ -50,13 +50,20 @@ public class UserSetting {
 
     @PrePersist
     protected void onCreate() {
-        if (this.createdAt == null) this.createdAt = LocalDateTime.now();
-        if (this.updatedAt == null) this.updatedAt = LocalDateTime.now();
-        if (this.theme == null) this.theme = "LIGHT";
-        if (this.language == null) this.language = "vi";
-        if (this.timezone == null) this.timezone = "Asia/Ho_Chi_Minh";
-        if (this.dailyLearningTarget == null) this.dailyLearningTarget = 30;
-        if (this.reviewEnabled == null) this.reviewEnabled = true;
+        if (this.createdAt == null)
+            this.createdAt = LocalDateTime.now();
+        if (this.updatedAt == null)
+            this.updatedAt = LocalDateTime.now();
+        if (this.theme == null)
+            this.theme = "LIGHT";
+        if (this.language == null)
+            this.language = "vi";
+        if (this.timezone == null)
+            this.timezone = "Asia/Ho_Chi_Minh";
+        if (this.dailyLearningTarget == null)
+            this.dailyLearningTarget = 30;
+        if (this.reviewEnabled == null)
+            this.reviewEnabled = true;
     }
 
     @PreUpdate

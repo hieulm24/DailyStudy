@@ -378,7 +378,11 @@
             <!-- Card Header: Icon + Category Badge + Star -->
             <div class="flex items-start justify-between gap-3 mb-3">
               <div class="flex items-center gap-3">
-                <div :class="['w-12 h-12 rounded-md flex items-center justify-center border shrink-0', getFileTypeStyles(doc.fileType).bg]">
+                <div
+                  :class="['w-12 h-12 rounded-md flex items-center justify-center border shrink-0 cursor-pointer hover:opacity-85 transition-opacity', getFileTypeStyles(doc.fileType).bg]"
+                  title="Nhấn để xem trước tài liệu"
+                  @click="openDocumentPreview(doc)"
+                >
                   <component :is="getFileTypeStyles(doc.fileType).icon" :class="['w-6 h-6', getFileTypeStyles(doc.fileType).color]" />
                 </div>
                 <div>
@@ -401,7 +405,11 @@
             </div>
 
             <!-- Title & Filename -->
-            <h4 class="text-base font-bold text-slate-900 line-clamp-2 group-hover:text-brand-600 transition-colors" :title="doc.title">
+            <h4
+              class="text-base font-bold text-slate-900 line-clamp-2 group-hover:text-brand-600 transition-colors cursor-pointer"
+              :title="`Xem trực tiếp: ${doc.title}`"
+              @click="openDocumentPreview(doc)"
+            >
               {{ doc.title }}
             </h4>
             <p class="text-xs text-slate-500 mt-1 truncate font-mono" :title="doc.fileName">
@@ -418,16 +426,15 @@
           <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
             <span :title="formatDate(doc.createdAt)">📅 {{ formatDateShort(doc.createdAt) }}</span>
             <div class="flex items-center gap-1.5">
-              <!-- Preview button if PDF or Image -->
-              <a
-                v-if="doc.fileType === 'PDF' || doc.fileType === 'IMAGE'"
-                :href="documentService.getPreviewUrl(doc.id)"
-                target="_blank"
-                class="p-1.5 rounded-md hover:bg-slate-100 text-slate-600 transition-colors"
-                title="Xem trước"
+              <!-- Preview button -->
+              <button
+                type="button"
+                class="p-1.5 rounded-md hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors"
+                title="Xem trực tiếp tài liệu"
+                @click="openDocumentPreview(doc)"
               >
                 <Eye class="w-4 h-4" />
-              </a>
+              </button>
 
               <!-- Edit button -->
               <button
@@ -493,7 +500,11 @@
                   </button>
                 </td>
                 <td class="py-3 px-4">
-                  <div class="font-bold text-slate-900 hover:text-brand-600 cursor-pointer" @click="downloadDoc(doc)">
+                  <div
+                    class="font-bold text-slate-900 hover:text-brand-600 cursor-pointer transition-colors"
+                    :title="`Xem trước: ${doc.title}`"
+                    @click="openDocumentPreview(doc)"
+                  >
                     {{ doc.title }}
                   </div>
                   <div class="text-xs text-slate-400 font-mono truncate max-w-xs">{{ doc.fileName }}</div>
@@ -513,15 +524,14 @@
                 <td class="py-3 px-4 text-xs text-slate-500">{{ formatDateShort(doc.createdAt) }}</td>
                 <td class="py-3 px-4 text-right">
                   <div class="flex items-center justify-end gap-1">
-                    <a
-                      v-if="doc.fileType === 'PDF' || doc.fileType === 'IMAGE'"
-                      :href="documentService.getPreviewUrl(doc.id)"
-                      target="_blank"
-                      class="p-1.5 rounded-md hover:bg-slate-100 text-slate-600"
-                      title="Xem trước"
+                    <button
+                      type="button"
+                      class="p-1.5 rounded-md hover:bg-brand-50 text-slate-600 hover:text-brand-600 transition-colors"
+                      title="Xem trực tiếp tài liệu"
+                      @click="openDocumentPreview(doc)"
                     >
                       <Eye class="w-4 h-4" />
-                    </a>
+                    </button>
                     <button
                       type="button"
                       class="p-1.5 rounded-md hover:bg-slate-100 text-slate-600"
@@ -1035,6 +1045,12 @@
         </AppButton>
       </div>
     </AppModal>
+
+    <!-- Document Viewer Modal for PDF, DOCX, XLSX, Images, and Text -->
+    <DocumentViewerModal
+      v-model="showPreviewModal"
+      :document="selectedPreviewDoc"
+    />
   </div>
 </template>
 
@@ -1052,6 +1068,7 @@ import AppButton from '../../components/common/AppButton.vue';
 import AppSearch from '../../components/common/AppSearch.vue';
 import AppModal from '../../components/common/AppModal.vue';
 import AppPagination from '../../components/common/AppPagination.vue';
+import DocumentViewerModal from '../../components/common/DocumentViewerModal.vue';
 import {
   FolderArchive,
   GraduationCap,
@@ -1162,6 +1179,14 @@ const linkFilter = reactive({
 });
 
 // Modals
+const showPreviewModal = ref(false);
+const selectedPreviewDoc = ref<LearningDocument | null>(null);
+
+function openDocumentPreview(doc: LearningDocument) {
+  selectedPreviewDoc.value = doc;
+  showPreviewModal.value = true;
+}
+
 const showUploadModal = ref(false);
 const isUploading = ref(false);
 const fileInputRef = ref<HTMLInputElement | null>(null);

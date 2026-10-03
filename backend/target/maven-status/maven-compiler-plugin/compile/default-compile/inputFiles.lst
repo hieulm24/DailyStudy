@@ -7,6 +7,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\config\DataInitializer.ja
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\config\SecurityConfig.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\config\WebMvcConfig.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\ActivityController.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\AiTranslationController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\AuthController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\DailyTaskController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\DashboardController.java
@@ -20,6 +21,12 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\SpeakingContro
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\StatisticsController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\StudyLinkController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\VocabularyController.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\AIExplanationRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\AIExplanationResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\DictionaryDataDTO.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\DictionaryDefinitionDTO.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\DictionaryMeaningDTO.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\TranslationResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\auth\AuthResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\auth\LoginRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\auth\UserProfileDto.java
@@ -122,6 +129,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\security\JwtAuthenticatio
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\security\JwtTokenProvider.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\security\UserPrincipal.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\ActivityService.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\AiTranslationService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\AuthService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\DailyTaskService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\DocumentService.java

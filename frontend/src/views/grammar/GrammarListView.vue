@@ -3,12 +3,72 @@
     <!-- Header & Action Row -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 sm:p-7 rounded-md border border-slate-200 shadow-xs">
       <div>
-        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Chủ đề ngữ pháp (Grammar Topics)</h2>
+        <div class="flex items-center gap-2.5">
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Chủ đề ngữ pháp (Grammar Topics)</h2>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+            Tổng {{ totalAllCount }} chủ đề
+          </span>
+        </div>
         <p class="text-sm sm:text-base text-slate-500 mt-1">Hệ thống hóa cấu trúc, cách dùng, dấu hiệu nhận biết và câu ví dụ</p>
       </div>
       <AppButton variant="primary" size="md" :icon="Plus" @click="openAddModal">
         + Thêm chủ đề ngữ pháp
       </AppButton>
+    </div>
+
+    <!-- Quick Stats Metric Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+      <!-- Total All -->
+      <div class="bg-white p-4 rounded-md border border-slate-200 shadow-xs flex items-center gap-3">
+        <div class="p-2.5 rounded-md bg-purple-50 text-purple-600 shrink-0">
+          <Sparkles class="w-5 h-5" />
+        </div>
+        <div>
+          <div class="text-[11px] font-semibold text-slate-500">Tổng chủ đề</div>
+          <div class="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
+            {{ totalAllCount }} <span class="text-xs font-normal text-slate-400">chủ đề</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtered Count -->
+      <div class="bg-white p-4 rounded-md border border-slate-200 shadow-xs flex items-center gap-3" :class="{ 'border-purple-300 bg-purple-50/20': isFilterActive }">
+        <div class="p-2.5 rounded-md bg-indigo-50 text-indigo-600 shrink-0">
+          <Filter class="w-5 h-5" />
+        </div>
+        <div class="min-w-0">
+          <div class="text-[11px] font-semibold text-slate-500 truncate" :title="currentFilterLabel">{{ currentFilterLabel }}</div>
+          <div class="text-lg sm:text-xl font-bold text-indigo-600 leading-tight">
+            {{ pageData.totalElements }} <span class="text-xs font-normal text-slate-400">mục</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mastered -->
+      <div class="bg-white p-4 rounded-md border border-slate-200 shadow-xs flex items-center gap-3">
+        <div class="p-2.5 rounded-md bg-emerald-50 text-emerald-600 shrink-0">
+          <CheckCircle2 class="w-5 h-5" />
+        </div>
+        <div>
+          <div class="text-[11px] font-semibold text-slate-500">Đã thành thạo</div>
+          <div class="text-lg sm:text-xl font-bold text-emerald-600 leading-tight">
+            {{ masteredCount }} <span class="text-xs font-normal text-slate-400">chủ đề</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Learning / Review -->
+      <div class="bg-white p-4 rounded-md border border-slate-200 shadow-xs flex items-center gap-3">
+        <div class="p-2.5 rounded-md bg-amber-50 text-amber-600 shrink-0">
+          <Flame class="w-5 h-5" />
+        </div>
+        <div>
+          <div class="text-[11px] font-semibold text-slate-500">Đang học & Cần ôn</div>
+          <div class="text-lg sm:text-xl font-bold text-amber-600 leading-tight">
+            {{ learningCount }} <span class="text-xs font-normal text-slate-400">chủ đề</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Search & Filters Row -->
@@ -39,6 +99,31 @@
         v-model:status="filter.status"
         @change="loadData"
       />
+
+      <!-- Filter Result Indicator Bar -->
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-md bg-slate-50 border border-slate-200/80 text-xs"
+      >
+        <div class="flex items-center gap-2 text-slate-700">
+          <BarChart3 class="w-4 h-4 text-purple-600 shrink-0" />
+          <span class="font-semibold text-slate-900">
+            Kết quả: Tìm thấy <span class="text-purple-600 font-bold text-sm">{{ pageData.totalElements }}</span> / {{ totalAllCount }} chủ đề
+          </span>
+          <span v-if="isFilterActive" class="px-2 py-0.5 rounded bg-purple-100 text-purple-800 font-medium">
+            (Đang lọc: {{ currentFilterLabel }})
+          </span>
+        </div>
+
+        <button
+          v-if="isFilterActive"
+          type="button"
+          class="flex items-center gap-1 text-slate-500 hover:text-rose-600 font-medium transition-colors"
+          @click="resetFilters"
+        >
+          <RotateCcw class="w-3.5 h-3.5" />
+          <span>Đặt lại bộ lọc</span>
+        </button>
+      </div>
     </div>
 
     <!-- Grammar Grid Cards -->
@@ -132,6 +217,7 @@
           :page-size="pageData.size"
           :total-elements="pageData.totalElements"
           @update:page="handlePageChange"
+          @update:page-size="handlePageSizeChange"
         />
       </div>
     </div>
@@ -352,7 +438,8 @@ import AppEmptyState from '../../components/common/AppEmptyState.vue';
 import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import AppSearch from '../../components/common/AppSearch.vue';
 import AppFilter from '../../components/common/AppFilter.vue';
-import { Plus, Sparkles, Edit, Trash2, Star } from 'lucide-vue-next';
+import { Plus, Sparkles, Edit, Trash2, Star, CheckCircle2, Flame, RotateCcw, Filter, BarChart3 } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 const route = useRoute();
 const toastStore = useToastStore();
@@ -361,6 +448,10 @@ const reviewStore = useReviewStore();
 const loading = ref(false);
 const saving = ref(false);
 const deleting = ref(false);
+
+const totalAllCount = ref(0);
+const masteredCount = ref(0);
+const learningCount = ref(0);
 
 const showFormModal = ref(false);
 const showDetailModal = ref(false);
@@ -392,6 +483,55 @@ const filter = reactive({
   sortDirection: 'DESC',
 });
 
+const currentFilterLabel = computed(() => {
+  if (filter.dateRange === 'TODAY') return 'Hôm nay';
+  if (filter.dateRange === 'YESTERDAY') return 'Hôm qua';
+  if (filter.dateRange === 'LAST_7_DAYS') return '7 ngày qua';
+  if (filter.dateRange === 'LAST_30_DAYS') return '30 ngày qua';
+  if (filter.dateRange === 'CUSTOM' && (filter.fromDate || filter.toDate)) {
+    return `Từ ${filter.fromDate || '...'} đến ${filter.toDate || '...'}`;
+  }
+  if (filter.search) return `Tìm: "${filter.search}"`;
+  if (filter.level) return `Cấp độ ${filter.level}`;
+  if (filter.status) return `Trạng thái ${getStatusLabel(filter.status)}`;
+  return 'Tất cả chủ đề';
+});
+
+const isFilterActive = computed(() => {
+  return (
+    !!filter.search ||
+    !!filter.level ||
+    !!filter.status ||
+    (!!filter.dateRange && filter.dateRange !== 'ALL') ||
+    !!filter.fromDate ||
+    !!filter.toDate
+  );
+});
+
+function resetFilters() {
+  filter.search = '';
+  filter.level = '';
+  filter.status = '';
+  filter.dateRange = '';
+  filter.fromDate = '';
+  filter.toDate = '';
+  filter.page = 0;
+  loadData();
+}
+
+async function fetchOverallStats() {
+  try {
+    const resAll = await grammarService.getGrammars({ page: 0, size: 1 });
+    totalAllCount.value = resAll.totalElements;
+
+    const resMastered = await grammarService.getGrammars({ status: 'MASTERED', page: 0, size: 1 });
+    masteredCount.value = resMastered.totalElements;
+    learningCount.value = Math.max(0, totalAllCount.value - masteredCount.value);
+  } catch (e) {
+    // fallback
+  }
+}
+
 const form = reactive({
   id: 0,
   topic: '',
@@ -418,6 +558,7 @@ const levelOptions = [
 ];
 
 onMounted(() => {
+  fetchOverallStats();
   loadData();
   if (route.query.action === 'add') {
     openAddModal();
@@ -433,6 +574,9 @@ async function loadData() {
       toDate: filter.toDate || undefined,
     });
     pageData.value = res;
+    if (!isFilterActive.value && res.totalElements) {
+      totalAllCount.value = res.totalElements;
+    }
   } catch (err) {
     toastStore.error('Không thể tải danh sách ngữ pháp');
   } finally {
@@ -442,6 +586,12 @@ async function loadData() {
 
 function handlePageChange(newPage: number) {
   filter.page = newPage;
+  loadData();
+}
+
+function handlePageSizeChange(newSize: number) {
+  filter.size = newSize;
+  filter.page = 0;
   loadData();
 }
 

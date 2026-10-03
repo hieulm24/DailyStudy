@@ -70,6 +70,60 @@
       </div>
     </div>
 
+    <!-- AI & Floating Translation Assistant Settings -->
+    <div class="bg-white p-4 sm:p-5 rounded-md border border-slate-200 shadow-xs space-y-4">
+      <div class="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+        <Sparkles class="w-5 h-5 text-purple-600" />
+        <h3 class="text-sm font-bold text-slate-900">
+          Trợ lý Dịch Thuật & Phân Tích AI Khi Bôi Đen (Highlight Tooltip)
+        </h3>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex items-center gap-2">
+          <input
+            id="selectionTranslatorEnabled"
+            type="checkbox"
+            v-model="aiSettings.enabled"
+            class="rounded-sm text-purple-600 border-slate-300 focus:ring-purple-500"
+            @change="saveAiSettings"
+          />
+          <label for="selectionTranslatorEnabled" class="text-xs font-semibold text-slate-800 cursor-pointer select-none">
+            Bật tính năng Popup Tra Từ & Dịch Nghĩa khi bôi đen văn bản trên web
+          </label>
+        </div>
+
+        <div class="flex items-center gap-2 pl-6">
+          <input
+            id="autoOpenPopup"
+            type="checkbox"
+            v-model="aiSettings.autoOpen"
+            :disabled="!aiSettings.enabled"
+            class="rounded-sm text-purple-600 border-slate-300 focus:ring-purple-500 disabled:opacity-50"
+            @change="saveAiSettings"
+          />
+          <label for="autoOpenPopup" class="text-xs text-slate-600 cursor-pointer select-none" :class="{ 'opacity-50': !aiSettings.enabled }">
+            Tự động mở popup dịch ngay khi thả chuột (Mặc định: Hiện nút icon nhỏ cạnh vùng chọn)
+          </label>
+        </div>
+
+        <div class="pt-2 space-y-2">
+          <AppInput
+            v-model="aiSettings.geminiApiKey"
+            label="Google Gemini API Key (Tùy chọn - Dành cho Phân tích Ngữ pháp AI chuyên sâu)"
+            placeholder="AIzaSy..."
+            type="password"
+            hint="Nhận API Key miễn phí tại aistudio.google.com để AI phân tích cấu trúc câu và collocation không giới hạn."
+          />
+          <div class="flex justify-end">
+            <AppButton variant="secondary" size="sm" @click="saveAiSettings">
+              Lưu Cấu Hình AI
+            </AppButton>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Backup & Restore (Export / Import JSON) -->
     <div class="bg-white p-6 rounded-md border border-slate-200 shadow-xs space-y-5">
       <div>
@@ -133,7 +187,7 @@ import { useToastStore } from '../../stores/toast.store';
 import AppButton from '../../components/common/AppButton.vue';
 import AppInput from '../../components/common/AppInput.vue';
 import AppSelect from '../../components/common/AppSelect.vue';
-import { Settings, Download, Upload } from 'lucide-vue-next';
+import { Settings, Download, Upload, Sparkles } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const toastStore = useToastStore();
@@ -153,10 +207,27 @@ const form = reactive({
   reviewEnabled: true,
 });
 
+const aiSettings = reactive({
+  enabled: localStorage.getItem('selection_translator_enabled') !== 'false',
+  autoOpen: localStorage.getItem('auto_open_translator') === 'true',
+  geminiApiKey: localStorage.getItem('gemini_api_key') || '',
+});
+
 const languageOptions = [
   { label: 'Tiếng Việt', value: 'vi' },
   { label: 'English', value: 'en' },
 ];
+
+function saveAiSettings() {
+  localStorage.setItem('selection_translator_enabled', String(aiSettings.enabled));
+  localStorage.setItem('auto_open_translator', String(aiSettings.autoOpen));
+  if (aiSettings.geminiApiKey) {
+    localStorage.setItem('gemini_api_key', aiSettings.geminiApiKey.trim());
+  } else {
+    localStorage.removeItem('gemini_api_key');
+  }
+  toastStore.success('Đã lưu cấu hình Trợ lý Dịch & AI thành công');
+}
 
 onMounted(async () => {
   try {

@@ -96,6 +96,9 @@
 
     <!-- Global Toast Component -->
     <AppToast />
+
+    <!-- Global Floating Text Selection & AI Translation Tooltip -->
+    <TextSelectionPopup />
   </div>
 </template>
 
@@ -107,6 +110,7 @@ import AppSidebar from './AppSidebar.vue';
 import AppHeader from './AppHeader.vue';
 import AppModal from '../common/AppModal.vue';
 import AppToast from '../common/AppToast.vue';
+import TextSelectionPopup from '../common/TextSelectionPopup.vue';
 import { BookOpen, Sparkles, Headphones, Mic, Upload, Globe, CheckSquare } from 'lucide-vue-next';
 
 const isSidebarOpen = ref(false);

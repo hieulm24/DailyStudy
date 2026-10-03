@@ -3,12 +3,72 @@
     <!-- Header & Action Row -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 sm:p-7 rounded-md border border-slate-200 shadow-xs">
       <div>
-        <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Nhật ký luyện nghe (Listening Log)</h2>
+        <div class="flex items-center gap-2.5">
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900">Nhật ký luyện nghe (Listening Log)</h2>
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            Tổng {{ totalAllCount }} bài
+          </span>
+        </div>
         <p class="text-sm sm:text-base text-slate-500 mt-1">Ghi chép bài nghe podcast, tin tức, audio đã hoàn thành</p>
       </div>
       <AppButton variant="primary" size="md" :icon="Plus" @click="openAddModal">
         + Ghi bài nghe mới
       </AppButton>
+    </div>
+
+    <!-- Quick Stats Metric Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+      <!-- Total All -->
+      <div class="bg-white p-4 rounded-md border border-slate-200 shadow-xs flex items-center gap-3">
+        <div class="p-2.5 rounded-md bg-emerald-50 text-emerald-600 shrink-0">
+          <Headphones class="w-5 h-5" />
+        </div>
+        <div>
+          <div class="text-[11px] font-semibold text-slate-500">Tổng bài nghe</div>
+          <div class="text-lg sm:text-xl font-bold text-slate-900 leading-tight">
+            {{ totalAllCount }} <span class="text-xs font-normal text-slate-400">bài</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtered Count -->
+      <div class="bg-white p-4 rounded-md border border-slate-200 shadow-xs flex items-center gap-3" :class="{ 'border-emerald-300 bg-emerald-50/20': isFilterActive }">
+        <div class="p-2.5 rounded-md bg-indigo-50 text-indigo-600 shrink-0">
+          <Filter class="w-5 h-5" />
+        </div>
+        <div class="min-w-0">
+          <div class="text-[11px] font-semibold text-slate-500 truncate" :title="currentFilterLabel">{{ currentFilterLabel }}</div>
+          <div class="text-lg sm:text-xl font-bold text-indigo-600 leading-tight">
+            {{ pageData.totalElements }} <span class="text-xs font-normal text-slate-400">bài</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completed -->
+      <div class="bg-white p-4 rounded-md border border-slate-200 shadow-xs flex items-center gap-3">
+        <div class="p-2.5 rounded-md bg-teal-50 text-teal-600 shrink-0">
+          <CheckCircle2 class="w-5 h-5" />
+        </div>
+        <div>
+          <div class="text-[11px] font-semibold text-slate-500">Đã hoàn thành</div>
+          <div class="text-lg sm:text-xl font-bold text-teal-600 leading-tight">
+            {{ completedCount }} <span class="text-xs font-normal text-slate-400">bài</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- In Progress / Listening -->
+      <div class="bg-white p-4 rounded-md border border-slate-200 shadow-xs flex items-center gap-3">
+        <div class="p-2.5 rounded-md bg-amber-50 text-amber-600 shrink-0">
+          <Flame class="w-5 h-5" />
+        </div>
+        <div>
+          <div class="text-[11px] font-semibold text-slate-500">Đang luyện nghe</div>
+          <div class="text-lg sm:text-xl font-bold text-amber-600 leading-tight">
+            {{ inProgressCount }} <span class="text-xs font-normal text-slate-400">bài</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Filters Row -->
@@ -37,6 +97,31 @@
         v-model:status="filter.status"
         @change="loadData"
       />
+
+      <!-- Filter Result Indicator Bar -->
+      <div
+        class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 rounded-md bg-slate-50 border border-slate-200/80 text-xs"
+      >
+        <div class="flex items-center gap-2 text-slate-700">
+          <BarChart3 class="w-4 h-4 text-emerald-600 shrink-0" />
+          <span class="font-semibold text-slate-900">
+            Kết quả: Tìm thấy <span class="text-emerald-600 font-bold text-sm">{{ pageData.totalElements }}</span> / {{ totalAllCount }} bài nghe
+          </span>
+          <span v-if="isFilterActive" class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium">
+            (Đang lọc: {{ currentFilterLabel }})
+          </span>
+        </div>
+
+        <button
+          v-if="isFilterActive"
+          type="button"
+          class="flex items-center gap-1 text-slate-500 hover:text-rose-600 font-medium transition-colors"
+          @click="resetFilters"
+        >
+          <RotateCcw class="w-3.5 h-3.5" />
+          <span>Đặt lại bộ lọc</span>
+        </button>
+      </div>
     </div>
 
     <!-- Lessons List Table -->
@@ -138,6 +223,7 @@
         :page-size="pageData.size"
         :total-elements="pageData.totalElements"
         @update:page="handlePageChange"
+        @update:page-size="handlePageSizeChange"
       />
     </div>
 
@@ -230,7 +316,8 @@ import AppEmptyState from '../../components/common/AppEmptyState.vue';
 import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import AppSearch from '../../components/common/AppSearch.vue';
 import AppFilter from '../../components/common/AppFilter.vue';
-import { Plus, Headphones, ExternalLink, Edit, Trash2 } from 'lucide-vue-next';
+import { Plus, Headphones, ExternalLink, Edit, Trash2, CheckCircle2, Flame, RotateCcw, Filter, BarChart3 } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 const route = useRoute();
 const toastStore = useToastStore();
@@ -238,6 +325,10 @@ const toastStore = useToastStore();
 const loading = ref(false);
 const saving = ref(false);
 const deleting = ref(false);
+
+const totalAllCount = ref(0);
+const completedCount = ref(0);
+const inProgressCount = ref(0);
 
 const showFormModal = ref(false);
 const showDeleteDialog = ref(false);
@@ -267,6 +358,55 @@ const filter = reactive({
   sortDirection: 'DESC',
 });
 
+const currentFilterLabel = computed(() => {
+  if (filter.dateRange === 'TODAY') return 'Hôm nay';
+  if (filter.dateRange === 'YESTERDAY') return 'Hôm qua';
+  if (filter.dateRange === 'LAST_7_DAYS') return '7 ngày qua';
+  if (filter.dateRange === 'LAST_30_DAYS') return '30 ngày qua';
+  if (filter.dateRange === 'CUSTOM' && (filter.fromDate || filter.toDate)) {
+    return `Từ ${filter.fromDate || '...'} đến ${filter.toDate || '...'}`;
+  }
+  if (filter.search) return `Tìm: "${filter.search}"`;
+  if (filter.level) return `Cấp độ ${filter.level}`;
+  if (filter.status) return `Trạng thái ${getStatusLabel(filter.status)}`;
+  return 'Tất cả bài nghe';
+});
+
+const isFilterActive = computed(() => {
+  return (
+    !!filter.search ||
+    !!filter.level ||
+    !!filter.status ||
+    (!!filter.dateRange && filter.dateRange !== 'ALL') ||
+    !!filter.fromDate ||
+    !!filter.toDate
+  );
+});
+
+function resetFilters() {
+  filter.search = '';
+  filter.level = '';
+  filter.status = '';
+  filter.dateRange = '';
+  filter.fromDate = '';
+  filter.toDate = '';
+  filter.page = 0;
+  loadData();
+}
+
+async function fetchOverallStats() {
+  try {
+    const resAll = await listeningService.getListeningLessons({ page: 0, size: 1 });
+    totalAllCount.value = resAll.totalElements;
+
+    const resCompleted = await listeningService.getListeningLessons({ status: 'COMPLETED', page: 0, size: 1 });
+    completedCount.value = resCompleted.totalElements;
+    inProgressCount.value = Math.max(0, totalAllCount.value - completedCount.value);
+  } catch (e) {
+    // fallback
+  }
+}
+
 const form = reactive({
   id: 0,
   title: '',
@@ -287,6 +427,7 @@ const levelOptions = [
 ];
 
 onMounted(() => {
+  fetchOverallStats();
   loadData();
   if (route.query.action === 'add') {
     openAddModal();
@@ -302,6 +443,9 @@ async function loadData() {
       toDate: filter.toDate || undefined,
     });
     pageData.value = res;
+    if (!isFilterActive.value && res.totalElements) {
+      totalAllCount.value = res.totalElements;
+    }
   } catch (err) {
     toastStore.error('Không thể tải danh sách bài nghe');
   } finally {
@@ -311,6 +455,12 @@ async function loadData() {
 
 function handlePageChange(newPage: number) {
   filter.page = newPage;
+  loadData();
+}
+
+function handlePageSizeChange(newSize: number) {
+  filter.size = newSize;
+  filter.page = 0;
   loadData();
 }
 
@@ -396,6 +546,19 @@ async function handleDelete() {
     toastStore.error('Không thể xóa bài nghe');
   } finally {
     deleting.value = false;
+  }
+}
+
+function getStatusLabel(status: string): string {
+  switch (status?.toUpperCase()) {
+    case 'NOT_STARTED':
+      return 'Chưa học';
+    case 'IN_PROGRESS':
+      return 'Đang học';
+    case 'COMPLETED':
+      return 'Hoàn thành';
+    default:
+      return status;
   }
 }
 

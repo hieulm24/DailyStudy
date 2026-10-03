@@ -66,6 +66,20 @@ export const documentService = {
     return `${baseUrl}/documents/${id}/preview`;
   },
 
+  async getDocumentBlob(id: number): Promise<Blob> {
+    const res = await api.get(`/documents/${id}/preview`, {
+      responseType: 'blob',
+    });
+    return res.data;
+  },
+
+  async getDocumentArrayBuffer(id: number): Promise<ArrayBuffer> {
+    const res = await api.get(`/documents/${id}/preview`, {
+      responseType: 'arraybuffer',
+    });
+    return res.data;
+  },
+
   async downloadFile(id: number, fileName: string): Promise<void> {
     const res = await api.get(`/documents/${id}/download`, {
       responseType: 'blob',
