@@ -1,15 +1,15 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
     name: english-learning-backend
 
   datasource:
-    url: jdbc:sqlserver://${DB_HOST:localhost}:${DB_PORT:1433};databaseName=${DB_NAME:EnglishLearning};encrypt=false;trustServerCertificate=true;sendStringParametersAsUnicode=true
-    username: ${DB_USERNAME:sa}
-    password: ${DB_PASSWORD:fsh@12345}
-    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:sqlserver://${DB_HOST:localhost}:${DB_PORT:1433};databaseName=${DB_NAME:EnglishLearning};encrypt=false;trustServerCertificate=true;sendStringParametersAsUnicode=true}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:sa}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:fsh@12345}}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:${DB_DRIVER:com.microsoft.sqlserver.jdbc.SQLServerDriver}}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
@@ -17,14 +17,16 @@ spring:
       connection-timeout: 20000
 
   jpa:
-    database-platform: org.hibernate.dialect.SQLServerDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
     show-sql: false
     properties:
       hibernate:
         format_sql: false
         use_sql_comments: false
+        jdbc:
+          lob:
+            non_contextual_creation: true
 
   jackson:
     date-format: yyyy-MM-dd'T'HH:mm:ss
