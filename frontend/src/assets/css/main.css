@@ -15,6 +15,7 @@
   }
 }
 
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -33,3 +34,82 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* 3D Transform Utilities for Flashcards */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Game Arcade Animations */
+@keyframes gameShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px) rotate(-1deg); }
+  40%, 80% { transform: translateX(8px) rotate(1deg); }
+}
+
+@keyframes floatScoreUp {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-24px) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-48px) scale(0.9);
+  }
+}
+
+@keyframes comboGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), 0 0 30px rgba(239, 68, 68, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.7), 0 0 50px rgba(239, 68, 68, 0.4);
+    transform: scale(1.04);
+  }
+}
+
+@keyframes pulseTimerFast {
+  0%, 100% {
+    background-color: #ef4444;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #b91c1c;
+    transform: scale(1.02);
+  }
+}
+
+.animate-shake {
+  animation: gameShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+.animate-float-score {
+  animation: floatScoreUp 0.8s ease-out forwards;
+}
+
+.animate-combo-glow {
+  animation: comboGlow 1.5s infinite ease-in-out;
+}
+
+.animate-timer-urgent {
+  animation: pulseTimerFast 0.6s infinite ease-in-out;
+}
+

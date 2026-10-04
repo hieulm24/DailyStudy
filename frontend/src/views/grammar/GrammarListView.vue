@@ -12,7 +12,7 @@
         <p class="text-sm sm:text-base text-slate-500 mt-1">Hệ thống hóa cấu trúc, cách dùng, dấu hiệu nhận biết và câu ví dụ</p>
       </div>
       <AppButton variant="primary" size="md" :icon="Plus" @click="openAddModal">
-        + Thêm chủ đề ngữ pháp
+        Thêm chủ đề ngữ pháp
       </AppButton>
     </div>
 
@@ -136,7 +136,7 @@
         :icon="Sparkles"
         title="Chưa có chủ đề ngữ pháp nào phù hợp"
         description="Hãy thêm ngữ pháp mới để củng cố nền tảng tiếng Anh của bạn."
-        action-text="+ Thêm chủ đề"
+        action-text="Thêm chủ đề mới"
         @action="openAddModal"
       />
     </div>

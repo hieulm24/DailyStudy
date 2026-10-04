@@ -19,10 +19,10 @@
       <!-- Action Buttons -->
       <div class="flex flex-wrap items-center gap-2.5 shrink-0">
         <AppButton variant="secondary" size="md" :icon="LinkIcon" @click="openAddLinkModal">
-          + Thêm liên kết
+          Thêm liên kết
         </AppButton>
         <AppButton variant="primary" size="md" :icon="Upload" @click="openUploadModal">
-          + Tải lên tài liệu
+          Tải lên tài liệu
         </AppButton>
       </div>
     </div>
@@ -363,7 +363,7 @@
           {{ activeTab === 'DOCUMENTS_IT' ? 'Tải lên các file tài liệu kiến trúc, database schema, spec dự án, cheatsheets IT để tra cứu nhanh.' : 'Tải lên các file Excel từ vựng, tài liệu Word ngữ pháp, PDF đề thi TOEIC để ôn tập và tra cứu bất cứ lúc nào.' }}
         </p>
         <AppButton variant="primary" size="md" :icon="Upload" class="mt-2" @click="openUploadModal">
-          + Tải lên tài liệu đầu tiên
+          Tải lên tài liệu đầu tiên
         </AppButton>
       </div>
 
@@ -412,8 +412,9 @@
             >
               {{ doc.title }}
             </h4>
-            <p class="text-xs text-slate-500 mt-1 truncate font-mono" :title="doc.fileName">
-              📄 {{ doc.fileName }}
+            <p class="text-xs text-slate-500 mt-1 truncate font-mono flex items-center gap-1" :title="doc.fileName">
+              <FileText class="w-3.5 h-3.5 shrink-0" />
+              <span>{{ doc.fileName }}</span>
             </p>
 
             <!-- Description if any -->
@@ -424,7 +425,10 @@
 
           <!-- Card Footer & Actions -->
           <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span :title="formatDate(doc.createdAt)">📅 {{ formatDateShort(doc.createdAt) }}</span>
+            <span :title="formatDate(doc.createdAt)" class="inline-flex items-center gap-1">
+              <Calendar class="w-3.5 h-3.5 text-slate-400" />
+              <span>{{ formatDateShort(doc.createdAt) }}</span>
+            </span>
             <div class="flex items-center gap-1.5">
               <!-- Preview button -->
               <button
@@ -636,7 +640,7 @@
           Lưu lại các website luyện đề TOEIC, kênh Youtube luyện nghe hay từ điển trực tuyến để mở nhanh chỉ với 1 click.
         </p>
         <AppButton variant="primary" size="md" :icon="LinkIcon" class="mt-2" @click="openAddLinkModal">
-          + Thêm liên kết đầu tiên
+          Thêm liên kết đầu tiên
         </AppButton>
       </div>
 
@@ -680,10 +684,11 @@
             <a
               :href="link.url"
               target="_blank"
-              class="text-xs text-brand-600 hover:underline block truncate font-mono mt-1"
+              class="text-xs text-brand-600 hover:underline inline-flex items-center gap-1 truncate font-mono mt-1"
               @click="handleOpenLink(link)"
             >
-              🔗 {{ link.url }}
+              <LinkIcon class="w-3.5 h-3.5 shrink-0" />
+              <span>{{ link.url }}</span>
             </a>
 
             <!-- Description if any -->
@@ -932,7 +937,10 @@
             v-model="editDocForm.isFavorite"
             class="rounded-xs border-slate-300 text-brand-600 focus:ring-brand-500"
           />
-          <label for="editDocFav" class="text-sm font-medium text-slate-700">Đánh dấu tài liệu yêu thích ⭐</label>
+          <label for="editDocFav" class="text-sm font-medium text-slate-700 inline-flex items-center gap-1.5">
+            <span>Đánh dấu tài liệu yêu thích</span>
+            <Star class="w-4 h-4 text-amber-400 fill-amber-400" />
+          </label>
         </div>
 
         <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
@@ -1013,7 +1021,10 @@
             v-model="linkForm.isFavorite"
             class="rounded-xs border-slate-300 text-brand-600 focus:ring-brand-500"
           />
-          <label for="linkFav" class="text-sm font-medium text-slate-700">Ghim lên đầu mục yêu thích ⭐</label>
+          <label for="linkFav" class="text-sm font-medium text-slate-700 inline-flex items-center gap-1.5">
+            <span>Ghim lên đầu mục yêu thích</span>
+            <Star class="w-4 h-4 text-amber-400 fill-amber-400" />
+          </label>
         </div>
 
         <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
@@ -1094,6 +1105,7 @@ import {
   List,
   Loader2,
   X,
+  Calendar,
 } from 'lucide-vue-next';
 
 const route = useRoute();

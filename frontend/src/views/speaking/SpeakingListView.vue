@@ -12,7 +12,7 @@
         <p class="text-sm sm:text-base text-slate-500 mt-1">Ghi lại các chủ đề nói, bài thu âm và nhận xét phát âm cá nhân</p>
       </div>
       <AppButton variant="primary" size="md" :icon="Plus" @click="openAddModal">
-        + Ghi bài luyện nói mới
+        Ghi bài luyện nói mới
       </AppButton>
     </div>
 
@@ -135,7 +135,7 @@
           :icon="Mic"
           title="Chưa có bài luyện nói nào"
           description="Bắt đầu ghi lại chủ đề luyện nói hôm nay để theo dõi sự tiến bộ về phát âm và độ trôi chảy!"
-          action-text="+ Ghi bài nói"
+          action-text="Ghi bài nói mới"
           @action="openAddModal"
         />
       </div>

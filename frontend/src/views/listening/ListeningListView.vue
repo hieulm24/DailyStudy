@@ -12,7 +12,7 @@
         <p class="text-sm sm:text-base text-slate-500 mt-1">Ghi chép bài nghe podcast, tin tức, audio đã hoàn thành</p>
       </div>
       <AppButton variant="primary" size="md" :icon="Plus" @click="openAddModal">
-        + Ghi bài nghe mới
+        Ghi bài nghe mới
       </AppButton>
     </div>
 
@@ -135,7 +135,7 @@
           :icon="Headphones"
           title="Chưa có bài nghe nào"
           description="Hãy ghi lại bài nghe podcast hoặc video tiếng Anh đầu tiên của bạn hôm nay!"
-          action-text="+ Ghi bài nghe"
+          action-text="Ghi bài nghe mới"
           @action="openAddModal"
         />
       </div>

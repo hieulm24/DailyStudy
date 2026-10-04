@@ -119,6 +119,16 @@ public class DataInitializer implements CommandLineRunner {
                     .isActive(true)
                     .build());
         }
+
+        if (!gameRepository.existsByCode("AIRPLANE_SHOOTER")) {
+            gameRepository.save(Game.builder()
+                    .code("AIRPLANE_SHOOTER")
+                    .name("Bắn Máy Bay Từ Vựng (Sky Shooter)")
+                    .description("Điều khiển chiến cơ tiêu diệt phi thuyền mang nghĩa tương ứng với từ vựng tiếng Anh")
+                    .gameType("VOCABULARY")
+                    .isActive(true)
+                    .build());
+        }
     }
 
     private User seedDefaultUser() {

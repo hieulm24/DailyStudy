@@ -77,6 +77,9 @@ public class GameService {
             case "GRAMMAR_QUIZ":
                 questionDtos = generateGrammarQuizQuestions(game, grammarList);
                 break;
+            case "AIRPLANE_SHOOTER":
+                questionDtos = generateMultipleChoiceQuestions(game, vocabList);
+                break;
             default:
                 questionDtos = generateMultipleChoiceQuestions(game, vocabList);
                 break;

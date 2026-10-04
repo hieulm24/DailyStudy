@@ -127,8 +127,9 @@
             </div>
 
             <!-- Note -->
-            <p v-if="currentItem?.note" class="text-sm text-slate-700 bg-amber-50/50 p-3 rounded-md border border-amber-100">
-              💡 Ghi chú: {{ currentItem?.note }}
+            <p v-if="currentItem?.note" class="text-sm text-slate-700 bg-amber-50/50 p-3 rounded-md border border-amber-100 flex items-center gap-1.5">
+              <Lightbulb class="w-4 h-4 text-amber-500 shrink-0" />
+              <span>Ghi chú: {{ currentItem?.note }}</span>
             </p>
           </div>
         </div>
@@ -208,7 +209,7 @@ import { useToastStore } from '../../stores/toast.store';
 import type { ReviewItem, ReviewDueSummary } from '../../types';
 import AppButton from '../../components/common/AppButton.vue';
 import AppBadge from '../../components/common/AppBadge.vue';
-import { RefreshCw, CheckCircle, Gamepad2 } from 'lucide-vue-next';
+import { RefreshCw, CheckCircle, Gamepad2, Lightbulb } from 'lucide-vue-next';
 
 const reviewStore = useReviewStore();
 const toastStore = useToastStore();

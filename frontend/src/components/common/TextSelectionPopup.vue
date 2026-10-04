@@ -53,20 +53,12 @@
         @mousedown.stop
       >
         <!-- Header -->
-        <div class="px-4 py-3 bg-gradient-to-r from-brand-600 via-brand-700 to-indigo-700 text-white flex items-center justify-between shrink-0">
+        <div class="px-4 py-2.5 bg-gradient-to-r from-brand-600 via-brand-700 to-indigo-700 text-white flex items-center justify-between shrink-0">
           <div class="flex items-center gap-2 min-w-0 pr-2">
             <Sparkles class="w-4 h-4 text-amber-300 shrink-0" />
-            <span class="font-bold text-sm truncate tracking-wide">Tra cứu AI & Từ điển</span>
+            <span class="font-bold text-sm truncate tracking-wide">Tra cứu AI & Từ điển Song ngữ</span>
           </div>
           <div class="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              class="p-1 rounded-md text-white/80 hover:text-white hover:bg-white/20 transition-colors"
-              title="Phát âm chuẩn (Audio)"
-              @click="speakSelectedText"
-            >
-              <Volume2 class="w-4 h-4" />
-            </button>
             <button
               type="button"
               class="p-1 rounded-md text-white/80 hover:text-white hover:bg-white/20 transition-colors"
@@ -87,14 +79,50 @@
           </div>
         </div>
 
+        <!-- Language Direction Bar (Interactive EN ⇄ VI Switcher) -->
+        <div class="px-3.5 py-2 bg-slate-100/90 border-b border-slate-200/80 flex items-center justify-between text-xs shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-white border border-slate-200/80 font-bold text-slate-700 shadow-2xs">
+              <Languages class="w-3.5 h-3.5 text-brand-600" />
+              <span>{{ currentSourceLang === 'vi' ? 'Tiếng Việt' : 'English' }}</span>
+            </span>
+            <button
+              type="button"
+              class="p-1 rounded-full bg-white hover:bg-brand-50 border border-slate-200 hover:border-brand-300 text-slate-600 hover:text-brand-600 transition-all shadow-2xs group active:scale-90"
+              title="Đảo chiều dịch (Anh ⇄ Việt)"
+              @click="toggleLanguageDirection"
+            >
+              <ArrowLeftRight class="w-3.5 h-3.5 transition-transform group-hover:rotate-180 text-brand-600" />
+            </button>
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-brand-50 border border-brand-200 font-bold text-brand-700 shadow-2xs">
+              <Sparkles class="w-3.5 h-3.5 text-brand-600" />
+              <span>{{ currentTargetLang === 'vi' ? 'Tiếng Việt' : 'English' }}</span>
+            </span>
+          </div>
+          <span class="text-[10px] text-slate-400 font-mono inline-flex items-center gap-1" v-if="translation?.source">
+            <Zap class="w-3 h-3 text-amber-500" />
+            <span>{{ translation.source }}</span>
+          </span>
+        </div>
+
         <!-- Body Content (Scrollable) -->
-        <div class="p-4 space-y-3.5 overflow-y-auto max-h-[calc(85vh-120px)] custom-scrollbar text-xs sm:text-sm">
+        <div class="p-4 space-y-3.5 overflow-y-auto max-h-[calc(85vh-140px)] custom-scrollbar text-xs sm:text-sm">
           <!-- Selected Word / Text & IPA -->
-          <div class="space-y-1 pb-2 border-b border-slate-100">
-            <div class="flex items-baseline justify-between gap-2">
-              <span class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight break-words">
-                {{ selectedText }}
-              </span>
+          <div class="space-y-1.5 pb-2 border-b border-slate-100">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight break-words">
+                  {{ selectedText }}
+                </span>
+                <button
+                  type="button"
+                  class="p-1 text-slate-400 hover:text-brand-600 rounded-full hover:bg-brand-50 transition-colors shrink-0"
+                  :title="`Phát âm (${currentSourceLang === 'vi' ? 'Tiếng Việt' : 'English'})`"
+                  @click="speakText(selectedText, currentSourceLang)"
+                >
+                  <Volume2 class="w-4 h-4" />
+                </button>
+              </div>
               <span v-if="translation?.phonetic" class="text-xs font-mono text-brand-600 bg-brand-50 px-2 py-0.5 rounded border border-brand-200 shrink-0">
                 {{ translation.phonetic }}
               </span>
@@ -104,20 +132,40 @@
             </div>
           </div>
 
-          <!-- Loading State -->
-          <div v-if="loading" class="py-6 flex flex-col items-center justify-center gap-2 text-slate-500">
-            <Loader2 class="w-6 h-6 text-brand-600 animate-spin" />
-            <span class="text-xs font-medium">Đang dịch & phân tích ngôn ngữ...</span>
+          <!-- Loading Skeleton State (Smooth Shimmer) -->
+          <div v-if="loading" class="space-y-3 animate-pulse py-1">
+            <div class="p-3 rounded-lg bg-slate-100/80 border border-slate-200/60 space-y-2">
+              <div class="h-3 bg-slate-200 rounded w-1/3"></div>
+              <div class="h-5 bg-slate-300 rounded w-3/4"></div>
+            </div>
+            <div class="space-y-2">
+              <div class="h-3 bg-slate-200 rounded w-1/4"></div>
+              <div class="p-2.5 rounded-md bg-slate-50 border border-slate-100 space-y-2">
+                <div class="h-3.5 bg-slate-200 rounded w-1/5"></div>
+                <div class="h-3 bg-slate-200 rounded w-full"></div>
+                <div class="h-3 bg-slate-200 rounded w-2/3"></div>
+              </div>
+            </div>
           </div>
 
           <!-- Translation Result -->
           <div v-else class="space-y-3">
-            <!-- Vietnamese Meaning -->
-            <div class="p-3 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1">
-              <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider flex items-center gap-1.5">
-                <Languages class="w-3.5 h-3.5 text-brand-600" />
-                <span>Nghĩa tiếng Việt</span>
-                <span class="text-[9px] font-normal text-slate-400 lowercase" v-if="translation?.source">({{ translation.source }})</span>
+            <!-- Translated Meaning Card -->
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1.5">
+              <div class="text-[10px] uppercase font-bold text-slate-500 tracking-wider flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <Languages class="w-3.5 h-3.5 text-brand-600" />
+                  <span>{{ currentTargetLang === 'vi' ? 'Nghĩa tiếng Việt' : 'Bản dịch tiếng Anh' }}</span>
+                </div>
+                <button
+                  v-if="translation?.translatedText"
+                  type="button"
+                  class="p-0.5 text-slate-400 hover:text-brand-600 rounded transition-colors"
+                  :title="`Phát âm (${currentTargetLang === 'vi' ? 'Tiếng Việt' : 'English'})`"
+                  @click="speakText(translation.translatedText, currentTargetLang)"
+                >
+                  <Volume2 class="w-3.5 h-3.5" />
+                </button>
               </div>
               <div class="text-sm sm:text-base font-semibold text-slate-800 leading-snug">
                 {{ translation?.translatedText || 'Không có kết quả dịch' }}
@@ -329,7 +377,7 @@
               @click="prepareQuickSave"
             >
               <BookmarkPlus class="w-3.5 h-3.5" />
-              <span>+ Lưu vào Từ Vựng</span>
+              <span>Lưu vào Từ Vựng</span>
             </button>
           </div>
         </div>
@@ -342,6 +390,7 @@
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
 import {
   aiTranslationService,
+  containsVietnamese,
   type TranslationResult,
   type AIExplanationResult,
 } from '../../services/ai-translation.service';
@@ -359,6 +408,8 @@ import {
   Languages,
   BookOpen,
   Layers,
+  ArrowLeftRight,
+  Zap,
 } from 'lucide-vue-next';
 
 const toastStore = useToastStore();
@@ -372,6 +423,10 @@ const aiExplaining = ref(false);
 const savingVocabulary = ref(false);
 const isCopied = ref(false);
 const showQuickSaveForm = ref(false);
+
+// Ngôn ngữ dịch 2 chiều (EN ⇄ VI)
+const currentSourceLang = ref<'en' | 'vi'>('en');
+const currentTargetLang = ref<'en' | 'vi'>('vi');
 
 // Dữ liệu lựa chọn
 const selectedText = ref('');
@@ -415,7 +470,7 @@ const triggerStyle = computed(() => {
 
 // Tọa độ vị trí popup card (tự động điều chỉnh để không bị tràn màn hình)
 const popupStyle = computed(() => {
-  const cardWidth = Math.min(420, window.innerWidth - 32);
+  const cardWidth = Math.min(430, window.innerWidth - 32);
   let left = coords.x - cardWidth / 2;
   if (left < 16) left = 16;
   if (left + cardWidth > window.innerWidth - 16) {
@@ -423,7 +478,7 @@ const popupStyle = computed(() => {
   }
 
   let top = coords.bottom + 10;
-  // Nếu bên dưới không đủ chỗ (cách mép dưới < 350px) thì lật lên trên
+  // Nếu bên dưới không đủ chỗ thì lật lên trên
   if (window.innerHeight - coords.bottom < 360 && coords.top > 360) {
     top = Math.max(16, coords.top - 440);
   }
@@ -486,6 +541,11 @@ function handleMouseUp(e: MouseEvent) {
   coords.left = rect.left;
   coords.right = rect.right;
 
+  // Tự động nhận diện ngôn ngữ nguồn
+  const isVi = containsVietnamese(text);
+  currentSourceLang.value = isVi ? 'vi' : 'en';
+  currentTargetLang.value = isVi ? 'en' : 'vi';
+
   // Trích xuất cả câu chứa từ được bôi đen
   extractSurroundingSentence(range, text);
 
@@ -495,6 +555,8 @@ function handleMouseUp(e: MouseEvent) {
     openPopup();
   } else {
     showTrigger.value = true;
+    // Tải trước ngầm trong RAM ngay khi người dùng vừa nhả chuột
+    aiTranslationService.prefetch(text, currentTargetLang.value, currentSourceLang.value);
   }
 }
 
@@ -530,10 +592,42 @@ async function openPopup() {
   showPopup.value = true;
   showQuickSaveForm.value = false;
   aiResult.value = null;
-  loading.value = true;
 
+  // 1. Nếu đã có sẵn trong Cache (từ pre-fetch hoặc tra cứu trước đó) -> Hiển thị tức thì 0ms không nháy loading
+  const cached = aiTranslationService.getCached(selectedText.value, currentTargetLang.value, currentSourceLang.value);
+  if (cached && cached.translatedText && cached.translatedText.toLowerCase() !== selectedText.value.toLowerCase()) {
+    translation.value = cached;
+    loading.value = false;
+    return;
+  }
+
+  // 2. Nếu chưa có -> Bật skeleton và gọi dịch siêu tốc
+  loading.value = true;
   try {
-    const res = await aiTranslationService.translate(selectedText.value);
+    const res = await aiTranslationService.translate(selectedText.value, currentTargetLang.value, currentSourceLang.value);
+    translation.value = res;
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
+}
+
+/**
+ * Đảo chiều ngôn ngữ dịch (EN ⇄ VI)
+ */
+async function toggleLanguageDirection() {
+  const prevSrc = currentSourceLang.value;
+  currentSourceLang.value = currentTargetLang.value;
+  currentTargetLang.value = prevSrc;
+
+  // Xóa kết quả phân tích AI cũ
+  aiResult.value = null;
+
+  // Dịch lại ngay lập tức theo chiều mới
+  loading.value = true;
+  try {
+    const res = await aiTranslationService.translate(selectedText.value, currentTargetLang.value, currentSourceLang.value);
     translation.value = res;
   } catch (e) {
     console.error(e);
@@ -562,10 +656,20 @@ async function runAiExplanation() {
  */
 function prepareQuickSave() {
   const dict = translation.value?.dictionary;
-  const partOfSpeech = dict?.meanings?.[0]?.partOfSpeech || (selectedText.value.includes(' ') ? 'phrase' : 'noun');
+  const isSourceVi = currentSourceLang.value === 'vi';
 
-  saveForm.word = selectedText.value;
-  saveForm.meaning = translation.value?.translatedText || '';
+  // Nếu nguồn là Tiếng Việt, từ vựng lưu vào sổ là từ tiếng Anh (bản dịch), nghĩa là từ tiếng Việt đã chọn
+  const englishWord = isSourceVi
+    ? (translation.value?.translatedText || selectedText.value)
+    : selectedText.value;
+  const vietnameseMeaning = isSourceVi
+    ? selectedText.value
+    : (translation.value?.translatedText || '');
+
+  const partOfSpeech = dict?.meanings?.[0]?.partOfSpeech || (englishWord.includes(' ') ? 'phrase' : 'noun');
+
+  saveForm.word = englishWord;
+  saveForm.meaning = vietnameseMeaning;
   saveForm.pronunciation = translation.value?.phonetic || '';
   saveForm.partOfSpeech = partOfSpeech;
   saveForm.level = 'B1';
@@ -606,12 +710,16 @@ async function submitSaveVocabulary() {
 }
 
 /**
- * Phát âm
+ * Phát âm văn bản (tự động nhận diện giọng Anh hoặc giọng Việt)
  */
-function speakSelectedText() {
-  if (selectedText.value) {
-    aiTranslationService.speak(selectedText.value);
+function speakText(text: string, lang?: string) {
+  if (text) {
+    aiTranslationService.speak(text, lang || 'auto');
   }
+}
+
+function speakSelectedText() {
+  speakText(selectedText.value, currentSourceLang.value);
 }
 
 /**

@@ -14,6 +14,8 @@ public class TranslationResponse {
     private String translatedText;
     private String phonetic;
     private String detectedLanguage;
+    private String sourceLanguage;
+    private String targetLanguage;
     private DictionaryDataDTO dictionary;
     private String source;
     private boolean fromCache;

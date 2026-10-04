@@ -21,7 +21,7 @@ public class Game {
     private Long id;
 
     @Column(name = "code", nullable = false, length = 50)
-    private String code; // FLASHCARD, MULTIPLE_CHOICE, WORD_MEANING, SENTENCE_COMPLETION, GRAMMAR_QUIZ
+    private String code; // FLASHCARD, MULTIPLE_CHOICE, WORD_MEANING, SENTENCE_COMPLETION, GRAMMAR_QUIZ, AIRPLANE_SHOOTER
 
     @Column(name = "name", nullable = false, length = 255)
     private String name;

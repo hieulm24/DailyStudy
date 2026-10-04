@@ -4,8 +4,9 @@
     <div class="bg-white p-6 sm:p-7 rounded-md border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-3">
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900">
-            Xin chào, {{ authStore.user?.displayName || 'Minh Hiếu' }} 👋
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <span>Xin chào, {{ authStore.user?.displayName || 'Minh Hiếu' }}</span>
+            <Sparkles class="w-5 h-5 text-amber-500 fill-amber-500 inline" />
           </h2>
           <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-sm bg-orange-50 text-orange-700 border border-orange-200">
             <Flame class="w-4 h-4 text-orange-500 fill-orange-500" />

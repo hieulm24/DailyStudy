@@ -17,8 +17,11 @@ public class AiTranslationController {
     private final AiTranslationService aiTranslationService;
 
     @GetMapping("/lookup")
-    public ResponseEntity<ApiResponse<TranslationResponse>> lookup(@RequestParam("q") String query) {
-        TranslationResponse response = aiTranslationService.translateAndLookup(query);
+    public ResponseEntity<ApiResponse<TranslationResponse>> lookup(
+            @RequestParam("q") String query,
+            @RequestParam(value = "target", required = false) String target,
+            @RequestParam(value = "source", required = false) String source) {
+        TranslationResponse response = aiTranslationService.translateAndLookup(query, source, target);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 

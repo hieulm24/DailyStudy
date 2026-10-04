@@ -12,7 +12,7 @@
         <p class="text-sm sm:text-base text-slate-500 mt-1">Tra cứu, thêm mới và quản lý kho từ vựng cá nhân</p>
       </div>
       <AppButton variant="primary" size="md" :icon="Plus" @click="openAddModal">
-        + Thêm từ vựng mới
+        Thêm từ vựng mới
       </AppButton>
     </div>
 
@@ -152,7 +152,7 @@
           :icon="BookOpen"
           title="Chưa có từ vựng nào phù hợp"
           description="Hãy thêm từ vựng mới hoặc thay đổi bộ lọc tìm kiếm."
-          action-text="+ Thêm từ vựng"
+          action-text="Thêm từ vựng mới"
           @action="openAddModal"
         />
       </div>
