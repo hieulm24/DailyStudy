@@ -7,11 +7,11 @@
           <Flame class="w-5 h-5" />
         </div>
         <div>
-          <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-            Calories tiêu thụ & thâm hụt
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900 flex flex-wrap items-center gap-2.5">
+            <span>Calories tiêu thụ & thâm hụt</span>
             <span
               :class="[
-                'px-2 py-0.5 text-[11px] font-bold rounded-sm border uppercase tracking-wider',
+                'px-2.5 py-0.5 text-xs font-bold rounded-sm border',
                 statusBadgeClass
               ]"
             >
@@ -113,7 +113,7 @@
         >
           <div class="flex items-center justify-between">
             <span class="text-xs font-bold text-slate-700">
-              {{ deficitSummary.status === 'DEFICIT' ? 'Thâm hụt (Deficit)' : (deficitSummary.status === 'SURPLUS' ? 'Thặng dư (Surplus)' : 'Cân bằng') }}
+              {{ deficitSummary.status === 'DEFICIT' ? 'Thâm hụt' : (deficitSummary.status === 'SURPLUS' ? 'Thặng dư' : 'Cân bằng') }}
             </span>
             <component :is="balanceIcon" class="w-4 h-4" :class="balanceIconColor" />
           </div>
@@ -509,11 +509,11 @@ const groupedActivities = computed(() => {
 const statusDisplay = computed(() => {
   switch (deficitSummary.value.status) {
     case 'DEFICIT':
-      return 'Thâm hụt (Deficit)';
+      return 'Thâm hụt';
     case 'SURPLUS':
-      return 'Thặng dư (Surplus)';
+      return 'Thặng dư';
     default:
-      return 'Cân bằng (Maintenance)';
+      return 'Cân bằng';
   }
 });
 

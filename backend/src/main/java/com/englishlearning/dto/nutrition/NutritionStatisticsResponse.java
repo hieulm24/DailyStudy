@@ -46,6 +46,10 @@ public class NutritionStatisticsResponse {
     private int maintenanceDaysCount;
     private BigDecimal deficitRatePercent;
 
+    private int gymDaysCount;
+    private int nonGymWorkoutDaysCount;
+    private int restDaysCount;
+
     // Macros
     private BigDecimal totalProtein;
     private BigDecimal totalCarbohydrate;
@@ -91,5 +95,7 @@ public class NutritionStatisticsResponse {
         private BigDecimal workoutMinutes;
         private int foodCount;
         private int activityCount;
+        private boolean hasGym;
+        private String activitySummary;
     }
 }

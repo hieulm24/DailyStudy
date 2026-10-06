@@ -203,6 +203,8 @@ export interface NutritionDailyTrendItem {
   workoutMinutes: number;
   foodCount: number;
   activityCount: number;
+  hasGym?: boolean;
+  activitySummary?: string;
 }
 
 export interface NutritionStatisticsResponse {
@@ -228,6 +230,9 @@ export interface NutritionStatisticsResponse {
   surplusDaysCount: number;
   maintenanceDaysCount: number;
   deficitRatePercent: number;
+  gymDaysCount?: number;
+  nonGymWorkoutDaysCount?: number;
+  restDaysCount?: number;
   totalProtein: number;
   totalCarbohydrate: number;
   totalFat: number;

@@ -1,43 +1,93 @@
 <template>
   <div class="space-y-6">
-    <!-- Filter & Control Bar -->
-    <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div class="flex flex-wrap items-center gap-1.5 bg-slate-50 p-1.5 rounded-md border border-slate-200">
-        <button
-          v-for="filter in rangeFilters"
-          :key="filter.value"
-          type="button"
-          :class="[
-            'px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer',
-            selectedRange === filter.value
-              ? 'bg-brand-600 text-white shadow-xs'
-              : 'text-slate-600 hover:text-slate-900 hover:bg-white'
-          ]"
-          @click="selectRange(filter.value)"
-        >
-          {{ filter.label }}
-        </button>
-      </div>
+    <!-- Filter & Date Navigator Control Bar -->
+    <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Range Quick Presets -->
+        <div class="flex flex-wrap items-center gap-1.5 bg-slate-50 p-1.5 rounded-md border border-slate-200">
+          <button
+            v-for="filter in rangeFilters"
+            :key="filter.value"
+            type="button"
+            :class="[
+              'px-3 py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer',
+              selectedRange === filter.value
+                ? 'bg-brand-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white'
+            ]"
+            @click="selectRange(filter.value)"
+          >
+            {{ filter.label }}
+          </button>
+        </div>
 
-      <!-- Custom Date Picker if selected -->
-      <div v-if="selectedRange === 'CUSTOM'" class="flex items-center gap-2">
-        <input
-          v-model="customFromDate"
-          type="date"
-          class="text-xs font-medium border border-slate-200 rounded-md px-2.5 py-1.5 bg-white text-slate-800 focus:outline-brand-500"
-          @change="fetchData"
-        />
-        <span class="text-xs text-slate-400">đến</span>
-        <input
-          v-model="customToDate"
-          type="date"
-          class="text-xs font-medium border border-slate-200 rounded-md px-2.5 py-1.5 bg-white text-slate-800 focus:outline-brand-500"
-          @change="fetchData"
-        />
+        <!-- Date Navigator with Prev, Calendar input, Next -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center bg-slate-50 border border-slate-200 rounded-md p-1 shadow-2xs">
+            <button
+              type="button"
+              class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-colors cursor-pointer"
+              title="Chu kỳ trước"
+              @click="navigatePeriod(-1)"
+            >
+              <ChevronLeft class="w-4 h-4" />
+            </button>
+
+            <!-- Clickable Calendar Box with Native Date Picker -->
+            <div class="relative px-3 py-1 flex items-center gap-2 cursor-pointer hover:bg-white rounded-md transition-colors">
+              <Calendar class="w-4 h-4 text-emerald-600 shrink-0" />
+              <span class="text-xs font-bold text-slate-800 select-none whitespace-nowrap">{{ formattedDateRange }}</span>
+              <input
+                v-model="anchorDate"
+                type="date"
+                class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                title="Nhấp để chọn mốc ngày"
+                @change="onAnchorDateChange"
+              />
+            </div>
+
+            <button
+              type="button"
+              class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-colors cursor-pointer"
+              title="Chu kỳ sau"
+              @click="navigatePeriod(1)"
+            >
+              <ChevronRight class="w-4 h-4" />
+            </button>
+          </div>
+
+          <!-- Quick Jump to Today -->
+          <button
+            v-if="!isCurrentPeriodToday"
+            type="button"
+            class="px-2.5 py-1.5 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-md transition-colors cursor-pointer"
+            title="Quay lại hôm nay"
+            @click="jumpToToday"
+          >
+            Hôm nay
+          </button>
+        </div>
+
+        <!-- Custom Date Range Inputs if CUSTOM selected -->
+        <div v-if="selectedRange === 'CUSTOM'" class="flex items-center gap-2">
+          <input
+            v-model="customFromDate"
+            type="date"
+            class="text-xs font-medium border border-slate-200 rounded-md px-2.5 py-1.5 bg-white text-slate-800 focus:outline-brand-500"
+            @change="onCustomDateRangeChange"
+          />
+          <span class="text-xs text-slate-400">đến</span>
+          <input
+            v-model="customToDate"
+            type="date"
+            class="text-xs font-medium border border-slate-200 rounded-md px-2.5 py-1.5 bg-white text-slate-800 focus:outline-brand-500"
+            @change="onCustomDateRangeChange"
+          />
+        </div>
       </div>
 
       <!-- TDEE & Weight Snapshot Display -->
-      <div class="flex items-center gap-2 self-end md:self-auto text-xs text-slate-500 font-medium">
+      <div class="flex items-center gap-2 shrink-0 self-end lg:self-auto text-xs text-slate-500 font-medium">
         <span class="bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
           TDEE chuẩn: <strong class="text-slate-800">{{ stats?.tdee || 2100 }} kcal</strong>
         </span>
@@ -54,6 +104,107 @@
     </div>
 
     <div v-else-if="stats" class="space-y-6">
+      <!-- Cycle Summary Highlights (Tập Gym & Cán cân Calo Hụt/Hòa/Tăng) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Card 1: Thống kê Tập Gym & Thể thao -->
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+          <!-- Card Header -->
+          <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-md bg-purple-50 text-purple-600 border border-purple-100">
+                <Dumbbell class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-800">Tập Gym & Thể thao</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">Chu kỳ {{ stats.daysCount }} ngày</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded border border-purple-200">
+              {{ stats.gymDaysCount || 0 }}/{{ stats.daysCount }} ngày Gym
+            </span>
+          </div>
+
+          <!-- 3-Column Metrics Breakdown -->
+          <div class="mt-4 grid grid-cols-3 gap-3 text-center">
+            <div class="bg-purple-50/70 border border-purple-200 rounded-md p-3 flex flex-col justify-between">
+              <span class="text-xs font-semibold text-purple-700">Tập Gym</span>
+              <div class="my-1.5">
+                <span class="text-xl font-black text-purple-800">{{ stats.gymDaysCount || 0 }}</span>
+                <span class="text-[10px] text-purple-600 ml-0.5 font-medium">ngày</span>
+              </div>
+              <span class="text-[10px] text-purple-500">Kháng lực / Tạ</span>
+            </div>
+
+            <div class="bg-orange-50/70 border border-orange-200 rounded-md p-3 flex flex-col justify-between">
+              <span class="text-xs font-semibold text-orange-700">Cardio / Đi bộ</span>
+              <div class="my-1.5">
+                <span class="text-xl font-black text-orange-800">{{ stats.nonGymWorkoutDaysCount || 0 }}</span>
+                <span class="text-[10px] text-orange-600 ml-0.5 font-medium">ngày</span>
+              </div>
+              <span class="text-[10px] text-orange-500">Chạy / Tabata</span>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-md p-3 flex flex-col justify-between">
+              <span class="text-xs font-semibold text-slate-600">Nghỉ ngơi</span>
+              <div class="my-1.5">
+                <span class="text-xl font-black text-slate-700">{{ stats.restDaysCount || 0 }}</span>
+                <span class="text-[10px] text-slate-500 ml-0.5 font-medium">ngày</span>
+              </div>
+              <span class="text-[10px] text-slate-400">Không tập</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Thống kê Cán cân Calo (Hụt - Hòa - Tăng) -->
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+          <!-- Card Header -->
+          <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+              <div class="p-2.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100">
+                <Scale class="w-5 h-5" />
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-slate-800">Cán cân Calo chu kỳ</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">{{ stats.loggedDaysCount || 0 }} ngày có dữ liệu</p>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+              {{ stats.deficitDaysCount }} ngày thâm hụt
+            </span>
+          </div>
+
+          <!-- 3-Column Metrics Breakdown -->
+          <div class="mt-4 grid grid-cols-3 gap-3 text-center">
+            <div class="bg-emerald-50/70 border border-emerald-200 rounded-md p-3 flex flex-col justify-between">
+              <span class="text-xs font-semibold text-emerald-700">Thâm hụt</span>
+              <div class="my-1.5">
+                <span class="text-xl font-black text-emerald-800">{{ stats.deficitDaysCount }}</span>
+                <span class="text-[10px] text-emerald-600 ml-0.5 font-medium">ngày</span>
+              </div>
+              <span class="text-[10px] text-emerald-500">Giảm mỡ</span>
+            </div>
+
+            <div class="bg-blue-50/70 border border-blue-200 rounded-md p-3 flex flex-col justify-between">
+              <span class="text-xs font-semibold text-blue-700">Cân bằng</span>
+              <div class="my-1.5">
+                <span class="text-xl font-black text-blue-800">{{ stats.maintenanceDaysCount }}</span>
+                <span class="text-[10px] text-blue-600 ml-0.5 font-medium">ngày</span>
+              </div>
+              <span class="text-[10px] text-blue-500">Duy trì</span>
+            </div>
+
+            <div class="bg-amber-50/70 border border-amber-200 rounded-md p-3 flex flex-col justify-between">
+              <span class="text-xs font-semibold text-amber-700">Thặng dư</span>
+              <div class="my-1.5">
+                <span class="text-xl font-black text-amber-800">{{ stats.surplusDaysCount }}</span>
+                <span class="text-[10px] text-amber-600 ml-0.5 font-medium">ngày</span>
+              </div>
+              <span class="text-[10px] text-amber-500">Tăng cân</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 6-Metric Overview Cards Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
         <!-- 1. Food Intake -->
@@ -151,7 +302,7 @@
             <span class="text-2xl font-bold text-blue-700">{{ stats.deficitRatePercent }}%</span>
           </div>
           <span class="text-[11px] text-slate-400">
-            {{ stats.deficitDaysCount }}/{{ stats.loggedDaysCount || 0 }} ngày đạt Deficit
+            {{ stats.deficitDaysCount }}/{{ stats.loggedDaysCount || 0 }} ngày thâm hụt
           </span>
         </div>
 
@@ -240,8 +391,14 @@
                   </div>
                   <div class="flex justify-between pt-1 border-t border-slate-800">
                     <span class="text-slate-400">Cán cân:</span>
-                    <strong :class="item.status === 'DEFICIT' ? 'text-emerald-400' : 'text-amber-400'">
-                      {{ item.status === 'DEFICIT' ? '-' : '+' }}{{ Math.abs(Math.round(item.calorieBalance)) }} kcal ({{ item.status }})
+                    <strong :class="item.status === 'DEFICIT' ? 'text-emerald-400' : (item.status === 'SURPLUS' ? 'text-amber-400' : 'text-blue-400')">
+                      {{ item.status === 'DEFICIT' ? '-' : (item.status === 'SURPLUS' ? '+' : '') }}{{ Math.abs(Math.round(item.calorieBalance)) }} kcal ({{ item.status === 'DEFICIT' ? 'Hụt' : (item.status === 'SURPLUS' ? 'Tăng' : (item.status === 'MAINTENANCE' ? 'Hòa' : 'Chưa ghi')) }})
+                    </strong>
+                  </div>
+                  <div v-if="item.activitySummary" class="flex justify-between pt-0.5 border-t border-slate-800 text-[10px]">
+                    <span class="text-slate-400">Hoạt động:</span>
+                    <strong :class="item.hasGym ? 'text-purple-300' : 'text-orange-300'" class="truncate max-w-[100px]" :title="item.activitySummary">
+                      {{ item.hasGym ? '🏋️ Gym' : '🏃 ' + item.activitySummary }}
                     </strong>
                   </div>
                 </div>
@@ -402,12 +559,25 @@
                 </td>
 
                 <!-- Workout Kcal & Duration -->
-                <td class="py-3 px-3 text-right font-medium text-rose-600">
-                  <span v-if="item.activityCalories > 0">+{{ Math.round(item.activityCalories) }} kcal</span>
+                <td class="py-3 px-3 text-right font-medium">
+                  <div v-if="item.activityCalories > 0" class="flex flex-col items-end">
+                    <span class="text-rose-600 font-bold">+{{ Math.round(item.activityCalories) }} kcal</span>
+                    <span
+                      v-if="item.hasGym"
+                      class="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-100 mt-0.5"
+                      :title="item.activitySummary || 'Tập Gym / Tạ'"
+                    >
+                      🏋️ Gym ({{ Math.round(item.workoutMinutes) }}p)
+                    </span>
+                    <span
+                      v-else
+                      class="inline-flex items-center gap-1 text-[10px] font-medium text-orange-700 bg-orange-50 px-1.5 py-0.5 rounded border border-orange-100 mt-0.5 truncate max-w-[140px]"
+                      :title="item.activitySummary || 'Vận động'"
+                    >
+                      🏃 {{ item.activitySummary || `${Math.round(item.workoutMinutes)}p` }}
+                    </span>
+                  </div>
                   <span v-else class="text-slate-300">-</span>
-                  <span v-if="item.workoutMinutes > 0" class="block text-[10px] text-slate-400 font-normal">
-                    ({{ Math.round(item.workoutMinutes) }} phút)
-                  </span>
                 </td>
 
                 <!-- Total Burned -->
@@ -431,7 +601,7 @@
                 <td class="py-3 px-3 text-center">
                   <span
                     :class="[
-                      'px-2 py-0.5 text-[10px] font-bold rounded-sm border uppercase',
+                      'px-2 py-0.5 text-[10px] font-bold rounded-sm border inline-block whitespace-nowrap',
                       item.status === 'DEFICIT'
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                         : item.status === 'SURPLUS'
@@ -441,7 +611,7 @@
                         : 'bg-slate-100 text-slate-500 border-slate-200 font-normal'
                     ]"
                   >
-                    {{ item.status === 'NO_DATA' ? 'Chưa ghi nhận' : item.status }}
+                    {{ item.status === 'DEFICIT' ? 'Thâm hụt (Hụt)' : (item.status === 'SURPLUS' ? 'Thặng dư (Tăng)' : (item.status === 'MAINTENANCE' ? 'Cân bằng (Hòa)' : 'Chưa ghi nhận')) }}
                   </span>
                 </td>
 
@@ -481,18 +651,29 @@ import {
   Dumbbell,
   Award,
   RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
 } from 'lucide-vue-next';
 import { nutritionService } from '../../services/nutrition.service';
 import type { NutritionStatisticsResponse } from '../../types/nutrition';
 
 const rangeFilters = [
-  { label: '7 Ngày gần nhất', value: '7_DAYS' },
+  { label: '7 Ngày', value: '7_DAYS' },
   { label: '14 Ngày', value: '14_DAYS' },
   { label: '30 Ngày', value: '30_DAYS' },
   { label: 'Tháng này', value: 'THIS_MONTH' },
   { label: 'Tùy chỉnh', value: 'CUSTOM' },
 ];
 
+const formatIsoDate = (d: Date) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
+const anchorDate = ref<string>(formatIsoDate(new Date()));
 const selectedRange = ref<string>('7_DAYS');
 const customFromDate = ref<string>('');
 const customToDate = ref<string>('');
@@ -515,11 +696,130 @@ const maxWorkoutMinutes = computed(() => {
   return Math.max(max * 1.2, 30);
 });
 
+const getEffectiveDateRange = () => {
+  if (selectedRange.value === 'CUSTOM') {
+    return {
+      fromDate: customFromDate.value || undefined,
+      toDate: customToDate.value || undefined,
+    };
+  }
+
+  const anchor = new Date(anchorDate.value + 'T00:00:00');
+  let from = new Date(anchor);
+  let to = new Date(anchor);
+
+  if (selectedRange.value === '7_DAYS') {
+    from.setDate(anchor.getDate() - 6);
+  } else if (selectedRange.value === '14_DAYS') {
+    from.setDate(anchor.getDate() - 13);
+  } else if (selectedRange.value === '30_DAYS') {
+    from.setDate(anchor.getDate() - 29);
+  } else if (selectedRange.value === 'THIS_MONTH') {
+    from = new Date(anchor.getFullYear(), anchor.getMonth(), 1);
+    to = new Date(anchor.getFullYear(), anchor.getMonth() + 1, 0);
+  }
+
+  return {
+    fromDate: formatIsoDate(from),
+    toDate: formatIsoDate(to),
+  };
+};
+
+const formattedDateRange = computed(() => {
+  if (stats.value?.startDate && stats.value?.endDate) {
+    const from = formatDateFull(stats.value.startDate);
+    const to = formatDateFull(stats.value.endDate);
+    if (stats.value.startDate === stats.value.endDate) {
+      return from;
+    }
+    return `${from} - ${to}`;
+  }
+  const range = getEffectiveDateRange();
+  if (range.fromDate && range.toDate) {
+    return `${formatDateFull(range.fromDate)} - ${formatDateFull(range.toDate)}`;
+  }
+  return formatDateFull(anchorDate.value);
+});
+
+const isCurrentPeriodToday = computed(() => {
+  const todayStr = formatIsoDate(new Date());
+  if (selectedRange.value === 'THIS_MONTH') {
+    const today = new Date();
+    const anchor = new Date(anchorDate.value + 'T00:00:00');
+    return today.getFullYear() === anchor.getFullYear() && today.getMonth() === anchor.getMonth();
+  }
+  return anchorDate.value === todayStr;
+});
+
 const selectRange = (range: string) => {
   selectedRange.value = range;
-  if (range !== 'CUSTOM') {
+  if (range === 'CUSTOM') {
+    if (!customFromDate.value || !customToDate.value) {
+      const today = new Date();
+      const from = new Date(today);
+      from.setDate(today.getDate() - 6);
+      customFromDate.value = formatIsoDate(from);
+      customToDate.value = formatIsoDate(today);
+    }
+  }
+  fetchData();
+};
+
+const navigatePeriod = (direction: number) => {
+  if (selectedRange.value === 'CUSTOM') {
+    if (customFromDate.value && customToDate.value) {
+      const f = new Date(customFromDate.value + 'T00:00:00');
+      const t = new Date(customToDate.value + 'T00:00:00');
+      const diffDays = Math.max(1, Math.round((t.getTime() - f.getTime()) / (1000 * 3600 * 24)) + 1);
+      f.setDate(f.getDate() + direction * diffDays);
+      t.setDate(t.getDate() + direction * diffDays);
+      customFromDate.value = formatIsoDate(f);
+      customToDate.value = formatIsoDate(t);
+      anchorDate.value = customToDate.value;
+      fetchData();
+      return;
+    }
+  }
+
+  const current = new Date(anchorDate.value + 'T00:00:00');
+  if (selectedRange.value === '7_DAYS') {
+    current.setDate(current.getDate() + direction * 7);
+  } else if (selectedRange.value === '14_DAYS') {
+    current.setDate(current.getDate() + direction * 14);
+  } else if (selectedRange.value === '30_DAYS') {
+    current.setDate(current.getDate() + direction * 30);
+  } else if (selectedRange.value === 'THIS_MONTH') {
+    current.setMonth(current.getMonth() + direction);
+  } else {
+    current.setDate(current.getDate() + direction * 7);
+  }
+
+  anchorDate.value = formatIsoDate(current);
+  fetchData();
+};
+
+const onAnchorDateChange = () => {
+  fetchData();
+};
+
+const onCustomDateRangeChange = () => {
+  if (customFromDate.value && customToDate.value) {
+    anchorDate.value = customToDate.value;
     fetchData();
   }
+};
+
+const jumpToToday = () => {
+  const todayStr = formatIsoDate(new Date());
+  anchorDate.value = todayStr;
+  if (selectedRange.value === 'CUSTOM') {
+    const today = new Date();
+    const from = new Date(today);
+    from.setDate(today.getDate() - 6);
+    customFromDate.value = formatIsoDate(from);
+    customToDate.value = todayStr;
+  }
+  fetchData();
 };
 
 const getBarHeight = (value: number, max: number) => {
@@ -557,10 +857,11 @@ const getCategoryColorClass = (category: string) => {
 const fetchData = async () => {
   isLoading.value = true;
   try {
+    const { fromDate, toDate } = getEffectiveDateRange();
     const data = await nutritionService.getStatistics({
       range: selectedRange.value,
-      fromDate: selectedRange.value === 'CUSTOM' ? customFromDate.value : undefined,
-      toDate: selectedRange.value === 'CUSTOM' ? customToDate.value : undefined,
+      fromDate,
+      toDate,
       tdee: targetSettings.value.targetCalories || 2100,
       weight: targetSettings.value.weight || 68,
     });

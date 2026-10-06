@@ -466,7 +466,7 @@ public class CalorieCalculationService {
         LocalDate startDate;
         LocalDate endDate = today;
 
-        if ("CUSTOM".equalsIgnoreCase(range) && fromDate != null && toDate != null) {
+        if (fromDate != null && toDate != null) {
             startDate = fromDate;
             endDate = toDate;
         } else if ("14_DAYS".equalsIgnoreCase(range)) {
@@ -475,6 +475,7 @@ public class CalorieCalculationService {
             startDate = today.minusDays(29);
         } else if ("THIS_MONTH".equalsIgnoreCase(range)) {
             startDate = today.withDayOfMonth(1);
+            endDate = today.withDayOfMonth(today.lengthOfMonth());
         } else { // Default 7_DAYS
             startDate = today.minusDays(6);
         }
@@ -518,6 +519,9 @@ public class CalorieCalculationService {
         int surplusDaysCount = 0;
         int maintenanceDaysCount = 0;
         int loggedDaysCount = 0;
+        int gymDaysCount = 0;
+        int nonGymWorkoutDaysCount = 0;
+        int restDaysCount = 0;
 
         // Iterate through each date in the range
         LocalDate cur = startDate;
@@ -543,11 +547,32 @@ public class CalorieCalculationService {
 
             BigDecimal dayActCal = BigDecimal.ZERO;
             BigDecimal dayWorkoutMins = BigDecimal.ZERO;
+            boolean hasGym = false;
+            List<String> actSummaries = new ArrayList<>();
 
             for (NutritionActivityLog a : dayActivities) {
                 if (a.getCaloriesBurned() != null) dayActCal = dayActCal.add(a.getCaloriesBurned());
                 if (a.getDurationMinutes() != null) dayWorkoutMins = dayWorkoutMins.add(a.getDurationMinutes());
+                if (a.getActivity() != null) {
+                    String cat = a.getActivity().getCategory();
+                    String name = a.getActivity().getName();
+                    if ("STRENGTH".equalsIgnoreCase(cat) || (name != null && (name.toLowerCase().contains("tạ") || name.toLowerCase().contains("gym")))) {
+                        hasGym = true;
+                    }
+                    int mins = a.getDurationMinutes() != null ? a.getDurationMinutes().intValue() : 0;
+                    actSummaries.add(name + (mins > 0 ? " (" + mins + "p)" : ""));
+                }
             }
+
+            if (hasGym) {
+                gymDaysCount++;
+            } else if (!dayActivities.isEmpty()) {
+                nonGymWorkoutDaysCount++;
+            } else {
+                restDaysCount++;
+            }
+
+            String activitySummary = String.join(", ", actSummaries);
 
             boolean hasData = !dayFoods.isEmpty() || !dayActivities.isEmpty();
             BigDecimal dayTotalBurned;
@@ -597,6 +622,8 @@ public class CalorieCalculationService {
                     .workoutMinutes(dayWorkoutMins.setScale(1, RoundingMode.HALF_UP))
                     .foodCount(dayFoods.size())
                     .activityCount(dayActivities.size())
+                    .hasGym(hasGym)
+                    .activitySummary(activitySummary)
                     .build());
 
             totalFoodCalories = totalFoodCalories.add(dayFoodCal);
@@ -685,6 +712,9 @@ public class CalorieCalculationService {
                 .surplusDaysCount(surplusDaysCount)
                 .maintenanceDaysCount(maintenanceDaysCount)
                 .deficitRatePercent(deficitRate)
+                .gymDaysCount(gymDaysCount)
+                .nonGymWorkoutDaysCount(nonGymWorkoutDaysCount)
+                .restDaysCount(restDaysCount)
                 .totalProtein(totalProtein.setScale(1, RoundingMode.HALF_UP))
                 .totalCarbohydrate(totalCarbohydrate.setScale(1, RoundingMode.HALF_UP))
                 .totalFat(totalFat.setScale(1, RoundingMode.HALF_UP))

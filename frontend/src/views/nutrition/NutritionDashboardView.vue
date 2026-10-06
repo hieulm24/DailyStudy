@@ -1,17 +1,17 @@
 <template>
   <div class="space-y-6 pb-12">
     <!-- Header: Title & Actions & Date Navigation -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-5 rounded-md border border-slate-200">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-6 sm:p-7 rounded-md border border-slate-200 shadow-xs">
       <div>
-        <div class="flex items-center gap-3">
-          <div class="p-2.5 rounded-md bg-emerald-50 text-emerald-600">
-            <Apple class="w-5 h-5" />
+        <div class="flex items-center gap-3.5">
+          <div class="p-3 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100">
+            <Apple class="w-6 h-6" />
           </div>
           <div>
-            <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900">
               Dinh dưỡng hằng ngày
             </h1>
-            <p class="text-xs text-slate-500 mt-0.5">
+            <p class="text-sm sm:text-base text-slate-500 mt-1">
               Theo dõi Calo, Macro và Vi chất chuẩn xác cho mục tiêu vóc dáng & sức khỏe
             </p>
           </div>
@@ -100,7 +100,7 @@
           @click="quickAdd(item)"
         >
           <Plus class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600" />
-          <span>{{ item.defaultQuantity }}{{ item.defaultUnit }} {{ item.name }} ({{ item.state }})</span>
+          <span>{{ item.defaultQuantity }} {{ item.defaultUnit }} {{ item.name }} ({{ (item.state || '').toLowerCase() }})</span>
         </button>
 
         <button
@@ -229,13 +229,18 @@
     <!-- Main Food List Table Card -->
     <div class="bg-white rounded-md border border-slate-200 overflow-hidden shadow-2xs">
       <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-        <div>
-          <h2 class="text-sm font-bold text-slate-900">
-            Danh sách thực phẩm hôm nay
-          </h2>
-          <p class="text-xs text-slate-500 mt-0.5">
-            {{ summary.items.length }} món đã ghi nhận
-          </p>
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100">
+            <Utensils class="w-5 h-5" />
+          </div>
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+              Danh sách thực phẩm hôm nay
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              {{ summary.items.length }} món đã ghi nhận
+            </p>
+          </div>
         </div>
 
         <button
@@ -273,6 +278,7 @@
               <td class="py-3.5 px-4">
                 <div class="flex items-center gap-2">
                   <span class="font-bold text-slate-900">{{ item.foodName }}</span>
+                  <span class="text-xs text-slate-500 font-medium">({{ (item.state || '').toLowerCase() }})</span>
                   <span
                     v-if="item.isUserCustom"
                     class="px-2 py-0.5 text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200 rounded-sm"
@@ -290,32 +296,32 @@
                 <!-- Micronutrients snippet for this item -->
                 <div v-if="item.micronutrients.length > 0" class="text-xs text-slate-400 mt-1">
                   <span v-for="(m, idx) in item.micronutrients.slice(0, 3)" :key="m.id || idx">
-                    {{ m.nutrientName }}: {{ m.amount }}{{ m.unit }}<span v-if="idx < Math.min(item.micronutrients.length, 3) - 1"> • </span>
+                    {{ m.nutrientName }}: {{ m.amount }} {{ m.unit }}<span v-if="idx < Math.min(item.micronutrients.length, 3) - 1"> • </span>
                   </span>
                 </div>
               </td>
 
               <!-- State Badge -->
               <td class="py-3.5 px-3 text-center">
-                <span :class="['px-2.5 py-1 text-xs font-semibold rounded-sm border', getStateBadgeClass(item.state)]">
-                  {{ item.state }}
+                <span :class="['px-2.5 py-1 text-xs font-semibold rounded-sm border lowercase', getStateBadgeClass(item.state)]">
+                  {{ (item.state || '').toLowerCase() }}
                 </span>
               </td>
 
               <!-- Quantity & Unit -->
               <td class="py-3.5 px-3 text-right font-medium text-slate-700">
-                <span>{{ item.quantity }} {{ item.unit }}</span>
+                <span class="font-semibold text-slate-900">{{ item.quantity }} {{ item.unit }}</span>
                 <span
                   v-if="item.calculatedGrams && item.unit !== 'g'"
                   class="block text-xs text-slate-400 font-normal"
                 >
-                  (~{{ Math.round(item.calculatedGrams) }}g)
+                  (~{{ Math.round(item.calculatedGrams) }} g)
                 </span>
                 <span
                   v-else-if="item.calculatedMl && item.unit !== 'ml'"
                   class="block text-xs text-slate-400 font-normal"
                 >
-                  (~{{ Math.round(item.calculatedMl) }}ml)
+                  (~{{ Math.round(item.calculatedMl) }} ml)
                 </span>
               </td>
 
@@ -597,7 +603,7 @@ const quickAdd = async (item: NutritionRecentFood) => {
       quantity: item.defaultQuantity || 100,
       unit: item.defaultUnit || 'g',
     });
-    toast.success(`Đã thêm nhanh: ${item.name}`);
+    toast.success(`Đã thêm nhanh: ${item.defaultQuantity || 100} ${item.defaultUnit || 'g'} ${item.name} (${(item.state || '').toLowerCase()})`);
     await fetchDailySummary();
     await fetchRecentFoods();
   } catch (e: any) {

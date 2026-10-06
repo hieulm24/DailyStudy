@@ -123,38 +123,72 @@
 
 
       <!-- Streak & Study Days Card + Heatmap -->
-      <div class="bg-white p-6 sm:p-7 rounded-md border border-slate-200 shadow-xs space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-          <div class="flex items-center gap-3.5">
-            <div class="p-3 rounded-md bg-orange-50 text-orange-600">
-              <Flame class="w-7 h-7 fill-orange-500" />
+      <div class="bg-white p-5 sm:p-6 rounded-md border border-slate-200 shadow-xs space-y-5">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-md bg-orange-50 text-orange-600 border border-orange-100">
+              <Flame class="w-5 h-5 fill-orange-500" />
             </div>
             <div>
-              <h3 class="text-lg font-bold text-slate-900">
-                Chuỗi học liên tục (Study Streak): {{ heatmapData?.currentStreak || 0 }} ngày
+              <h3 class="text-base sm:text-lg font-bold text-slate-900">
+                Chuỗi học tập liên tục
               </h3>
-              <p class="text-sm sm:text-base text-slate-500 mt-0.5">
-                Kỷ lục cao nhất: <strong class="text-slate-800">{{ heatmapData?.longestStreak || 0 }} ngày</strong> | Tổng số ngày đã học: <strong class="text-slate-800">{{ heatmapData?.totalStudyDays || 0 }} ngày</strong>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Duy trì việc học tiếng Anh đều đặn để giữ vững chuỗi tiến độ
               </p>
             </div>
+          </div>
+          <span class="text-xs font-bold text-orange-700 bg-orange-50 px-3 py-1.5 rounded border border-orange-200 self-start sm:self-auto">
+            🔥 {{ heatmapData?.currentStreak || 0 }} ngày liên tiếp
+          </span>
+        </div>
+
+        <!-- 3-Column Streak Metrics Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+          <div class="bg-orange-50/70 border border-orange-200 rounded-md p-3.5 flex flex-col justify-between">
+            <span class="text-xs font-semibold text-orange-700">Chuỗi hiện tại</span>
+            <div class="my-1.5">
+              <span class="text-2xl font-black text-orange-800">{{ heatmapData?.currentStreak || 0 }}</span>
+              <span class="text-xs text-orange-600 ml-1 font-medium">ngày</span>
+            </div>
+            <span class="text-[11px] text-orange-500 font-medium">Đang duy trì</span>
+          </div>
+
+          <div class="bg-amber-50/70 border border-amber-200 rounded-md p-3.5 flex flex-col justify-between">
+            <span class="text-xs font-semibold text-amber-700">Kỷ lục cao nhất</span>
+            <div class="my-1.5">
+              <span class="text-2xl font-black text-amber-800">{{ heatmapData?.longestStreak || 0 }}</span>
+              <span class="text-xs text-amber-600 ml-1 font-medium">ngày</span>
+            </div>
+            <span class="text-[11px] text-amber-500 font-medium">Thành tích tốt nhất</span>
+          </div>
+
+          <div class="bg-blue-50/70 border border-blue-200 rounded-md p-3.5 flex flex-col justify-between">
+            <span class="text-xs font-semibold text-blue-700">Tổng số ngày học</span>
+            <div class="my-1.5">
+              <span class="text-2xl font-black text-blue-800">{{ heatmapData?.totalStudyDays || 0 }}</span>
+              <span class="text-xs text-blue-600 ml-1 font-medium">ngày</span>
+            </div>
+            <span class="text-[11px] text-blue-500 font-medium">Tích lũy chuyên cần</span>
           </div>
         </div>
 
         <!-- Contribution Heatmap Grid (Last 90 days) -->
-        <div>
+        <div class="pt-1">
           <div class="flex items-center justify-between text-xs text-slate-500 mb-2">
-            <span>Lịch sử chuyên cần (90 ngày gần nhất)</span>
-            <div class="flex items-center gap-1 text-[10px]">
-              <span>Ít</span>
-              <span class="w-2.5 h-2.5 rounded-xs bg-slate-100"></span>
-              <span class="w-2.5 h-2.5 rounded-xs bg-emerald-200"></span>
-              <span class="w-2.5 h-2.5 rounded-xs bg-emerald-400"></span>
-              <span class="w-2.5 h-2.5 rounded-xs bg-emerald-600"></span>
-              <span>Nhiều</span>
+            <span class="font-semibold text-slate-700">Lịch sử chuyên cần (90 ngày gần nhất)</span>
+            <div class="flex items-center gap-1.5 text-[11px]">
+              <span class="text-slate-400">Ít</span>
+              <span class="w-3 h-3 rounded-xs bg-slate-100 border border-slate-200/60"></span>
+              <span class="w-3 h-3 rounded-xs bg-emerald-200"></span>
+              <span class="w-3 h-3 rounded-xs bg-emerald-400"></span>
+              <span class="w-3 h-3 rounded-xs bg-emerald-600"></span>
+              <span class="text-slate-400">Nhiều</span>
             </div>
           </div>
 
-          <div class="flex flex-wrap gap-1.5 p-3 bg-slate-50/70 rounded-md border border-slate-100 max-h-40 overflow-y-auto">
+          <div class="flex flex-wrap gap-1.5 p-3.5 bg-slate-50/80 rounded-md border border-slate-200/80 max-h-44 overflow-y-auto">
             <div
               v-for="day in heatmapData?.heatmapDays"
               :key="day.date"

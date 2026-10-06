@@ -1,6 +1,6 @@
 <template>
   <header class="sticky top-0 z-30 flex items-center justify-between h-20 px-6 sm:px-8 bg-white border-b border-slate-200 shadow-2xs">
-    <!-- Mobile Menu Toggle & Title -->
+    <!-- Mobile Menu Toggle -->
     <div class="flex items-center gap-4">
       <button
         type="button"
@@ -9,10 +9,6 @@
       >
         <Menu class="w-6 h-6" />
       </button>
-
-      <div class="flex items-center gap-2">
-        <h1 class="text-lg sm:text-xl font-bold text-slate-900">{{ pageTitle }}</h1>
-      </div>
     </div>
 
     <!-- Header Actions -->
@@ -47,8 +43,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute } from 'vue-router';
 import { useReviewStore } from '../../stores/review.store';
 import { Menu, Bell, CheckCircle, Plus } from 'lucide-vue-next';
 import AppButton from '../common/AppButton.vue';
@@ -58,35 +52,5 @@ defineEmits<{
   (e: 'quick-add'): void;
 }>();
 
-const route = useRoute();
 const reviewStore = useReviewStore();
-
-const pageTitle = computed(() => {
-  switch (route.path) {
-    case '/dashboard':
-      return 'Tổng quan tiến độ (Dashboard)';
-    case '/vocabulary':
-      return 'Từ vựng tiếng Anh (Vocabulary)';
-    case '/grammar':
-      return 'Ngữ pháp & Cấu trúc (Grammar)';
-    case '/listening':
-      return 'Nhật ký luyện nghe (Listening)';
-    case '/speaking':
-      return 'Nhật ký luyện nói (Speaking)';
-    case '/review':
-      return 'Hệ thống ôn tập (Spaced Repetition)';
-    case '/games':
-      return 'Mini Games Ôn Luyện';
-    case '/documents':
-      return 'Kho tài liệu & Liên kết (Resources)';
-    case '/tasks':
-      return 'Kế hoạch & Việc cần làm hàng ngày (Daily Tasks)';
-    case '/statistics':
-      return 'Thống kê & Biểu đồ học tập';
-    case '/settings':
-      return 'Cài đặt hệ thống (Settings)';
-    default:
-      return 'DailyStudy Hub';
-  }
-});
 </script>

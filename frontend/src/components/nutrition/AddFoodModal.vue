@@ -57,6 +57,26 @@
 
       <!-- Modal Body -->
       <div class="p-8 overflow-y-auto space-y-6 flex-1">
+        <!-- Success Added Notification inside Modal -->
+        <div
+          v-if="lastAddedFood && !editingLog"
+          class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-md flex items-center justify-between text-xs animate-in fade-in slide-in-from-top-2 duration-200"
+        >
+          <div class="flex items-center gap-2.5">
+            <CheckCircle2 class="w-4.5 h-4.5 text-emerald-600 shrink-0" />
+            <span>
+              Đã thêm <strong>{{ lastAddedFood.quantity }} {{ lastAddedFood.unit }} {{ lastAddedFood.name }} ({{ (lastAddedFood.state || '').toLowerCase() }})</strong> • <strong>{{ lastAddedFood.calories }} kcal</strong> vào nhật ký. Bạn có thể chọn tiếp món khác ở bên dưới!
+            </span>
+          </div>
+          <button
+            type="button"
+            class="text-emerald-700 hover:text-emerald-950 p-1 cursor-pointer"
+            @click="lastAddedFood = null"
+          >
+            <X class="w-4 h-4" />
+          </button>
+        </div>
+
         <!-- Search Input & Quick Chips -->
         <div v-if="!editingLog" class="space-y-3">
           <div class="relative">
@@ -334,7 +354,7 @@
                 <span>Dinh dưỡng tạm tính:</span>
               </div>
               <span class="text-xs font-semibold text-emerald-800 bg-white px-3 py-1 rounded-sm border border-emerald-200 shadow-2xs">
-                {{ quantity || 0 }} {{ selectedUnit }} ({{ selectedState }})
+                {{ quantity || 0 }} {{ selectedUnit }} ({{ (selectedState || '').toLowerCase() }})
               </span>
             </div>
 
@@ -383,7 +403,7 @@
           class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 hover:bg-slate-200/60 rounded-md transition-colors cursor-pointer"
           @click="closeModal"
         >
-          Hủy bỏ
+          {{ lastAddedFood ? 'Hoàn tất / Đóng' : 'Đóng' }}
         </button>
         <button
           type="button"
@@ -418,6 +438,7 @@ import {
   Loader2,
 } from 'lucide-vue-next';
 import { nutritionService } from '../../services/nutrition.service';
+import { useToastStore } from '../../stores/toast.store';
 import type {
   NutritionFoodSearchItem,
   NutritionDailyLogItem,
@@ -436,6 +457,9 @@ const emit = defineEmits<{
   (e: 'saved'): void;
   (e: 'open-create-custom', initialName?: string): void;
 }>();
+
+const toast = useToastStore();
+const lastAddedFood = ref<{ name: string; state?: string; quantity: number; unit: string; calories: number } | null>(null);
 
 const searchInputRef = ref<HTMLInputElement | null>(null);
 const quantityInputRef = ref<HTMLInputElement | null>(null);
@@ -699,12 +723,32 @@ const submitLog = async () => {
 
     if (props.editingLog) {
       await nutritionService.updateDailyLog(props.editingLog.id, payload);
-    } else {
+      toast.success('Đã cập nhật món ăn thành công!');
+      emit('saved');
+      closeModal();
       await nutritionService.addDailyLog(payload);
-    }
+      const addedItem = {
+        name: selectedFood.value.name,
+        state: selectedState.value,
+        quantity: quantity.value,
+        unit: selectedUnit.value,
+        calories: Math.round(previewNutrition.value.calories),
+      };
+      lastAddedFood.value = addedItem;
+      toast.success(`Đã thêm "${addedItem.quantity} ${addedItem.unit} ${addedItem.name} (${(addedItem.state || '').toLowerCase()})" vào nhật ký!`);
+      emit('saved');
 
-    emit('saved');
-    closeModal();
+      // Clear search & input for the next food addition
+      searchQuery.value = '';
+      showSearchResults.value = false;
+      errorMessage.value = '';
+      quantity.value = 100;
+
+      // Focus search box so user can immediately type the next item
+      nextTick(() => {
+        searchInputRef.value?.focus();
+      });
+    }
   } catch (err: any) {
     errorMessage.value = err.response?.data?.message || 'Có lỗi xảy ra khi lưu thực phẩm';
   } finally {
@@ -721,6 +765,7 @@ watch(
   async (open) => {
     if (open) {
       errorMessage.value = '';
+      lastAddedFood.value = null;
       searchMode.value = 'local';
       searchQuery.value = '';
       showSearchResults.value = false;
