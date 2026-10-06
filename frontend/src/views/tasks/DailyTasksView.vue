@@ -136,7 +136,7 @@
     <!-- Daily KPI Metric Cards (6 Columns) -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
       <!-- 1. Tổng số việc -->
-      <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs sm:text-sm text-slate-600 font-semibold">Tổng số việc</span>
           <div class="w-8 h-8 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center">
@@ -148,7 +148,7 @@
       </div>
 
       <!-- 2. Đã hoàn thành -->
-      <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs sm:text-sm text-emerald-700 font-semibold">Đã hoàn thành</span>
           <div class="w-8 h-8 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -160,7 +160,7 @@
       </div>
 
       <!-- 3. Đang thực hiện -->
-      <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs sm:text-sm text-sky-700 font-semibold">Đang thực hiện</span>
           <div class="w-8 h-8 rounded-md bg-sky-50 text-sky-600 flex items-center justify-center">
@@ -172,7 +172,7 @@
       </div>
 
       <!-- 4. Chưa làm -->
-      <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs sm:text-sm text-amber-700 font-semibold">Chưa làm</span>
           <div class="w-8 h-8 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -184,7 +184,7 @@
       </div>
 
       <!-- 5. Tổng thời gian cần làm -->
-      <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs sm:text-sm text-indigo-700 font-semibold">Tổng giờ cần làm</span>
           <div class="w-8 h-8 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center">
@@ -196,7 +196,7 @@
       </div>
 
       <!-- 6. Tỷ lệ hoàn thành -->
-      <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs sm:text-sm text-brand-700 font-semibold">Tỷ lệ xong</span>
           <div class="w-8 h-8 rounded-md bg-brand-50 text-brand-600 flex items-center justify-center">
@@ -295,7 +295,13 @@
         </div>
 
         <div class="text-xs text-slate-500">
-          Tích chọn checkbox để đánh dấu hoàn thành
+          <span v-if="isSelectedDateFuture" class="inline-flex items-center gap-1.5 text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200 font-semibold">
+            <AlertCircle class="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            Ngày trong tương lai — Chỉ lập kế hoạch, không thể tích hoàn thành
+          </span>
+          <span v-else>
+            Tích chọn checkbox để đánh dấu hoàn thành
+          </span>
         </div>
       </div>
 
@@ -345,7 +351,11 @@
               :key="task.id"
               :class="[
                 'hover:bg-slate-50/80 transition-colors group align-middle',
-                task.isCompleted ? 'bg-slate-50/70' : 'bg-white'
+                task.isCompleted
+                  ? 'bg-slate-50/70'
+                  : task.status === 'IN_PROGRESS'
+                  ? 'bg-sky-50/40 hover:bg-sky-50/70'
+                  : 'bg-white'
               ]"
             >
               <!-- 1. STT + Reorder Arrows -->
@@ -383,13 +393,16 @@
                   <button
                     type="button"
                     @click="toggleTaskCompletion(task)"
+                    :disabled="isFutureDate(task.taskDate)"
                     :class="[
                       'w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-200',
-                      task.isCompleted
-                        ? 'bg-emerald-500 border-emerald-500 text-white shadow-xs scale-105'
-                        : 'border-slate-300 hover:border-brand-500 bg-white text-transparent hover:text-slate-300'
+                      isFutureDate(task.taskDate)
+                        ? 'bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed opacity-60'
+                        : task.isCompleted
+                          ? 'bg-emerald-500 border-emerald-500 text-white shadow-xs scale-105 cursor-pointer'
+                          : 'border-slate-300 hover:border-brand-500 bg-white text-transparent hover:text-slate-300 cursor-pointer'
                     ]"
-                    title="Tích để hoàn thành / bỏ hoàn thành"
+                    :title="isFutureDate(task.taskDate) ? 'Không thể đánh dấu hoàn thành công việc ở ngày trong tương lai' : 'Tích để hoàn thành / bỏ hoàn thành'"
                   >
                     <Check class="w-4 h-4 stroke-[3]" />
                   </button>
@@ -457,21 +470,51 @@
                 <span v-else class="text-xs text-slate-400">—</span>
               </td>
 
-              <!-- 7. Trạng thái -->
+              <!-- 7. Trạng thái (Dropdown chọn trực tiếp tinh tế, chuẩn giao diện) -->
               <td class="py-3.5 px-4 text-center align-middle whitespace-nowrap">
-                <span
-                  :class="[
-                    'inline-block text-xs px-3 py-1 rounded-md shadow-2xs whitespace-nowrap',
-                    getStatusBadgeClass(task)
-                  ]"
-                >
-                  {{ getStatusLabel(task) }}
-                </span>
+                <div class="inline-flex items-center justify-center">
+                  <div class="relative inline-block">
+                    <select
+                      :value="task.isCompleted ? 'COMPLETED' : (task.status || 'TODO')"
+                      @change="changeTaskStatus(task, ($event.target as HTMLSelectElement).value)"
+                      :class="[
+                        'text-xs font-semibold py-1 pl-2.5 pr-6 rounded-md border appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-all shadow-2xs',
+                        getStatusSelectClass(task)
+                      ]"
+                      title="Bấm để thay đổi trạng thái công việc"
+                    >
+                      <option value="TODO">Chưa làm</option>
+                      <option value="IN_PROGRESS">Đang thực hiện</option>
+                      <option value="COMPLETED" :disabled="isFutureDate(task.taskDate)">
+                        Đã hoàn thành {{ isFutureDate(task.taskDate) ? '(Khóa tương lai)' : '' }}
+                      </option>
+                      <option value="CANCELLED">Đã hủy</option>
+                    </select>
+                    <ChevronDown class="w-3.5 h-3.5 text-current opacity-60 absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  </div>
+                </div>
               </td>
 
               <!-- 8. Thao tác -->
               <td class="py-3.5 px-4 text-center align-middle whitespace-nowrap">
                 <div class="flex items-center justify-center gap-1.5">
+                  <!-- Quick Start / Pause In Progress Button -->
+                  <button
+                    v-if="!task.isCompleted && task.status !== 'COMPLETED'"
+                    type="button"
+                    @click="toggleTaskInProgress(task)"
+                    :class="[
+                      'p-1.5 rounded-md transition-colors',
+                      task.status === 'IN_PROGRESS'
+                        ? 'text-sky-600 bg-sky-100/80 hover:bg-sky-200'
+                        : 'text-slate-400 hover:text-sky-600 hover:bg-sky-50'
+                    ]"
+                    :title="task.status === 'IN_PROGRESS' ? 'Tạm dừng (đưa về Chưa làm)' : 'Bắt đầu làm (chuyển sang Đang thực hiện)'"
+                  >
+                    <Pause v-if="task.status === 'IN_PROGRESS'" class="w-4 h-4 text-sky-600 fill-sky-600" />
+                    <Play v-else class="w-4 h-4" />
+                  </button>
+
                   <!-- Edit Button -->
                   <button
                     type="button"
@@ -589,7 +632,9 @@
               >
                 <option value="TODO">Chưa làm (Todo)</option>
                 <option value="IN_PROGRESS">Đang làm (In Progress)</option>
-                <option value="COMPLETED">Đã xong (Completed)</option>
+                <option value="COMPLETED" :disabled="isFutureDate(form.taskDate)">
+                  Đã xong (Completed) {{ isFutureDate(form.taskDate) ? '— (Không khả dụng cho ngày tương lai)' : '' }}
+                </option>
                 <option value="CANCELLED">Đã hủy (Cancelled)</option>
               </select>
             </div>
@@ -657,7 +702,10 @@
           </div>
 
           <!-- Checkbox đánh dấu hoàn thành nhanh -->
-          <div class="flex items-center gap-3 p-3.5 bg-white rounded-md border border-slate-200">
+          <div
+            v-if="!isFutureDate(form.taskDate)"
+            class="flex items-center gap-3 p-3.5 bg-white rounded-md border border-slate-200"
+          >
             <input
               type="checkbox"
               id="isCompletedCheck"
@@ -667,6 +715,13 @@
             <label for="isCompletedCheck" class="text-sm font-bold text-slate-800 cursor-pointer select-none">
               Đánh dấu việc này đã hoàn thành ngay khi tạo
             </label>
+          </div>
+          <div
+            v-else
+            class="flex items-center gap-2.5 p-3.5 bg-amber-50 rounded-md border border-amber-200 text-xs text-amber-800"
+          >
+            <AlertCircle class="w-4 h-4 text-amber-600 shrink-0" />
+            <span>Công việc thuộc ngày tương lai ({{ form.taskDate }}) — chỉ tạo để lên kế hoạch trước, không thể đánh dấu hoàn thành.</span>
           </div>
         </div>
 
@@ -727,14 +782,33 @@ import {
   RefreshCw,
   Edit2,
   Trash2,
+  Play,
+  Pause,
 } from 'lucide-vue-next';
 
 const route = useRoute();
 const toast = useToastStore();
 
+// Local Date Helpers
+function getLocalDateString(date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // Date selection state (YYYY-MM-DD)
-const todayStr = new Date().toISOString().split('T')[0];
+const todayStr = getLocalDateString();
 const selectedDate = ref(todayStr);
+
+function isFutureDate(dateStr?: string): boolean {
+  if (!dateStr) return false;
+  return dateStr > todayStr;
+}
+
+const isSelectedDateFuture = computed(() => {
+  return isFutureDate(selectedDate.value);
+});
 
 // Tasks data
 const tasks = ref<DailyTask[]>([]);
@@ -766,6 +840,16 @@ const form = reactive<DailyTaskRequest>({
   displayOrder: 0,
   estimatedTime: '',
 });
+
+watch(
+  () => form.taskDate,
+  (newDate) => {
+    if (isFutureDate(newDate)) {
+      if (form.isCompleted) form.isCompleted = false;
+      if (form.status === 'COMPLETED') form.status = 'TODO';
+    }
+  }
+);
 
 const categoryOptions = [
   { label: 'Tất cả danh mục', value: 'ALL' },
@@ -825,21 +909,21 @@ function setToday() {
 function navigateDate(daysOffset: number) {
   const current = new Date(selectedDate.value + 'T00:00:00');
   current.setDate(current.getDate() + daysOffset);
-  selectedDate.value = current.toISOString().split('T')[0];
+  selectedDate.value = getLocalDateString(current);
   loadTasksForSelectedDate();
 }
 
 function jumpToDate(daysOffset: number) {
   const target = new Date();
   target.setDate(target.getDate() + daysOffset);
-  selectedDate.value = target.toISOString().split('T')[0];
+  selectedDate.value = getLocalDateString(target);
   loadTasksForSelectedDate();
 }
 
 // KPI Computations
 const completedCount = computed(() => tasks.value.filter((t) => t.isCompleted || t.status === 'COMPLETED').length);
 const inProgressCount = computed(() => tasks.value.filter((t) => !t.isCompleted && t.status === 'IN_PROGRESS').length);
-const pendingCount = computed(() => tasks.value.filter((t) => !t.isCompleted && t.status === 'TODO').length);
+const pendingCount = computed(() => tasks.value.filter((t) => !t.isCompleted && t.status !== 'COMPLETED' && t.status !== 'IN_PROGRESS').length);
 
 const completionPercentage = computed(() => {
   if (tasks.value.length === 0) return 0;
@@ -996,6 +1080,11 @@ async function loadTasksForSelectedDate() {
 }
 
 async function toggleTaskCompletion(task: DailyTask) {
+  if (isFutureDate(task.taskDate)) {
+    toast.warning('Không thể đánh dấu hoàn thành công việc của ngày trong tương lai!');
+    return;
+  }
+
   // Optimistic local update
   const originalState = task.isCompleted;
   task.isCompleted = !originalState;
@@ -1006,11 +1095,12 @@ async function toggleTaskCompletion(task: DailyTask) {
     task.isCompleted = updated.isCompleted;
     task.status = updated.status;
     task.completedAt = updated.completedAt;
-  } catch (error) {
+  } catch (error: any) {
     // Rollback
     task.isCompleted = originalState;
     task.status = originalState ? 'COMPLETED' : 'TODO';
-    toast.error('Lỗi khi cập nhật trạng thái');
+    const msg = error?.response?.data?.message || 'Lỗi khi cập nhật trạng thái';
+    toast.error(msg);
   }
 }
 
@@ -1038,7 +1128,7 @@ function openEditModal(task: DailyTask) {
   form.category = task.category || 'ENGLISH';
   form.priority = task.priority || 'MEDIUM';
   form.status = task.status || 'TODO';
-  form.isCompleted = task.isCompleted;
+  form.isCompleted = isFutureDate(task.taskDate) ? false : task.isCompleted;
   form.displayOrder = task.displayOrder || 0;
   form.estimatedTime = task.estimatedTime || '';
   showTaskModal.value = true;
@@ -1048,6 +1138,13 @@ async function saveTask() {
   if (!form.title.trim()) {
     toast.warning('Vui lòng nhập tiêu đề công việc');
     return;
+  }
+
+  if (isFutureDate(form.taskDate)) {
+    form.isCompleted = false;
+    if (form.status === 'COMPLETED') {
+      form.status = 'TODO';
+    }
   }
 
   isSaving.value = true;
@@ -1061,9 +1158,10 @@ async function saveTask() {
     }
     showTaskModal.value = false;
     await loadTasksForSelectedDate();
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    toast.error('Không thể lưu công việc');
+    const msg = error?.response?.data?.message || 'Không thể lưu công việc';
+    toast.error(msg);
   } finally {
     isSaving.value = false;
   }
@@ -1198,18 +1296,49 @@ function getStatusLabel(task: DailyTask) {
   }
 }
 
-function getStatusBadgeClass(task: DailyTask) {
+function getStatusSelectClass(task: DailyTask) {
   if (task.isCompleted || task.status === 'COMPLETED') {
-    return 'bg-emerald-50 text-emerald-700 border border-emerald-300 font-bold';
+    return 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100';
   }
   switch (task.status) {
     case 'IN_PROGRESS':
-      return 'bg-sky-50 text-sky-700 border border-sky-300 font-bold';
+      return 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100';
     case 'CANCELLED':
-      return 'bg-slate-100 text-slate-600 border border-slate-300 font-medium';
+      return 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200';
     case 'TODO':
     default:
-      return 'bg-amber-50 text-amber-700 border border-amber-300 font-bold';
+      return 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100';
   }
+}
+
+async function changeTaskStatus(task: DailyTask, newStatus: string) {
+  if (newStatus === 'COMPLETED' && isFutureDate(task.taskDate)) {
+    toast.warning('Không thể đánh dấu hoàn thành công việc của ngày trong tương lai!');
+    return;
+  }
+
+  const prevStatus = task.status;
+  const prevCompleted = task.isCompleted;
+
+  task.status = newStatus;
+  task.isCompleted = newStatus === 'COMPLETED';
+
+  try {
+    const updated = await taskService.updateStatus(task.id, newStatus);
+    task.status = updated.status;
+    task.isCompleted = updated.isCompleted;
+    task.completedAt = updated.completedAt;
+    toast.success(`Đã chuyển trạng thái sang: ${getStatusLabel(task)}`);
+  } catch (error: any) {
+    task.status = prevStatus;
+    task.isCompleted = prevCompleted;
+    const msg = error?.response?.data?.message || 'Lỗi khi cập nhật trạng thái';
+    toast.error(msg);
+  }
+}
+
+async function toggleTaskInProgress(task: DailyTask) {
+  const targetStatus = task.status === 'IN_PROGRESS' ? 'TODO' : 'IN_PROGRESS';
+  await changeTaskStatus(task, targetStatus);
 }
 </script>

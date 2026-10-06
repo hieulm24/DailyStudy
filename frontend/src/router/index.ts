@@ -10,6 +10,7 @@ import ReviewView from '../views/review/ReviewView.vue';
 import GamesHubView from '../views/games/GamesHubView.vue';
 import GamePlayView from '../views/games/GamePlayView.vue';
 import DocumentListView from '../views/documents/DocumentListView.vue';
+import NutritionDashboardView from '../views/nutrition/NutritionDashboardView.vue';
 import DailyTasksView from '../views/tasks/DailyTasksView.vue';
 import StatisticsView from '../views/statistics/StatisticsView.vue';
 import SettingsView from '../views/settings/SettingsView.vue';
@@ -70,6 +71,11 @@ const routes = [
         path: 'documents',
         name: 'Documents',
         component: DocumentListView,
+      },
+      {
+        path: 'nutrition',
+        name: 'Nutrition',
+        component: NutritionDashboardView,
       },
       {
         path: 'tasks',

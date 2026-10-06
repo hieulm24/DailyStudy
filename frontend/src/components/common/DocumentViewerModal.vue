@@ -188,14 +188,15 @@
           </span>
         </div>
 
-        <!-- 3. Text Toolbar (Copy all text, line counter) -->
+        <!-- 3. Text / Markdown Toolbar -->
         <div
-          v-if="!isLoading && !loadError && detectedFormat === 'TEXT'"
+          v-if="!isLoading && !loadError && (detectedFormat === 'TEXT' || detectedFormat === 'MARKDOWN')"
           class="px-4 py-2 bg-slate-100 border-b border-slate-200 flex items-center justify-between gap-3 shrink-0"
         >
           <div class="flex items-center gap-2 text-xs text-slate-600">
-            <FileText class="w-4 h-4 text-slate-500" />
-            <span>Tổng cộng: <strong>{{ textLinesCount }}</strong> dòng văn bản</span>
+            <FileCode v-if="detectedFormat === 'MARKDOWN'" class="w-4 h-4 text-emerald-600" />
+            <FileText v-else class="w-4 h-4 text-slate-500" />
+            <span>Tổng cộng: <strong>{{ textLinesCount }}</strong> dòng</span>
           </div>
           <button
             type="button"
@@ -347,7 +348,15 @@
               </div>
             </div>
 
-            <!-- 5. Text / Code Viewer -->
+            <!-- 5. Markdown Viewer -->
+            <div
+              v-else-if="detectedFormat === 'MARKDOWN'"
+              class="w-full h-full overflow-y-auto p-6 sm:p-10 bg-white flex justify-center custom-scrollbar"
+            >
+              <div class="max-w-4xl w-full text-slate-800 select-text leading-relaxed" v-html="parsedMarkdownContent"></div>
+            </div>
+
+            <!-- 6. Text / Code Viewer -->
             <div v-else-if="detectedFormat === 'TEXT'" class="w-full h-full overflow-auto bg-slate-950 text-slate-200 p-4 sm:p-6 font-mono text-xs sm:text-sm">
               <div class="flex gap-4">
                 <!-- Line Numbers -->
@@ -449,11 +458,12 @@ const textState = reactive({
 });
 
 // Detect document format accurately from extension + type
-const detectedFormat = computed<'PDF' | 'WORD' | 'EXCEL' | 'IMAGE' | 'TEXT' | 'POWERPOINT' | 'OTHER'>(() => {
+const detectedFormat = computed<'PDF' | 'WORD' | 'EXCEL' | 'IMAGE' | 'TEXT' | 'MARKDOWN' | 'POWERPOINT' | 'OTHER'>(() => {
   if (!props.document) return 'OTHER';
   const fileName = (props.document.fileName || '').toLowerCase();
   const fileType = (props.document.fileType || '').toUpperCase();
 
+  if (fileName.endsWith('.md') || fileName.endsWith('.markdown')) return 'MARKDOWN';
   if (fileType === 'PDF' || fileName.endsWith('.pdf')) return 'PDF';
   if (fileType === 'WORD' || fileName.endsWith('.docx') || fileName.endsWith('.doc')) return 'WORD';
   if (fileType === 'EXCEL' || fileName.endsWith('.xlsx') || fileName.endsWith('.xls') || fileName.endsWith('.csv')) return 'EXCEL';
@@ -473,7 +483,6 @@ const detectedFormat = computed<'PDF' | 'WORD' | 'EXCEL' | 'IMAGE' | 'TEXT' | 'P
     fileType === 'TEXT' ||
     fileName.endsWith('.txt') ||
     fileName.endsWith('.json') ||
-    fileName.endsWith('.md') ||
     fileName.endsWith('.sql') ||
     fileName.endsWith('.java') ||
     fileName.endsWith('.ts') ||
@@ -495,6 +504,8 @@ const headerIconStyle = computed(() => {
       return { icon: FileSpreadsheet, bg: 'bg-emerald-500/20 text-emerald-400', color: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
     case 'IMAGE':
       return { icon: ImageIcon, bg: 'bg-purple-500/20 text-purple-400', color: 'text-purple-400', badge: 'bg-purple-500/20 text-purple-300 border-purple-500/30' };
+    case 'MARKDOWN':
+      return { icon: FileCode, bg: 'bg-emerald-500/20 text-emerald-400', color: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
     case 'POWERPOINT':
       return { icon: Presentation, bg: 'bg-amber-500/20 text-amber-400', color: 'text-amber-400', badge: 'bg-amber-500/20 text-amber-300 border-amber-500/30' };
     case 'TEXT':
@@ -625,7 +636,7 @@ async function loadDocumentContent(doc: LearningDocument) {
       blobUrl.value = URL.createObjectURL(blob);
       imageState.zoom = 100;
       imageState.rotation = 0;
-    } else if (format === 'TEXT') {
+    } else if (format === 'TEXT' || format === 'MARKDOWN') {
       const blob = await documentService.getDocumentBlob(doc.id);
       textState.content = await blob.text();
     } else {
@@ -689,6 +700,219 @@ function resetZoom() {
 
 function rotateImage() {
   imageState.rotation = (imageState.rotation + 90) % 360;
+}
+
+// Markdown Parser & Computed Content
+const parsedMarkdownContent = computed(() => {
+  return parseMarkdown(textState.content || '');
+});
+
+function parseMarkdown(md: string): string {
+  if (!md) return '';
+
+  // 1. Normalize line endings
+  let text = md.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+  // 2. Extract and protect Fenced Code Blocks (```lang ... ```)
+  const codeBlocks: string[] = [];
+  text = text.replace(/```([a-zA-Z0-9_-]*)[ \t]*\n([\s\S]*?)```/g, (_, lang, code) => {
+    const placeholder = `%%%PROTECTEDCODEBLOCK${codeBlocks.length}%%%`;
+    const escapedCode = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .trim();
+
+    const blockHtml = `<div class="my-4 rounded-md overflow-hidden border border-slate-700 bg-slate-900 shadow-sm"><div class="px-4 py-1.5 bg-slate-800 text-slate-300 text-xs font-mono font-bold flex justify-between items-center border-b border-slate-700"><span>${lang || 'code'}</span></div><pre class="p-4 text-xs sm:text-sm font-mono text-emerald-400 overflow-x-auto selection:bg-brand-600 selection:text-white leading-relaxed whitespace-pre"><code class="text-emerald-400 font-mono">${escapedCode}</code></pre></div>`;
+
+    codeBlocks.push(blockHtml);
+    return placeholder;
+  });
+
+  // 3. Extract and protect Inline Code (`...`)
+  const inlineCodes: string[] = [];
+  text = text.replace(/`([^`\n]+)`/g, (_, code) => {
+    const placeholder = `%%%PROTECTEDINLINECODE${inlineCodes.length}%%%`;
+    const escapedCode = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    const inlineHtml = `<code class="px-1.5 py-0.5 bg-slate-100 text-brand-700 rounded text-xs font-mono border border-slate-200">${escapedCode}</code>`;
+    inlineCodes.push(inlineHtml);
+    return placeholder;
+  });
+
+  // 4. Escape general HTML in the remaining text
+  text = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // 5. Process block-level elements (headings, blockquotes, lists, tables)
+  const lines = text.split('\n');
+  const resultLines: string[] = [];
+  let inList = false;
+  let listType: 'ul' | 'ol' = 'ul';
+  let inTable = false;
+  let tableHeaderProcessed = false;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Check if line is a protected code block placeholder
+    if (line.includes('%%%PROTECTEDCODEBLOCK')) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      if (inTable) { inTable = false; resultLines.push('</tbody></table></div>'); }
+      resultLines.push(line);
+      continue;
+    }
+
+    // Table rows: | Col 1 | Col 2 |
+    if (/^\s*\|(.+)\|\s*$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      if (!inTable) {
+        inTable = true;
+        tableHeaderProcessed = false;
+        resultLines.push('<div class="my-4 overflow-x-auto rounded-md border border-slate-200 shadow-xs"><table class="w-full border-collapse text-left text-sm text-slate-800 divide-y divide-slate-200">');
+      }
+
+      // Separator line: |---|---|
+      if (/^\s*\|(\s*:?-+:?\s*\|)+\s*$/.test(line)) {
+        continue;
+      }
+
+      const cells = line.trim().slice(1, -1).split('|').map(c => c.trim());
+      if (!tableHeaderProcessed) {
+        tableHeaderProcessed = true;
+        const ths = cells.map(c => `<th class="py-2.5 px-4 bg-slate-50 font-bold text-slate-700 text-xs uppercase tracking-wider">${c}</th>`).join('');
+        resultLines.push(`<thead class="bg-slate-50"><tr>${ths}</tr></thead><tbody class="divide-y divide-slate-100 bg-white">`);
+      } else {
+        const tds = cells.map(c => `<td class="py-2.5 px-4 text-slate-700 text-sm whitespace-pre-wrap">${c}</td>`).join('');
+        resultLines.push(`<tr class="hover:bg-slate-50/50">${tds}</tr>`);
+      }
+      continue;
+    } else if (inTable) {
+      inTable = false;
+      resultLines.push('</tbody></table></div>');
+    }
+
+    // Horizontal Rule: --- or ***
+    if (/^(\*{3,}|-{3,}|_{3,})\s*$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      resultLines.push('<hr class="my-6 border-slate-200" />');
+      continue;
+    }
+
+    // Headings
+    if (/^######\s+(.+)$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      resultLines.push(line.replace(/^######\s+(.+)$/, '<h6 class="text-xs font-bold text-slate-700 mt-4 mb-1 uppercase tracking-wide">$1</h6>'));
+      continue;
+    }
+    if (/^#####\s+(.+)$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      resultLines.push(line.replace(/^#####\s+(.+)$/, '<h5 class="text-sm font-bold text-slate-800 mt-4 mb-2">$1</h5>'));
+      continue;
+    }
+    if (/^####\s+(.+)$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      resultLines.push(line.replace(/^####\s+(.+)$/, '<h4 class="text-base font-bold text-slate-900 mt-5 mb-2">$1</h4>'));
+      continue;
+    }
+    if (/^###\s+(.+)$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      resultLines.push(line.replace(/^###\s+(.+)$/, '<h3 class="text-lg font-bold text-slate-900 mt-6 mb-2 pb-1 border-b border-slate-100">$1</h3>'));
+      continue;
+    }
+    if (/^##\s+(.+)$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      resultLines.push(line.replace(/^##\s+(.+)$/, '<h2 class="text-xl font-bold text-slate-900 mt-7 mb-3 pb-1 border-b border-slate-200">$1</h2>'));
+      continue;
+    }
+    if (/^#\s+(.+)$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      resultLines.push(line.replace(/^#\s+(.+)$/, '<h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-8 mb-4 pb-2 border-b border-slate-200">$1</h1>'));
+      continue;
+    }
+
+    // Blockquote
+    if (/^&gt;\s*(.*)$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      resultLines.push(line.replace(/^&gt;\s*(.*)$/, '<blockquote class="my-3 pl-4 py-1.5 border-l-4 border-brand-500 bg-brand-50/40 text-slate-700 text-sm italic rounded-r">$1</blockquote>'));
+      continue;
+    }
+
+    // Task list items: - [ ] or - [x]
+    if (/^[\*\-]\s+\[([ xX])\]\s+(.*)$/.test(line)) {
+      if (inList) { inList = false; resultLines.push(`</${listType}>`); }
+      const isChecked = /\[[xX]\]/.test(line);
+      const itemText = line.replace(/^[\*\-]\s+\[([ xX])\]\s+/, '');
+      resultLines.push(`<div class="flex items-center gap-2.5 my-1 text-sm text-slate-800"><input type="checkbox" ${isChecked ? 'checked' : ''} disabled class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-4 h-4" /><span class="${isChecked ? 'line-through text-slate-400' : ''}">${itemText}</span></div>`);
+      continue;
+    }
+
+    // Unordered List
+    if (/^[\*\-]\s+(.+)$/.test(line)) {
+      if (!inList || listType !== 'ul') {
+        if (inList) resultLines.push(`</${listType}>`);
+        inList = true;
+        listType = 'ul';
+        resultLines.push('<ul class="list-disc list-inside space-y-1 my-2 text-sm text-slate-700 pl-2">');
+      }
+      resultLines.push(line.replace(/^[\*\-]\s+(.+)$/, '<li class="leading-relaxed">$1</li>'));
+      continue;
+    }
+
+    // Ordered List
+    if (/^\d+\.\s+(.+)$/.test(line)) {
+      if (!inList || listType !== 'ol') {
+        if (inList) resultLines.push(`</${listType}>`);
+        inList = true;
+        listType = 'ol';
+        resultLines.push('<ol class="list-decimal list-inside space-y-1 my-2 text-sm text-slate-700 pl-2">');
+      }
+      resultLines.push(line.replace(/^\d+\.\s+(.+)$/, '<li class="leading-relaxed">$1</li>'));
+      continue;
+    }
+
+    // End list if regular line
+    if (inList) {
+      inList = false;
+      resultLines.push(`</${listType}>`);
+    }
+
+    // Paragraph
+    if (line.trim().length > 0) {
+      resultLines.push(`<p class="my-2.5 leading-relaxed text-slate-700 text-sm sm:text-base">${line}</p>`);
+    } else {
+      resultLines.push('');
+    }
+  }
+
+  if (inList) resultLines.push(`</${listType}>`);
+  if (inTable) resultLines.push('</tbody></table></div>');
+
+  let output = resultLines.join('\n');
+
+  // 6. Inline formatting (applied only outside protected code blocks & inline code)
+  output = output.replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>');
+  output = output.replace(/__([^_]+)__/g, '<strong class="font-bold text-slate-900">$1</strong>');
+  output = output.replace(/\*([^*]+)\*/g, '<em class="italic text-slate-800">$1</em>');
+  output = output.replace(/\b_([^_]+)_\b/g, '<em class="italic text-slate-800">$1</em>');
+  output = output.replace(/~~([^~]+)~~/g, '<del class="line-through text-slate-400">$1</del>');
+  output = output.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-800 underline font-medium">$1</a>');
+
+  // 7. Restore protected inline code
+  inlineCodes.forEach((codeHtml, idx) => {
+    output = output.split(`%%%PROTECTEDINLINECODE${idx}%%%`).join(codeHtml);
+  });
+
+  // 8. Restore protected code blocks
+  codeBlocks.forEach((blockHtml, idx) => {
+    output = output.split(`%%%PROTECTEDCODEBLOCK${idx}%%%`).join(blockHtml);
+  });
+
+  return output;
 }
 
 // Text Copy

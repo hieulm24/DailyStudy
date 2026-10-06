@@ -1,5 +1,6 @@
 package com.englishlearning.service;
 
+import com.englishlearning.common.BadRequestException;
 import com.englishlearning.common.PageResponse;
 import com.englishlearning.common.ResourceNotFoundException;
 import com.englishlearning.dto.task.*;
@@ -45,13 +46,19 @@ public class DailyTaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin người dùng"));
 
         LocalDate date = request.getTaskDate() != null ? request.getTaskDate() : LocalDate.now();
+        boolean isFuture = date.isAfter(LocalDate.now());
 
         int order = request.getDisplayOrder() != null
                 ? request.getDisplayOrder()
                 : dailyTaskRepository.findMaxDisplayOrderByUserIdAndTaskDate(userId, date) + 1;
 
-        String status = StringUtils.hasText(request.getStatus()) ? request.getStatus().toUpperCase() : "PENDING";
-        boolean isCompleted = "COMPLETED".equalsIgnoreCase(status);
+        String status = StringUtils.hasText(request.getStatus()) ? request.getStatus().toUpperCase() : "TODO";
+        boolean isCompleted = "COMPLETED".equalsIgnoreCase(status) || Boolean.TRUE.equals(request.getIsCompleted());
+
+        if (isFuture && (isCompleted || "COMPLETED".equalsIgnoreCase(status))) {
+            throw new BadRequestException("Không thể đánh dấu hoàn thành công việc của ngày trong tương lai");
+        }
+
         LocalDateTime completedAt = isCompleted ? LocalDateTime.now() : null;
 
         DailyTask task = DailyTask.builder()
@@ -166,6 +173,9 @@ public class DailyTaskService {
         DailyTask task = dailyTaskRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy công việc"));
 
+        LocalDate targetDate = request.getTaskDate() != null ? request.getTaskDate() : task.getTaskDate();
+        boolean isFuture = targetDate != null && targetDate.isAfter(LocalDate.now());
+
         task.setTitle(request.getTitle().trim());
         task.setDescription(request.getDescription());
         if (request.getTaskDate() != null) {
@@ -179,6 +189,9 @@ public class DailyTaskService {
         }
         if (StringUtils.hasText(request.getStatus())) {
             String newStatus = request.getStatus().toUpperCase();
+            if ("COMPLETED".equals(newStatus) && isFuture) {
+                throw new BadRequestException("Không thể đánh dấu hoàn thành công việc của ngày trong tương lai");
+            }
             task.setStatus(newStatus);
             if ("COMPLETED".equals(newStatus)) {
                 task.setIsCompleted(true);
@@ -204,13 +217,17 @@ public class DailyTaskService {
         DailyTask task = dailyTaskRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy công việc"));
 
+        if (task.getTaskDate() != null && task.getTaskDate().isAfter(LocalDate.now())) {
+            throw new BadRequestException("Không thể đánh dấu hoàn thành công việc của ngày trong tương lai");
+        }
+
         boolean willBeCompleted = !Boolean.TRUE.equals(task.getIsCompleted());
         task.setIsCompleted(willBeCompleted);
         if (willBeCompleted) {
             task.setStatus("COMPLETED");
             task.setCompletedAt(LocalDateTime.now());
         } else {
-            task.setStatus("PENDING");
+            task.setStatus("TODO");
             task.setCompletedAt(null);
         }
 
@@ -224,6 +241,10 @@ public class DailyTaskService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy công việc"));
 
         String upperStatus = status.toUpperCase();
+        if ("COMPLETED".equals(upperStatus) && task.getTaskDate() != null && task.getTaskDate().isAfter(LocalDate.now())) {
+            throw new BadRequestException("Không thể đánh dấu hoàn thành công việc của ngày trong tương lai");
+        }
+
         task.setStatus(upperStatus);
         if ("COMPLETED".equals(upperStatus)) {
             task.setIsCompleted(true);

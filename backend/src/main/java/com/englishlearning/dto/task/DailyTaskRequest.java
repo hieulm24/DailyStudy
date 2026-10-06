@@ -21,6 +21,7 @@ public class DailyTaskRequest {
     private String category; // ENGLISH, WORK, PERSONAL, PROJECT, OTHER
     private String priority = "MEDIUM"; // HIGH, MEDIUM, LOW
     private String status = "PENDING"; // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+    private Boolean isCompleted;
     private Integer displayOrder;
     private String estimatedTime;
 }

@@ -329,7 +329,7 @@
                 <option value="PDF">PDF (.pdf)</option>
                 <option value="POWERPOINT">PowerPoint (.pptx)</option>
                 <option value="IMAGE">Hình ảnh (.png, .jpg)</option>
-                <option value="TEXT">Văn bản (.txt)</option>
+                <option value="TEXT">Văn bản & Markdown (.md, .txt)</option>
                 <option value="OTHER">Khác</option>
               </select>
             </div>
@@ -585,7 +585,7 @@
     <!-- ============================================================ -->
     <div v-else-if="activeTab === 'LINKS'" class="space-y-5">
       <!-- Filter Bar for Links -->
-      <div class="bg-white p-4.5 rounded-md border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div class="flex-1 max-w-md">
           <AppSearch v-model="linkFilter.search" placeholder="Tìm theo tên trang web, URL..." @search="() => loadLinks(0)" />
         </div>
@@ -752,7 +752,7 @@
         <!-- File Dropzone -->
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">
-            Chọn tệp tin (Excel, Word, PDF, PPT, Ảnh...) <span class="text-rose-500">*</span>
+            Chọn tệp tin (Excel, Word, PDF, Markdown, Text, PPT, Ảnh...) <span class="text-rose-500">*</span>
           </label>
           <div
             :class="[
@@ -768,7 +768,7 @@
               type="file"
               class="hidden"
               @change="handleFileChange"
-              accept=".xlsx,.xls,.csv,.docx,.doc,.pdf,.pptx,.ppt,.txt,.png,.jpg,.jpeg"
+              accept=".xlsx,.xls,.csv,.docx,.doc,.pdf,.pptx,.ppt,.txt,.md,.markdown,.json,.sql,.java,.ts,.js,.html,.css,.xml,.yml,.yaml,.png,.jpg,.jpeg,.webp"
             />
 
             <div v-if="!selectedFile" class="space-y-2">
@@ -777,7 +777,7 @@
                 Kéo thả file vào đây hoặc <span class="text-brand-600 underline">Chọn từ máy tính</span>
               </p>
               <p class="text-xs text-slate-400">
-                Hỗ trợ Excel (.xlsx, .xls), Word (.docx), PDF, PowerPoint, hình ảnh (Tối đa 50MB)
+                Hỗ trợ Excel, Word (.docx), PDF, Markdown (.md), Text (.txt, .json, .sql), PowerPoint, Hình ảnh (Tối đa 50MB)
               </p>
             </div>
 
@@ -1532,6 +1532,8 @@ function getFileTypeStyles(fileType: string) {
       return { bg: 'bg-amber-50 border-amber-200', color: 'text-amber-600', icon: Presentation };
     case 'IMAGE':
       return { bg: 'bg-purple-50 border-purple-200', color: 'text-purple-600', icon: ImageIcon };
+    case 'TEXT':
+      return { bg: 'bg-teal-50 border-teal-200', color: 'text-teal-600', icon: FileCode };
     default:
       return { bg: 'bg-slate-50 border-slate-200', color: 'text-slate-600', icon: File };
   }

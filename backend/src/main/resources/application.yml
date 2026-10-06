@@ -50,3 +50,7 @@ app:
     display-name: ${DEFAULT_USER_NAME:Lãnh Minh Hiếu}
   upload:
     dir: ${UPLOAD_DIR:uploads/documents}
+  nutrition:
+    usda:
+      api-key: ${USDA_API_KEY:DEMO_KEY}
+      base-url: ${USDA_BASE_URL:https://api.nal.usda.gov/fdc/v1}

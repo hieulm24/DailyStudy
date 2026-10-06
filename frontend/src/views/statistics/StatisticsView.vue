@@ -35,12 +35,12 @@
     </div>
 
     <!-- Main Tab Navigation Switcher -->
-    <div class="bg-white p-1.5 rounded-md border border-slate-200 shadow-xs flex items-center gap-1">
+    <div class="bg-white p-1.5 rounded-md border border-slate-200 shadow-xs flex flex-col sm:flex-row items-center gap-1">
       <button
         type="button"
         @click="activeTab = 'ENGLISH'"
         :class="[
-          'flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-bold transition-all',
+          'w-full sm:flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-bold transition-all cursor-pointer',
           activeTab === 'ENGLISH'
             ? 'bg-brand-600 text-white shadow-xs'
             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -54,57 +54,73 @@
         type="button"
         @click="activeTab = 'TASKS'"
         :class="[
-          'flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-bold transition-all',
+          'w-full sm:flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-bold transition-all cursor-pointer',
           activeTab === 'TASKS'
             ? 'bg-brand-600 text-white shadow-xs'
             : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
         ]"
       >
         <CheckSquare class="w-4.5 h-4.5" />
-        <span>Thống kê việc hàng ngày (Daily Tasks)</span>
+        <span>Thống kê việc hàng ngày (Tasks)</span>
+      </button>
+
+      <button
+        type="button"
+        @click="activeTab = 'NUTRITION'"
+        :class="[
+          'w-full sm:flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md text-sm font-bold transition-all cursor-pointer',
+          activeTab === 'NUTRITION'
+            ? 'bg-brand-600 text-white shadow-xs'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+        ]"
+      >
+        <Flame class="w-4.5 h-4.5 text-rose-500" />
+        <span>Dinh dưỡng & Năng lượng (Calo)</span>
       </button>
     </div>
+
 
     <!-- TAB 1: ENGLISH LEARNING STATISTICS -->
     <div v-if="activeTab === 'ENGLISH'" class="space-y-6">
       <!-- Overview Counters Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <span class="text-xs sm:text-sm text-slate-600 font-semibold block">Tổng Từ Vựng</span>
           <span class="text-2xl sm:text-3xl font-extrabold text-brand-600 mt-1">{{ summary?.totalVocabulary || 0 }}</span>
           <span class="text-xs text-slate-400 block mt-1">mục đã lưu</span>
         </div>
 
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <span class="text-xs sm:text-sm text-slate-600 font-semibold block">Tổng Ngữ Pháp</span>
           <span class="text-2xl sm:text-3xl font-extrabold text-purple-600 mt-1">{{ summary?.totalGrammar || 0 }}</span>
           <span class="text-xs text-slate-400 block mt-1">cấu trúc</span>
         </div>
 
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <span class="text-xs sm:text-sm text-slate-600 font-semibold block">Bài Luyện Nghe</span>
           <span class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1">{{ summary?.totalListening || 0 }}</span>
           <span class="text-xs text-slate-400 block mt-1">bài hoàn thành</span>
         </div>
 
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <span class="text-xs sm:text-sm text-slate-600 font-semibold block">Bài Luyện Nói</span>
           <span class="text-2xl sm:text-3xl font-extrabold text-rose-600 mt-1">{{ summary?.totalSpeaking || 0 }}</span>
           <span class="text-xs text-slate-400 block mt-1">chủ đề đã nói</span>
         </div>
 
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <span class="text-xs sm:text-sm text-slate-600 font-semibold block">Lượt Ôn Tập</span>
           <span class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1">{{ summary?.totalReviews || 0 }}</span>
           <span class="text-xs text-slate-400 block mt-1">lượt spaced rep</span>
         </div>
 
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <span class="text-xs sm:text-sm text-slate-600 font-semibold block">Lượt Chơi Game</span>
           <span class="text-2xl sm:text-3xl font-extrabold text-indigo-600 mt-1">{{ summary?.totalGameSessions || 0 }}</span>
           <span class="text-xs text-slate-400 block mt-1">phiên thử thách</span>
         </div>
       </div>
+
 
       <!-- Streak & Study Days Card + Heatmap -->
       <div class="bg-white p-6 sm:p-7 rounded-md border border-slate-200 shadow-xs space-y-4">
@@ -319,7 +335,7 @@
 
       <!-- Task Stats Overview Cards -->
       <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="text-xs sm:text-sm text-slate-600 font-semibold">Tổng ngày có việc</span>
             <div class="w-8 h-8 rounded-md bg-slate-100 text-slate-600 flex items-center justify-center">
@@ -330,7 +346,7 @@
           <span class="text-xs text-slate-400 mt-1">ngày đã lên lịch</span>
         </div>
 
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="text-xs sm:text-sm text-slate-600 font-semibold">Tổng số công việc</span>
             <div class="w-8 h-8 rounded-md bg-brand-50 text-brand-600 flex items-center justify-center">
@@ -341,7 +357,7 @@
           <span class="text-xs text-slate-400 mt-1">mục tiêu tổng cộng</span>
         </div>
 
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="text-xs sm:text-sm text-emerald-700 font-semibold">Đã hoàn thành</span>
             <div class="w-8 h-8 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -352,7 +368,7 @@
           <span class="text-xs text-slate-400 mt-1">việc đã làm xong</span>
         </div>
 
-        <div class="bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="text-xs sm:text-sm text-purple-700 font-semibold">Ngày hoàn hảo (100%)</span>
             <div class="w-8 h-8 rounded-md bg-purple-50 text-purple-600 flex items-center justify-center">
@@ -363,7 +379,7 @@
           <span class="text-xs text-slate-400 mt-1">ngày xong 100% mục tiêu</span>
         </div>
 
-        <div class="col-span-2 sm:col-span-2 lg:col-span-1 bg-white p-4.5 sm:p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div class="col-span-2 sm:col-span-2 lg:col-span-1 bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between">
           <div class="flex items-center justify-between">
             <span class="text-xs sm:text-sm text-amber-700 font-semibold">Tỷ lệ hoàn thành chung</span>
             <div class="w-8 h-8 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -546,7 +562,13 @@
       </div>
     </div>
 
+    <!-- TAB 3: NUTRITION & CALORIE DEFICIT STATISTICS -->
+    <div v-else-if="activeTab === 'NUTRITION'">
+      <NutritionStatisticsTab ref="nutritionStatsRef" />
+    </div>
+
     <!-- Modal Chi Tiết Công Việc Ngày -->
+
     <AppModal
       v-model="showDayDetailModal"
       :title="`Chi tiết công việc ngày: ${selectedModalDateFormatted}`"
@@ -626,13 +648,16 @@
                     <button
                       type="button"
                       @click="toggleModalTaskCompletion(task)"
+                      :disabled="isFutureDate(task.taskDate)"
                       :class="[
                         'w-5 h-5 rounded border-2 flex items-center justify-center transition-all',
-                        task.isCompleted
-                          ? 'bg-emerald-500 border-emerald-500 text-white shadow-xs'
-                          : 'border-slate-300 hover:border-brand-500 bg-white text-transparent'
+                        isFutureDate(task.taskDate)
+                          ? 'bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed opacity-60'
+                          : task.isCompleted
+                            ? 'bg-emerald-500 border-emerald-500 text-white shadow-xs cursor-pointer'
+                            : 'border-slate-300 hover:border-brand-500 bg-white text-transparent cursor-pointer'
                       ]"
-                      title="Tích để hoàn thành / bỏ hoàn thành"
+                      :title="isFutureDate(task.taskDate) ? 'Không thể đánh dấu hoàn thành công việc ở ngày tương lai' : 'Tích để hoàn thành / bỏ hoàn thành'"
                     >
                       <Check class="w-3.5 h-3.5 stroke-[3]" />
                     </button>
@@ -753,6 +778,7 @@ import type {
 import AppButton from '../../components/common/AppButton.vue';
 import AppModal from '../../components/common/AppModal.vue';
 import AppPagination from '../../components/common/AppPagination.vue';
+import NutritionStatisticsTab from '../../components/statistics/NutritionStatisticsTab.vue';
 import {
   BarChart3,
   Flame,
@@ -790,8 +816,9 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const route = useRoute();
 const toast = useToastStore();
 
-// Tab state: 'ENGLISH' | 'TASKS'
-const activeTab = ref<'ENGLISH' | 'TASKS'>('ENGLISH');
+// Tab state: 'ENGLISH' | 'TASKS' | 'NUTRITION'
+const activeTab = ref<'ENGLISH' | 'TASKS' | 'NUTRITION'>('ENGLISH');
+const nutritionStatsRef = ref<InstanceType<typeof NutritionStatisticsTab> | null>(null);
 
 // Tab 1 state: English Learning Stats
 const summary = ref<DashboardSummary | null>(null);
@@ -814,6 +841,21 @@ const taskCustomFromDate = ref('');
 const taskCustomToDate = ref('');
 const isLoadingTasksStats = ref(false);
 
+// Local Date Helpers
+function getLocalDateString(date = new Date()): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+const todayStr = getLocalDateString();
+
+function isFutureDate(dateStr?: string): boolean {
+  if (!dateStr) return false;
+  return dateStr > todayStr;
+}
+
 // Modal state
 const showDayDetailModal = ref(false);
 const selectedModalDate = ref('');
@@ -823,6 +865,8 @@ const isLoadingModalTasks = ref(false);
 onMounted(async () => {
   if (route.query.tab === 'tasks') {
     activeTab.value = 'TASKS';
+  } else if (route.query.tab === 'nutrition') {
+    activeTab.value = 'NUTRITION';
   }
 
   await Promise.all([
@@ -838,6 +882,8 @@ watch(
       activeTab.value = 'TASKS';
     } else if (newTab === 'english') {
       activeTab.value = 'ENGLISH';
+    } else if (newTab === 'nutrition') {
+      activeTab.value = 'NUTRITION';
     }
   }
 );
@@ -847,14 +893,17 @@ async function refreshCurrentTabData() {
   try {
     if (activeTab.value === 'ENGLISH') {
       await loadEnglishData();
-    } else {
+    } else if (activeTab.value === 'TASKS') {
       await loadTaskStats();
+    } else if (activeTab.value === 'NUTRITION') {
+      await nutritionStatsRef.value?.fetchData();
     }
     toast.success('Đã cập nhật dữ liệu thống kê mới nhất');
   } finally {
     isRefreshing.value = false;
   }
 }
+
 
 // ----------------------------------------------------
 // TAB 1 METHODS (English Stats)
@@ -1147,6 +1196,11 @@ async function openDayDetailModal(date: string) {
 }
 
 async function toggleModalTaskCompletion(task: DailyTask) {
+  if (isFutureDate(task.taskDate)) {
+    toast.warning('Không thể đánh dấu hoàn thành công việc của ngày trong tương lai!');
+    return;
+  }
+
   const originalState = task.isCompleted;
   task.isCompleted = !originalState;
   task.status = task.isCompleted ? 'COMPLETED' : 'TODO';
@@ -1157,10 +1211,11 @@ async function toggleModalTaskCompletion(task: DailyTask) {
     task.status = updated.status;
     // Refresh background stats silently
     loadTaskStats();
-  } catch (error) {
+  } catch (error: any) {
     task.isCompleted = originalState;
     task.status = originalState ? 'COMPLETED' : 'TODO';
-    toast.error('Lỗi khi cập nhật trạng thái');
+    const msg = error?.response?.data?.message || 'Lỗi khi cập nhật trạng thái';
+    toast.error(msg);
   }
 }
 
