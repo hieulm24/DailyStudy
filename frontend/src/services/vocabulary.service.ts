@@ -1,7 +1,8 @@
 import api from './api';
-import type { ApiResponse, PageResponse, Vocabulary } from '../types';
+import type { ApiResponse, PageResponse, Vocabulary, VocabularyTopic, VocabularyTopicFilter, VocabularyTopicRequest } from '../types';
 
 export interface VocabularyFilterParams {
+  topicId?: number;
   search?: string;
   level?: string;
   partOfSpeech?: string;
@@ -16,6 +17,37 @@ export interface VocabularyFilterParams {
 }
 
 export const vocabularyService = {
+  // Topics API
+  async getTopics(params?: VocabularyTopicFilter): Promise<PageResponse<VocabularyTopic>> {
+    const res = await api.get<ApiResponse<PageResponse<VocabularyTopic>>>('/vocabulary-topics', { params });
+    return res.data.data;
+  },
+
+  async getAllTopics(): Promise<VocabularyTopic[]> {
+    const res = await api.get<ApiResponse<VocabularyTopic[]>>('/vocabulary-topics/all');
+    return res.data.data;
+  },
+
+  async getTopicById(id: number): Promise<VocabularyTopic> {
+    const res = await api.get<ApiResponse<VocabularyTopic>>(`/vocabulary-topics/${id}`);
+    return res.data.data;
+  },
+
+  async createTopic(data: VocabularyTopicRequest): Promise<VocabularyTopic> {
+    const res = await api.post<ApiResponse<VocabularyTopic>>('/vocabulary-topics', data);
+    return res.data.data;
+  },
+
+  async updateTopic(id: number, data: Partial<VocabularyTopicRequest>): Promise<VocabularyTopic> {
+    const res = await api.put<ApiResponse<VocabularyTopic>>(`/vocabulary-topics/${id}`, data);
+    return res.data.data;
+  },
+
+  async deleteTopic(id: number): Promise<void> {
+    await api.delete<ApiResponse<void>>(`/vocabulary-topics/${id}`);
+  },
+
+  // Vocabularies API
   async getVocabularies(params?: VocabularyFilterParams): Promise<PageResponse<Vocabulary>> {
     const res = await api.get<ApiResponse<PageResponse<Vocabulary>>>('/vocabularies', { params });
     return res.data.data;
@@ -45,3 +77,4 @@ export const vocabularyService = {
     return res.data.data;
   },
 };
+

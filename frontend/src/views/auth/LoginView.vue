@@ -4,16 +4,10 @@
       <div class="flex justify-center">
         <img
           src="/logo.png"
-          alt="DailyStudy Hub Logo"
-          class="w-16 h-16 object-contain rounded-md shadow-sm border border-slate-200 bg-white p-1"
+          alt="My Life Logo"
+          style="max-height: 96px; width: auto; object-fit: contain;"
         />
       </div>
-      <h2 class="mt-4 text-center text-xl font-bold tracking-tight text-slate-900">
-        DailyStudy Hub
-      </h2>
-      <p class="mt-1 text-center text-xs text-slate-500">
-        Hệ thống quản lý kế hoạch hàng ngày & học tập thông minh
-      </p>
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">

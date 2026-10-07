@@ -11,6 +11,7 @@ public class VocabularyFilterRequest {
     private String level;
     private String partOfSpeech;
     private String status;
+    private Long topicId;
     private String dateRange; // TODAY, YESTERDAY, LAST_7_DAYS, LAST_30_DAYS, CUSTOM
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)

@@ -24,6 +24,10 @@ public class Vocabulary {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_id")
+    private VocabularyTopic topic;
+
     @Column(name = "word", nullable = false, length = 255)
     private String word;
 

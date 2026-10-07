@@ -21,6 +21,8 @@ public class VocabularyResponse {
     private String level;
     private String note;
     private String status;
+    private Long topicId;
+    private String topicName;
     private Integer masteryLevel;
     private Integer reviewCount;
     private LocalDateTime lastReviewedAt;

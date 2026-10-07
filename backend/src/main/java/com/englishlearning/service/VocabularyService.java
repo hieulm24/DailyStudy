@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 public class VocabularyService {
 
     private final VocabularyRepository vocabularyRepository;
+    private final VocabularyTopicRepository vocabularyTopicRepository;
     private final VocabularyExampleRepository vocabularyExampleRepository;
     private final ReviewItemRepository reviewItemRepository;
     private final LearningActivityRepository learningActivityRepository;
@@ -43,6 +44,10 @@ public class VocabularyService {
         Specification<Vocabulary> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get("user").get("id"), userId));
+
+            if (filter.getTopicId() != null) {
+                predicates.add(cb.equal(root.get("topic").get("id"), filter.getTopicId()));
+            }
 
             if (StringUtils.hasText(filter.getSearch())) {
                 String keyword = "%" + filter.getSearch().trim().toLowerCase() + "%";
@@ -100,8 +105,14 @@ public class VocabularyService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+        VocabularyTopic topic = null;
+        if (request.getTopicId() != null) {
+            topic = vocabularyTopicRepository.findByIdAndUserId(request.getTopicId(), userId).orElse(null);
+        }
+
         Vocabulary vocabulary = Vocabulary.builder()
                 .user(user)
+                .topic(topic)
                 .word(request.getWord().trim())
                 .meaning(request.getMeaning().trim())
                 .pronunciation(request.getPronunciation() != null ? request.getPronunciation().trim() : null)
@@ -184,6 +195,14 @@ public class VocabularyService {
         vocabulary.setNote(request.getNote());
         if (StringUtils.hasText(request.getStatus())) {
             vocabulary.setStatus(request.getStatus());
+        }
+
+        if (request.getTopicId() != null) {
+            VocabularyTopic topic = vocabularyTopicRepository.findByIdAndUserId(request.getTopicId(), userId)
+                    .orElse(null);
+            vocabulary.setTopic(topic);
+        } else {
+            vocabulary.setTopic(null);
         }
 
         vocabulary.getExamples().clear();
@@ -335,6 +354,8 @@ public class VocabularyService {
                 .level(vocab.getLevel())
                 .note(vocab.getNote())
                 .status(vocab.getStatus())
+                .topicId(vocab.getTopic() != null ? vocab.getTopic().getId() : null)
+                .topicName(vocab.getTopic() != null ? vocab.getTopic().getName() : null)
                 .masteryLevel(vocab.getMasteryLevel())
                 .reviewCount(vocab.getReviewCount())
                 .lastReviewedAt(vocab.getLastReviewedAt())

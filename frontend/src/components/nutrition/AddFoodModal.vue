@@ -494,8 +494,27 @@ const formattedDate = computed(() => {
   return `${d}/${m}/${y}`;
 });
 
+const EXACT_QUICK_FOODS = [
+  'trứng gà',
+  'ức gà',
+  'cơm',
+  'rau cải',
+  'chuối',
+  'bưởi',
+  'đậu phụ',
+  'dầu ăn',
+];
+
 const quickSuggestions = computed(() => {
-  return allFoods.value.slice(0, 8);
+  if (!allFoods.value.length) return [];
+  const result: NutritionFoodSearchItem[] = [];
+  for (const keyword of EXACT_QUICK_FOODS) {
+    const found = allFoods.value.find((f) => f.name.toLowerCase().includes(keyword));
+    if (found && !result.some((r) => (r.foodId && r.foodId === found.foodId) || (r.userFoodId && r.userFoodId === found.userFoodId))) {
+      result.push(found);
+    }
+  }
+  return result;
 });
 
 const availableStates = computed(() => {
@@ -726,6 +745,7 @@ const submitLog = async () => {
       toast.success('Đã cập nhật món ăn thành công!');
       emit('saved');
       closeModal();
+    } else {
       await nutritionService.addDailyLog(payload);
       const addedItem = {
         name: selectedFood.value.name,
@@ -794,8 +814,10 @@ watch(
         }
         updatePreview();
       } else {
-        // When opening for ADD: Auto-select first food (e.g. Ức gà) so all form fields are ALWAYS visible!
-        if (allFoods.value.length > 0) {
+        // When opening for ADD: Auto-select Ức gà / first popular item so all form fields are visible
+        if (quickSuggestions.value.length > 0) {
+          selectFood(quickSuggestions.value[0]);
+        } else if (allFoods.value.length > 0) {
           selectFood(allFoods.value[0]);
         }
       }

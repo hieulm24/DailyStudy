@@ -24,6 +24,7 @@ public class VocabularyRequest {
     private String level;
     private String note;
     private String status;
+    private Long topicId;
 
     // Example sentence
     private String exampleSentence;

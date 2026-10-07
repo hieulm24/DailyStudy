@@ -14,8 +14,10 @@ export const gameService = {
     return res.data.data;
   },
 
-  async startGame(code: string): Promise<GameSessionStart> {
-    const res = await api.post<ApiResponse<GameSessionStart>>(`/games/${code}/start`);
+  async startGame(code: string, topicId?: number): Promise<GameSessionStart> {
+    const res = await api.post<ApiResponse<GameSessionStart>>(`/games/${code}/start`, null, {
+      params: topicId ? { topicId } : undefined,
+    });
     return res.data.data;
   },
 

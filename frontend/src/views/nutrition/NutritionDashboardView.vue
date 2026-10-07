@@ -226,6 +226,9 @@
       :initial-weight="targetSettings.weight || 68"
     />
 
+    <!-- Workout Photos / Daily Check-in Section -->
+    <WorkoutPhotoSection :log-date="currentDate" />
+
     <!-- Main Food List Table Card -->
     <div class="bg-white rounded-md border border-slate-200 overflow-hidden shadow-2xs">
       <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
@@ -510,6 +513,7 @@ import AddFoodModal from '../../components/nutrition/AddFoodModal.vue';
 import CreateUserFoodModal from '../../components/nutrition/CreateUserFoodModal.vue';
 import NutritionTargetModal from '../../components/nutrition/NutritionTargetModal.vue';
 import CalorieDeficitSection from '../../components/nutrition/CalorieDeficitSection.vue';
+import WorkoutPhotoSection from '../../components/nutrition/WorkoutPhotoSection.vue';
 import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import { useToastStore } from '../../stores/toast.store';
 import type {

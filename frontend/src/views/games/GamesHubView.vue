@@ -24,7 +24,7 @@
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           <button
             type="button"
-            class="px-5 py-3 rounded-xl font-extrabold text-sm text-white bg-gradient-to-r from-indigo-600 via-indigo-500 to-rose-500 hover:from-indigo-500 hover:to-rose-400 shadow-lg shadow-indigo-500/25 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
+            class="px-5 py-3 rounded-xl font-extrabold text-sm text-white bg-gradient-to-r from-indigo-600 via-indigo-500 to-rose-500 hover:from-indigo-500 hover:to-rose-400 shadow-lg shadow-indigo-500/25 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             @click="playRandomGame"
           >
             <Zap class="w-4 h-4 fill-current" />
@@ -77,6 +77,71 @@
       </div>
     </div>
 
+    <!-- ============================================================= -->
+    <!-- TOPIC SELECTOR BAR / BOXES (Chọn chủ đề để chơi game)         -->
+    <!-- ============================================================= -->
+    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3.5">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+            <Target class="w-5 h-5" />
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-900 text-base">Chủ đề thi đấu hiện tại</h3>
+            <p class="text-xs text-slate-500">
+              Chọn chủ đề từ vựng bạn muốn áp dụng cho các màn chơi game
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-semibold text-slate-600">Đang chọn:</span>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-600 text-white shadow-xs">
+            {{ selectedTopicName }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Topic Choice Boxes -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 pt-1">
+        <!-- Box: Tất cả từ vựng -->
+        <button
+          type="button"
+          class="p-3 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer relative"
+          :class="selectedTopicId === null ? 'border-indigo-600 bg-indigo-50/70 ring-2 ring-indigo-500/30 text-indigo-900 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-700'"
+          @click="selectTopic(null, 'Tất cả chủ đề')"
+        >
+          <div class="flex items-center justify-between">
+            <Sparkles class="w-4 h-4" :class="selectedTopicId === null ? 'text-indigo-600' : 'text-slate-400'" />
+            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded" :class="selectedTopicId === null ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'">
+              Tất cả
+            </span>
+          </div>
+          <span class="text-xs font-bold truncate block">Toàn bộ kho từ</span>
+          <span class="text-[10px] text-slate-400 block">Tổng hợp</span>
+        </button>
+
+        <!-- Topic Boxes from database -->
+        <button
+          v-for="t in topicsList"
+          :key="t.id"
+          type="button"
+          class="p-3 rounded-xl border text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer relative"
+          :class="selectedTopicId === t.id ? 'border-indigo-600 bg-indigo-50/70 ring-2 ring-indigo-500/30 text-indigo-900 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-700'"
+          @click="selectTopic(t.id, t.name)"
+        >
+          <div class="flex items-center justify-between">
+            <Folder class="w-4 h-4" :class="selectedTopicId === t.id ? 'text-indigo-600' : 'text-slate-400'" />
+            <span v-if="t.level" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
+              {{ t.level }}
+            </span>
+          </div>
+          <span class="text-xs font-bold truncate block" :title="t.name">{{ t.name }}</span>
+          <span class="text-[10px] text-slate-400 block">{{ t.totalVocabularies }} từ vựng</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Games Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       <!-- Game 1: Flashcard -->
@@ -114,12 +179,12 @@
         </div>
 
         <div class="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between relative z-10">
-          <span class="text-xs font-bold text-slate-500">Từ vựng TOEIC</span>
-          <router-link to="/games/play/FLASHCARD" @click="gameAudio.playClick">
-            <AppButton variant="primary" size="md" class="group-hover:shadow-md">
-              Vào đấu trường
-            </AppButton>
-          </router-link>
+          <span class="text-xs font-bold text-indigo-600 truncate max-w-[120px]">
+            {{ selectedTopicName }}
+          </span>
+          <AppButton variant="primary" size="md" class="group-hover:shadow-md" @click="launchGame('FLASHCARD')">
+            Vào đấu trường
+          </AppButton>
         </div>
       </div>
 
@@ -158,12 +223,12 @@
         </div>
 
         <div class="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between relative z-10">
-          <span class="text-xs font-bold text-slate-500">Trắc nghiệm</span>
-          <router-link to="/games/play/MULTIPLE_CHOICE" @click="gameAudio.playClick">
-            <AppButton variant="primary" size="md" class="group-hover:shadow-md">
-              Vào đấu trường
-            </AppButton>
-          </router-link>
+          <span class="text-xs font-bold text-purple-600 truncate max-w-[120px]">
+            {{ selectedTopicName }}
+          </span>
+          <AppButton variant="primary" size="md" class="group-hover:shadow-md" @click="launchGame('MULTIPLE_CHOICE')">
+            Vào đấu trường
+          </AppButton>
         </div>
       </div>
 
@@ -202,12 +267,12 @@
         </div>
 
         <div class="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between relative z-10">
-          <span class="text-xs font-bold text-slate-500">Chính tả (Spelling)</span>
-          <router-link to="/games/play/WORD_MEANING" @click="gameAudio.playClick">
-            <AppButton variant="primary" size="md" class="group-hover:shadow-md">
-              Vào đấu trường
-            </AppButton>
-          </router-link>
+          <span class="text-xs font-bold text-emerald-600 truncate max-w-[120px]">
+            {{ selectedTopicName }}
+          </span>
+          <AppButton variant="primary" size="md" class="group-hover:shadow-md" @click="launchGame('WORD_MEANING')">
+            Vào đấu trường
+          </AppButton>
         </div>
       </div>
 
@@ -246,12 +311,12 @@
         </div>
 
         <div class="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between relative z-10">
-          <span class="text-xs font-bold text-slate-500">Câu mẫu & Cụm từ</span>
-          <router-link to="/games/play/SENTENCE_COMPLETION" @click="gameAudio.playClick">
-            <AppButton variant="primary" size="md" class="group-hover:shadow-md">
-              Vào đấu trường
-            </AppButton>
-          </router-link>
+          <span class="text-xs font-bold text-amber-600 truncate max-w-[120px]">
+            {{ selectedTopicName }}
+          </span>
+          <AppButton variant="primary" size="md" class="group-hover:shadow-md" @click="launchGame('SENTENCE_COMPLETION')">
+            Vào đấu trường
+          </AppButton>
         </div>
       </div>
 
@@ -290,12 +355,12 @@
         </div>
 
         <div class="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between relative z-10">
-          <span class="text-xs font-bold text-slate-500">Ngữ pháp chuyên sâu</span>
-          <router-link to="/games/play/GRAMMAR_QUIZ" @click="gameAudio.playClick">
-            <AppButton variant="primary" size="md" class="group-hover:shadow-md">
-              Vào đấu trường
-            </AppButton>
-          </router-link>
+          <span class="text-xs font-bold text-rose-600 truncate max-w-[120px]">
+            Ngữ pháp
+          </span>
+          <AppButton variant="primary" size="md" class="group-hover:shadow-md" @click="launchGame('GRAMMAR_QUIZ')">
+            Vào đấu trường
+          </AppButton>
         </div>
       </div>
 
@@ -334,12 +399,12 @@
         </div>
 
         <div class="pt-5 mt-4 border-t border-slate-100 flex items-center justify-between relative z-10">
-          <span class="text-xs font-bold text-slate-500">Phản xạ & Không chiến</span>
-          <router-link to="/games/play/AIRPLANE_SHOOTER" @click="gameAudio.playClick">
-            <AppButton variant="primary" size="md" class="group-hover:shadow-md">
-              Vào đấu trường
-            </AppButton>
-          </router-link>
+          <span class="text-xs font-bold text-cyan-600 truncate max-w-[120px]">
+            {{ selectedTopicName }}
+          </span>
+          <AppButton variant="primary" size="md" class="group-hover:shadow-md" @click="launchGame('AIRPLANE_SHOOTER')">
+            Vào đấu trường
+          </AppButton>
         </div>
       </div>
     </div>
@@ -347,7 +412,10 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { vocabularyService } from '../../services/vocabulary.service';
+import type { VocabularyTopic } from '../../types';
 import AppButton from '../../components/common/AppButton.vue';
 import { gameAudio } from '../../utils/game-audio';
 import {
@@ -365,14 +433,47 @@ import {
   CheckCircle2,
   Clock,
   Crosshair,
+  Folder,
+  Target,
 } from 'lucide-vue-next';
 
 const router = useRouter();
 const gameCodes = ['FLASHCARD', 'MULTIPLE_CHOICE', 'WORD_MEANING', 'SENTENCE_COMPLETION', 'GRAMMAR_QUIZ', 'AIRPLANE_SHOOTER'];
 
+const selectedTopicId = ref<number | null>(null);
+const selectedTopicName = ref('Tất cả chủ đề');
+const topicsList = ref<VocabularyTopic[]>([]);
+
+onMounted(async () => {
+  try {
+    topicsList.value = await vocabularyService.getAllTopics();
+  } catch (e) {
+    // fallback
+  }
+});
+
+function selectTopic(topicId: number | null, topicName: string) {
+  gameAudio.playClick();
+  selectedTopicId.value = topicId;
+  selectedTopicName.value = topicName;
+}
+
+function launchGame(code: string) {
+  gameAudio.playClick();
+  const query: Record<string, string> = {};
+  if (selectedTopicId.value) {
+    query.topicId = String(selectedTopicId.value);
+    query.topicName = selectedTopicName.value;
+  }
+  router.push({
+    path: `/games/play/${code}`,
+    query: Object.keys(query).length > 0 ? query : undefined,
+  });
+}
+
 function playRandomGame() {
   gameAudio.playClick();
   const randomCode = gameCodes[Math.floor(Math.random() * gameCodes.length)];
-  router.push(`/games/play/${randomCode}`);
+  launchGame(randomCode);
 }
 </script>

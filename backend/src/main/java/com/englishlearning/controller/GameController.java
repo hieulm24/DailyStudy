@@ -28,8 +28,9 @@ public class GameController {
     @PostMapping("/{code}/start")
     public ResponseEntity<ApiResponse<GameSessionStartResponse>> startGame(
             @PathVariable String code,
+            @RequestParam(required = false) Long topicId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        GameSessionStartResponse response = gameService.startGameSession(userPrincipal.getId(), code);
+        GameSessionStartResponse response = gameService.startGameSession(userPrincipal.getId(), code, topicId);
         return ResponseEntity.ok(ApiResponse.ok("Bắt đầu phiên chơi game thành công", response));
     }
 

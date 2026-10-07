@@ -18,9 +18,13 @@ public interface VocabularyRepository extends JpaRepository<Vocabulary, Long>, J
 
     List<Vocabulary> findByUserId(Long userId);
 
+    List<Vocabulary> findByTopicId(Long topicId);
+
     Optional<Vocabulary> findByIdAndUserId(Long id, Long userId);
 
     long countByUserId(Long userId);
+
+    long countByTopicId(Long topicId);
 
     long countByUserIdAndCreatedAtBetween(Long userId, LocalDateTime start, LocalDateTime end);
 

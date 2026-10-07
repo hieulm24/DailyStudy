@@ -26,5 +26,15 @@ public interface ReviewItemRepository extends JpaRepository<ReviewItem, Long> {
     @Query("SELECT COUNT(r) FROM ReviewItem r WHERE r.user.id = :userId AND r.contentType = :contentType AND r.reviewStatus = 'ACTIVE' AND (r.nextReviewAt IS NULL OR r.nextReviewAt <= :now)")
     long countDueByContentType(@Param("userId") Long userId, @Param("contentType") String contentType, @Param("now") LocalDateTime now);
 
+    @Query("SELECT r FROM ReviewItem r JOIN Vocabulary v ON r.contentType = 'VOCABULARY' AND r.contentId = v.id WHERE r.user.id = :userId AND v.topic.id = :topicId AND r.reviewStatus = 'ACTIVE' AND (r.nextReviewAt IS NULL OR r.nextReviewAt <= :now) ORDER BY r.nextReviewAt ASC")
+    List<ReviewItem> findDueReviewItemsByTopic(@Param("userId") Long userId, @Param("topicId") Long topicId, @Param("now") LocalDateTime now);
+
+    @Query("SELECT r FROM ReviewItem r JOIN Vocabulary v ON r.contentType = 'VOCABULARY' AND r.contentId = v.id WHERE r.user.id = :userId AND v.topic.id = :topicId ORDER BY r.nextReviewAt ASC")
+    List<ReviewItem> findAllReviewItemsByTopic(@Param("userId") Long userId, @Param("topicId") Long topicId);
+
+    @Query("SELECT COUNT(r) FROM ReviewItem r JOIN Vocabulary v ON r.contentType = 'VOCABULARY' AND r.contentId = v.id WHERE r.user.id = :userId AND v.topic.id = :topicId AND r.reviewStatus = 'ACTIVE' AND (r.nextReviewAt IS NULL OR r.nextReviewAt <= :now)")
+    long countDueByTopicId(@Param("userId") Long userId, @Param("topicId") Long topicId, @Param("now") LocalDateTime now);
+
     void deleteByContentTypeAndContentId(String contentType, Long contentId);
 }
+

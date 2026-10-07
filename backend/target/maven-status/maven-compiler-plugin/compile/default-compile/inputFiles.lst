@@ -10,11 +10,13 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\config\WebMvcConfig.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\ActivityController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\AiTranslationController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\AuthController.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\BookController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\DailyTaskController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\DashboardController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\DocumentController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\GameController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\GrammarController.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\HealthWorkoutPhotoController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\ListeningController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\NutritionController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\ReviewController.java
@@ -23,6 +25,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\SpeakingContro
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\StatisticsController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\StudyLinkController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\VocabularyController.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\VocabularyTopicController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\AIExplanationRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\AIExplanationResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\DictionaryDataDTO.java
@@ -32,6 +35,15 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\ai\TranslationRespons
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\auth\AuthResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\auth\LoginRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\auth\UserProfileDto.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\book\BookDetailResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\book\BookQuoteRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\book\BookQuoteResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\book\BookRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\book\BookResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\book\ReadingLogRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\book\ReadingLogResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\book\ReadingStatsResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\book\UpdateBookProgressRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\document\DocumentFilterRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\document\DocumentResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\document\DocumentStatisticsResponse.java
@@ -46,6 +58,8 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarExampl
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarFilterRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\health\HealthWorkoutPhotoRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\health\HealthWorkoutPhotoResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\listening\ListeningFilterRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\listening\ListeningRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\listening\ListeningResponse.java
@@ -70,6 +84,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\nutrition\UsdaFoodDto
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\review\ReviewDueSummaryResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\review\ReviewItemDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\review\ReviewSubmitRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\review\TopicReviewSummaryDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\settings\BackupDataDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\settings\UserSettingDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\speaking\SpeakingFilterRequest.java
@@ -93,7 +108,12 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\Vocabulary
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\VocabularyFilterRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\VocabularyRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\VocabularyResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\VocabularyTopicFilterRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\VocabularyTopicRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\VocabularyTopicResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\EnglishLearningApplication.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\Book.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\BookQuote.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\DailyLearningStatistic.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\DailyTask.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\Document.java
@@ -105,6 +125,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GameQuestionOption
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GameSession.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GrammarExample.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GrammarTopic.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\HealthWorkoutPhoto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\LearningActivity.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\LearningGoal.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\LearningGoalProgress.java
@@ -118,6 +139,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\nutrition\Nutritio
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\nutrition\NutritionMicronutrient.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\nutrition\NutritionUserFood.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\nutrition\NutritionUserFoodMicronutrient.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\ReadingLog.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\ReviewHistory.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\ReviewItem.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\SpeakingLesson.java
@@ -128,6 +150,9 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\User.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\UserSetting.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\Vocabulary.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\VocabularyExample.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\VocabularyTopic.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\BookQuoteRepository.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\BookRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\DailyLearningStatisticRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\DailyTaskRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\DocumentRepository.java
@@ -139,6 +164,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GameRepository
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GameSessionRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GrammarExampleRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GrammarTopicRepository.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\HealthWorkoutPhotoRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\LearningActivityRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\LearningGoalProgressRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\LearningGoalRepository.java
@@ -152,6 +178,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\nutrition\Nutr
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\nutrition\NutritionMicronutrientRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\nutrition\NutritionUserFoodMicronutrientRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\nutrition\NutritionUserFoodRepository.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\ReadingLogRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\ReviewHistoryRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\ReviewItemRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\SpeakingLessonRepository.java
@@ -162,6 +189,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\UserRepository
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\UserSettingRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\VocabularyExampleRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\VocabularyRepository.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\VocabularyTopicRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\security\CustomUserDetailsService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\security\JwtAuthenticationFilter.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\security\JwtTokenProvider.java
@@ -169,11 +197,13 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\security\UserPrincipal.ja
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\ActivityService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\AiTranslationService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\AuthService.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\BookService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\CalorieCalculationService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\DailyTaskService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\DocumentService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\GameService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\GrammarService.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\HealthWorkoutPhotoService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\ListeningService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\NutritionCalculationService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\NutritionService.java
@@ -185,3 +215,4 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\StatisticsService
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\StudyLinkService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\UsdaFoodDataService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\VocabularyService.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\VocabularyTopicService.java

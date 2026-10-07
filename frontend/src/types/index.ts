@@ -32,6 +32,47 @@ export interface AuthResponse {
   avatarUrl?: string;
 }
 
+export interface VocabularyTopic {
+  id: number;
+  name: string;
+  description?: string;
+  level?: string;
+  status: 'NEW' | 'LEARNING' | 'MASTERED' | string;
+  totalVocabularies: number;
+  masteredCount: number;
+  learningCount: number;
+  newCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VocabularyTopicFilter {
+  search?: string;
+  level?: string;
+  status?: string;
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  sortDirection?: string;
+}
+
+export interface VocabularyTopicRequest {
+  name: string;
+  description?: string;
+  level?: string;
+  status?: string;
+  vocabularies?: Array<{
+    word: string;
+    meaning: string;
+    pronunciation?: string;
+    partOfSpeech?: string;
+    level?: string;
+    note?: string;
+    exampleSentence?: string;
+    exampleMeaning?: string;
+  }>;
+}
+
 export interface VocabularyExample {
   id?: number;
   exampleSentence: string;
@@ -41,6 +82,8 @@ export interface VocabularyExample {
 
 export interface Vocabulary {
   id: number;
+  topicId?: number;
+  topicName?: string;
   word: string;
   meaning: string;
   pronunciation?: string;
@@ -141,6 +184,17 @@ export interface ReviewDueSummary {
   grammarDue: number;
   totalItems: number;
   totalMastered: number;
+}
+
+export interface TopicReviewSummary {
+  topicId: number;
+  topicName: string;
+  level?: string;
+  status: string;
+  totalWords: number;
+  dueWords: number;
+  masteredWords: number;
+  learningWords: number;
 }
 
 export interface Game {

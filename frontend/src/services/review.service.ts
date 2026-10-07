@@ -1,14 +1,23 @@
 import api from './api';
-import type { ApiResponse, ReviewDueSummary, ReviewItem } from '../types';
+import type { ApiResponse, ReviewDueSummary, ReviewItem, TopicReviewSummary } from '../types';
 
 export const reviewService = {
-  async getReviewSummary(): Promise<ReviewDueSummary> {
-    const res = await api.get<ApiResponse<ReviewDueSummary>>('/review/summary');
+  async getReviewSummary(topicId?: number): Promise<ReviewDueSummary> {
+    const res = await api.get<ApiResponse<ReviewDueSummary>>('/review/summary', {
+      params: topicId ? { topicId } : undefined,
+    });
     return res.data.data;
   },
 
-  async getDueReviewItems(): Promise<ReviewItem[]> {
-    const res = await api.get<ApiResponse<ReviewItem[]>>('/review/due');
+  async getTopicsReviewSummary(): Promise<TopicReviewSummary[]> {
+    const res = await api.get<ApiResponse<TopicReviewSummary[]>>('/review/topics-summary');
+    return res.data.data;
+  },
+
+  async getDueReviewItems(topicId?: number): Promise<ReviewItem[]> {
+    const res = await api.get<ApiResponse<ReviewItem[]>>('/review/due', {
+      params: topicId ? { topicId } : undefined,
+    });
     return res.data.data;
   },
 
@@ -21,3 +30,4 @@ export const reviewService = {
     return res.data.data;
   },
 };
+

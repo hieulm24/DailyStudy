@@ -36,6 +36,7 @@ public class UsdaFoodDataService {
     private final NutritionFoodRepository nutritionFoodRepository;
     private final NutritionFoodVariantRepository nutritionFoodVariantRepository;
     private final NutritionFoodUnitRepository nutritionFoodUnitRepository;
+    private final AiTranslationService aiTranslationService;
 
     @Value("${app.nutrition.usda.api-key:DEMO_KEY}")
     private String apiKey;
@@ -53,15 +54,28 @@ public class UsdaFoodDataService {
         int size = (pageSize != null && pageSize > 0 && pageSize <= 25) ? pageSize : 10;
         List<UsdaFoodDto> results = new ArrayList<>();
 
+        String finalQuery = query.trim();
+        if (AiTranslationService.containsVietnamese(finalQuery)) {
+            try {
+                var tr = aiTranslationService.translateAndLookup(finalQuery, "vi", "en");
+                if (tr != null && tr.getTranslatedText() != null && !tr.getTranslatedText().trim().isEmpty()) {
+                    finalQuery = tr.getTranslatedText().trim();
+                    log.info("Translated Vietnamese query '{}' to English '{}' for USDA search", query, finalQuery);
+                }
+            } catch (Exception e) {
+                log.warn("Translation failed for USDA query: {}", e.getMessage());
+            }
+        }
+
         try {
             String uri = UriComponentsBuilder.fromHttpUrl(baseUrl + "/foods/search")
-                    .queryParam("query", query.trim())
+                    .queryParam("query", finalQuery)
                     .queryParam("pageSize", size)
                     .queryParam("api_key", apiKey)
                     .build()
                     .toUriString();
 
-            log.info("Querying USDA FoodData Central API for: {}", query);
+            log.info("Querying USDA FoodData Central API for: {} (original: {})", finalQuery, query);
             String jsonResponse = restTemplate.getForObject(uri, String.class);
             if (jsonResponse == null || jsonResponse.isEmpty()) {
                 return results;
@@ -116,7 +130,8 @@ public class UsdaFoodDataService {
                 foodName = foodName.substring(0, 200);
             }
 
-            java.util.Optional<NutritionFood> existingFood = nutritionFoodRepository.findFirstByNameIgnoreCase(foodName);
+            java.util.Optional<NutritionFood> existingFood = nutritionFoodRepository
+                    .findFirstByNameIgnoreCase(foodName);
             if (existingFood.isPresent()) {
                 return existingFood.get();
             }
@@ -132,8 +147,10 @@ public class UsdaFoodDataService {
             NutritionFood savedFood = nutritionFoodRepository.save(food);
 
             // Save variant
-            BigDecimal servingAmount = dto.getServingSize() != null && dto.getServingSize().compareTo(BigDecimal.ZERO) > 0
-                    ? dto.getServingSize() : new BigDecimal("100");
+            BigDecimal servingAmount = dto.getServingSize() != null
+                    && dto.getServingSize().compareTo(BigDecimal.ZERO) > 0
+                            ? dto.getServingSize()
+                            : new BigDecimal("100");
             String servingUnit = dto.getServingSizeUnit() != null ? dto.getServingSizeUnit() : "g";
 
             NutritionFoodVariant variant = NutritionFoodVariant.builder()
@@ -176,7 +193,8 @@ public class UsdaFoodDataService {
     }
 
     private UsdaFoodDto parseFoodNode(JsonNode foodNode) {
-        if (foodNode == null || foodNode.isMissingNode()) return null;
+        if (foodNode == null || foodNode.isMissingNode())
+            return null;
 
         Long fdcId = foodNode.path("fdcId").asLong();
         String description = foodNode.path("description").asText("Thực phẩm USDA");
@@ -200,18 +218,22 @@ public class UsdaFoodDataService {
         JsonNode nutrientsNode = foodNode.path("foodNutrients");
         if (nutrientsNode.isArray()) {
             for (JsonNode n : nutrientsNode) {
-                String nutrientName = n.path("nutrientName").asText("");
-                String unitName = n.path("unitName").asText("").toUpperCase();
+                String nutrientName = n.has("nutrientName") ? n.path("nutrientName").asText("")
+                        : n.path("nutrient").path("name").asText("");
+                String unitName = n.has("unitName") ? n.path("unitName").asText("").toUpperCase()
+                        : n.path("nutrient").path("unitName").asText("").toUpperCase();
                 BigDecimal value = BigDecimal.ZERO;
 
                 if (n.has("value") && !n.get("value").isNull()) {
                     try {
                         value = new BigDecimal(n.path("value").asText()).setScale(2, RoundingMode.HALF_UP);
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 } else if (n.has("amount") && !n.get("amount").isNull()) {
                     try {
                         value = new BigDecimal(n.path("amount").asText()).setScale(2, RoundingMode.HALF_UP);
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
 
                 String lower = nutrientName.toLowerCase();
@@ -228,27 +250,38 @@ public class UsdaFoodDataService {
                 } else if (lower.contains("fiber")) {
                     fiber = value;
                 } else if (lower.contains("vitamin c")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin C").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin C").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("vitamin b-6")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin B6").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin B6").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("vitamin b-12")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin B12").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin B12").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("vitamin a")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin A").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin A").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("vitamin d")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin D").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Vitamin D").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("potassium")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Kali").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Kali").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("calcium")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Canxi").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Canxi").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("magnesium")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Magie").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Magie").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("iron")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Sắt").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Sắt").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("zinc")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Kẽm").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Kẽm").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 } else if (lower.contains("selenium")) {
-                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Selenium").amount(value).unit(unitName.toLowerCase()).build());
+                    micronutrients.add(NutritionMicronutrientDto.builder().nutrientName("Selenium").amount(value)
+                            .unit(unitName.toLowerCase()).build());
                 }
             }
         }

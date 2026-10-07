@@ -4,6 +4,7 @@ import com.englishlearning.common.ResourceNotFoundException;
 import com.englishlearning.dto.review.ReviewDueSummaryResponse;
 import com.englishlearning.dto.review.ReviewItemDto;
 import com.englishlearning.dto.review.ReviewSubmitRequest;
+import com.englishlearning.dto.review.TopicReviewSummaryDto;
 import com.englishlearning.entity.*;
 import com.englishlearning.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -23,14 +24,30 @@ public class ReviewService {
     private final ReviewItemRepository reviewItemRepository;
     private final ReviewHistoryRepository reviewHistoryRepository;
     private final VocabularyRepository vocabularyRepository;
+    private final VocabularyTopicRepository vocabularyTopicRepository;
     private final GrammarTopicRepository grammarTopicRepository;
     private final LearningActivityRepository learningActivityRepository;
     private final DailyLearningStatisticRepository dailyLearningStatisticRepository;
     private final StudyStreakRepository studyStreakRepository;
 
     @Transactional(readOnly = true)
-    public ReviewDueSummaryResponse getReviewSummary(Long userId) {
+    public ReviewDueSummaryResponse getReviewSummary(Long userId, Long topicId) {
         LocalDateTime now = LocalDateTime.now();
+
+        if (topicId != null) {
+            long vocabDue = reviewItemRepository.countDueByTopicId(userId, topicId, now);
+            long totalTopicWords = vocabularyTopicRepository.countVocabulariesByTopicId(topicId);
+            long masteredTopicWords = vocabularyTopicRepository.countVocabulariesByTopicIdAndStatus(topicId, "MASTERED");
+
+            return ReviewDueSummaryResponse.builder()
+                    .totalDue(vocabDue)
+                    .vocabularyDue(vocabDue)
+                    .grammarDue(0L)
+                    .totalItems(totalTopicWords)
+                    .totalMastered(masteredTopicWords)
+                    .build();
+        }
+
         long vocabDue = reviewItemRepository.countDueByContentType(userId, "VOCABULARY", now);
         long grammarDue = reviewItemRepository.countDueByContentType(userId, "GRAMMAR", now);
         long totalDue = vocabDue + grammarDue;
@@ -50,9 +67,46 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewItemDto> getDueReviewItems(Long userId) {
+    public List<TopicReviewSummaryDto> getTopicsReviewSummary(Long userId) {
         LocalDateTime now = LocalDateTime.now();
-        List<ReviewItem> items = reviewItemRepository.findDueReviewItems(userId, now);
+        List<VocabularyTopic> topics = vocabularyTopicRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        List<TopicReviewSummaryDto> list = new ArrayList<>();
+
+        for (VocabularyTopic topic : topics) {
+            long total = vocabularyTopicRepository.countVocabulariesByTopicId(topic.getId());
+            long due = reviewItemRepository.countDueByTopicId(userId, topic.getId(), now);
+            long mastered = vocabularyTopicRepository.countVocabulariesByTopicIdAndStatus(topic.getId(), "MASTERED");
+            long learning = vocabularyTopicRepository.countVocabulariesByTopicIdAndStatus(topic.getId(), "LEARNING");
+
+            list.add(TopicReviewSummaryDto.builder()
+                    .topicId(topic.getId())
+                    .topicName(topic.getName())
+                    .level(topic.getLevel())
+                    .status(topic.getStatus())
+                    .totalWords((int) total)
+                    .dueWords((int) due)
+                    .masteredWords((int) mastered)
+                    .learningWords((int) learning)
+                    .build());
+        }
+        return list;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewItemDto> getDueReviewItems(Long userId, Long topicId) {
+        LocalDateTime now = LocalDateTime.now();
+        List<ReviewItem> items;
+
+        if (topicId != null) {
+            items = reviewItemRepository.findDueReviewItemsByTopic(userId, topicId, now);
+            if (items.isEmpty()) {
+                // If no items are due according to interval, load all words from this topic so user can still practice
+                items = reviewItemRepository.findAllReviewItemsByTopic(userId, topicId);
+            }
+        } else {
+            items = reviewItemRepository.findDueReviewItems(userId, now);
+        }
+
         List<ReviewItemDto> result = new ArrayList<>();
 
         for (ReviewItem item : items) {

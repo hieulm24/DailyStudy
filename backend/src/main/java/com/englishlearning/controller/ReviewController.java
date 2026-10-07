@@ -4,6 +4,7 @@ import com.englishlearning.common.ApiResponse;
 import com.englishlearning.dto.review.ReviewDueSummaryResponse;
 import com.englishlearning.dto.review.ReviewItemDto;
 import com.englishlearning.dto.review.ReviewSubmitRequest;
+import com.englishlearning.dto.review.TopicReviewSummaryDto;
 import com.englishlearning.security.UserPrincipal;
 import com.englishlearning.service.ReviewService;
 import jakarta.validation.Valid;
@@ -23,15 +24,24 @@ public class ReviewController {
 
     @GetMapping("/summary")
     public ResponseEntity<ApiResponse<ReviewDueSummaryResponse>> getReviewSummary(
+            @RequestParam(required = false) Long topicId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        ReviewDueSummaryResponse response = reviewService.getReviewSummary(userPrincipal.getId());
+        ReviewDueSummaryResponse response = reviewService.getReviewSummary(userPrincipal.getId(), topicId);
+        return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @GetMapping("/topics-summary")
+    public ResponseEntity<ApiResponse<List<TopicReviewSummaryDto>>> getTopicsReviewSummary(
+            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        List<TopicReviewSummaryDto> response = reviewService.getTopicsReviewSummary(userPrincipal.getId());
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
     @GetMapping("/due")
     public ResponseEntity<ApiResponse<List<ReviewItemDto>>> getDueReviewItems(
+            @RequestParam(required = false) Long topicId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        List<ReviewItemDto> response = reviewService.getDueReviewItems(userPrincipal.getId());
+        List<ReviewItemDto> response = reviewService.getDueReviewItems(userPrincipal.getId(), topicId);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
@@ -43,3 +53,4 @@ public class ReviewController {
         return ResponseEntity.ok(ApiResponse.ok("Đã cập nhật tiến độ ôn tập", response));
     }
 }
+

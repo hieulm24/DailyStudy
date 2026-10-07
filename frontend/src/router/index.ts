@@ -11,6 +11,8 @@ import GamesHubView from '../views/games/GamesHubView.vue';
 import GamePlayView from '../views/games/GamePlayView.vue';
 import DocumentListView from '../views/documents/DocumentListView.vue';
 import NutritionDashboardView from '../views/nutrition/NutritionDashboardView.vue';
+import ReadingView from '../views/reading/ReadingView.vue';
+import BookDetailView from '../views/reading/BookDetailView.vue';
 import DailyTasksView from '../views/tasks/DailyTasksView.vue';
 import StatisticsView from '../views/statistics/StatisticsView.vue';
 import SettingsView from '../views/settings/SettingsView.vue';
@@ -76,6 +78,16 @@ const routes = [
         path: 'nutrition',
         name: 'Nutrition',
         component: NutritionDashboardView,
+      },
+      {
+        path: 'reading',
+        name: 'Reading',
+        component: ReadingView,
+      },
+      {
+        path: 'reading/:id',
+        name: 'BookDetail',
+        component: BookDetailView,
       },
       {
         path: 'tasks',

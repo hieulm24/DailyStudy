@@ -49,14 +49,19 @@ public class GameService {
     }
 
     @Transactional
-    public GameSessionStartResponse startGameSession(Long userId, String gameCode) {
+    public GameSessionStartResponse startGameSession(Long userId, String gameCode, Long topicId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Game game = gameRepository.findByCode(gameCode.toUpperCase())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy game với mã: " + gameCode));
 
-        List<Vocabulary> vocabList = vocabularyRepository.findByUserId(userId);
+        List<Vocabulary> vocabList;
+        if (topicId != null) {
+            vocabList = vocabularyRepository.findByTopicId(topicId);
+        } else {
+            vocabList = vocabularyRepository.findByUserId(userId);
+        }
         List<GrammarTopic> grammarList = grammarTopicRepository.findByUserId(userId);
 
         List<GameQuestionDto> questionDtos = new ArrayList<>();
@@ -86,6 +91,9 @@ public class GameService {
         }
 
         if (questionDtos.isEmpty()) {
+            if (topicId != null) {
+                throw new ResourceNotFoundException("Chủ đề này chưa có từ vựng nào để bắt đầu game. Vui lòng thêm từ vựng vào chủ đề trước!");
+            }
             throw new ResourceNotFoundException("Chưa có đủ dữ liệu học tập để bắt đầu game này. Vui lòng thêm từ vựng hoặc ngữ pháp trước!");
         }
 

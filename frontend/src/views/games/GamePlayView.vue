@@ -22,12 +22,15 @@
             <ArrowLeft class="w-5 h-5" />
           </router-link>
           <div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
               <h2 class="text-sm sm:text-base font-extrabold tracking-wide text-white drop-shadow-sm">
                 {{ sessionData?.gameName || 'Mini Game' }}
               </h2>
               <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-indigo-500/30 text-indigo-300 border border-indigo-400/30">
                 Stage {{ currentQuestionIndex + 1 }}/{{ totalQuestions || 10 }}
+              </span>
+              <span v-if="topicName && topicName !== 'Tất cả chủ đề'" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                Chủ đề: {{ topicName }}
               </span>
             </div>
             <span class="text-[11px] text-slate-400">Phiên chơi #{{ sessionData?.sessionId || '---' }}</span>
@@ -659,6 +662,8 @@ const route = useRoute();
 const toastStore = useToastStore();
 
 const gameCode = computed(() => (route.params.code as string) || 'FLASHCARD');
+const topicId = computed(() => (route.query.topicId ? Number(route.query.topicId) : undefined));
+const topicName = computed(() => (route.query.topicName as string) || 'Tất cả chủ đề');
 
 const loading = ref(true);
 const errorMessage = ref('');
@@ -825,7 +830,7 @@ async function startNewGame() {
   hintsRemaining.value = 2;
 
   try {
-    const res = await gameService.startGame(gameCode.value);
+    const res = await gameService.startGame(gameCode.value, topicId.value);
     sessionData.value = res;
     initQuestionState();
   } catch (err: any) {

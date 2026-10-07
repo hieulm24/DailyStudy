@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-30 flex items-center justify-between h-20 px-6 sm:px-8 bg-white border-b border-slate-200 shadow-2xs">
+  <header class="sticky top-0 z-30 flex items-center justify-between h-28 px-6 sm:px-8 bg-white border-b border-slate-200 shadow-2xs">
     <!-- Mobile Menu Toggle -->
     <div class="flex items-center gap-4">
       <button
