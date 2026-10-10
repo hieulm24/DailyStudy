@@ -56,108 +56,26 @@
       </div>
     </div>
 
-    <!-- Energy Balance Overview 4-Cards Grid -->
-    <div class="p-5 border-b border-slate-100 bg-slate-50/40">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-        <!-- 1. Calories Consumed (Food) -->
-        <div class="p-4 bg-white rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-500">Calories ăn vào</span>
-            <Utensils class="w-4 h-4 text-emerald-600" />
-          </div>
-          <div class="mt-2.5">
-            <span class="text-xl font-bold text-slate-900">{{ Math.round(deficitSummary.foodCalories).toLocaleString() }}</span>
-            <span class="text-xs text-slate-400 ml-1 font-medium">kcal</span>
-          </div>
-          <div class="text-[11px] text-slate-500 mt-1">
-            Từ {{ deficitSummary.loggedFoodsCount }} món đã ghi nhận
-          </div>
-        </div>
 
-        <!-- 2. Activity Net Calories -->
-        <div class="p-4 bg-white rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-500">Calories hoạt động</span>
-            <Activity class="w-4 h-4 text-rose-600" />
-          </div>
-          <div class="mt-2.5">
-            <span class="text-xl font-bold text-rose-600">+{{ Math.round(deficitSummary.activityCalories).toLocaleString() }}</span>
-            <span class="text-xs text-slate-400 ml-1 font-medium">kcal</span>
-          </div>
-          <div class="text-[11px] text-slate-500 mt-1">
-            {{ activityLogs.length }} hoạt động (Net MET)
-          </div>
-        </div>
-
-        <!-- 3. Total Calories Burned -->
-        <div class="p-4 bg-white rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-semibold text-slate-500">Tổng tiêu hao</span>
-            <Flame class="w-4 h-4 text-amber-600" />
-          </div>
-          <div class="mt-2.5">
-            <span class="text-xl font-bold text-amber-700">{{ Math.round(deficitSummary.totalCaloriesBurned).toLocaleString() }}</span>
-            <span class="text-xs text-slate-400 ml-1 font-medium">kcal</span>
-          </div>
-          <div class="text-[11px] text-slate-500 mt-1">
-            TDEE ({{ localTdee }}) + Hoạt động ({{ Math.round(deficitSummary.activityCalories) }})
-          </div>
-        </div>
-
-        <!-- 4. Calorie Balance (Deficit / Surplus) -->
-        <div
-          :class="[
-            'p-4 rounded-md border shadow-2xs flex flex-col justify-between transition-colors',
-            balanceCardClass
-          ]"
-        >
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-700">
-              {{ deficitSummary.status === 'DEFICIT' ? 'Thâm hụt' : (deficitSummary.status === 'SURPLUS' ? 'Thặng dư' : 'Cân bằng') }}
-            </span>
-            <component :is="balanceIcon" class="w-4 h-4" :class="balanceIconColor" />
-          </div>
-          <div class="mt-2.5 flex items-baseline gap-1">
-            <span class="text-2xl font-black tracking-tight" :class="balanceTextColor">
-              {{ deficitSummary.status === 'DEFICIT' ? '-' : (deficitSummary.status === 'SURPLUS' ? '+' : '') }}{{ Math.abs(Math.round(deficitSummary.calorieBalance)).toLocaleString() }}
-            </span>
-            <span class="text-xs text-slate-500 font-medium">kcal</span>
-          </div>
-          <div class="text-[11px] font-semibold mt-1" :class="balanceSubtitleColor">
-            {{ balanceExplanation }}
-          </div>
-        </div>
-      </div>
-
-      <!-- Visual Deficit / Burned Progress Meter -->
-      <div class="mt-4 bg-white p-3.5 rounded-md border border-slate-200 shadow-2xs">
-        <div class="flex items-center justify-between text-xs font-semibold mb-1.5">
-          <span class="text-slate-600">Tiến độ tiêu hao vs Ăn vào:</span>
-          <span class="text-slate-900 font-bold">
-            {{ Math.round(deficitSummary.foodCalories) }} / {{ Math.round(deficitSummary.totalCaloriesBurned) }} kcal
-            <span class="text-slate-400 font-normal">({{ burnedPercent }}%)</span>
-          </span>
-        </div>
-        <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden flex">
-          <div
-            :class="progressBarColor"
-            class="h-2 rounded-full transition-all duration-500"
-            :style="{ width: `${Math.min(100, burnedPercent)}%` }"
-          ></div>
-        </div>
-      </div>
-    </div>
 
     <!-- Main Content: Add Activity Form & Activity Log Table -->
     <div class="p-5 space-y-5">
       <!-- Add Activity Form -->
-      <div class="bg-slate-50 p-4 rounded-md border border-slate-200">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-xs font-bold text-slate-900 flex items-center gap-2">
-            <Zap class="w-4 h-4 text-amber-500" />
-            Ghi nhận hoạt động thể chất hôm nay
-          </h3>
-          <span class="text-[11px] text-slate-500">Tính năng lượng tiêu hao chuẩn theo MET Compendium</span>
+      <div class="bg-slate-50 p-5 rounded-md border border-slate-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 pb-3 border-b border-slate-200/80">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-md bg-rose-50 text-rose-600 border border-rose-100">
+              <Dumbbell class="w-5 h-5" />
+            </div>
+            <div>
+              <h2 class="text-lg sm:text-xl font-bold text-slate-900">
+                Ghi nhận hoạt động thể chất hôm nay
+              </h2>
+              <p class="text-xs text-slate-500 mt-0.5">
+                Tính năng lượng tiêu hao chuẩn theo MET Compendium
+              </p>
+            </div>
+          </div>
         </div>
 
         <form @submit.prevent="handleAddActivity" class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
@@ -242,18 +160,72 @@
 
       <!-- Activity Logs Table -->
       <div class="bg-white rounded-md border border-slate-200 overflow-hidden shadow-2xs">
-        <div class="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-          <div class="flex items-center gap-2">
+        <div class="px-4 py-3 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
             <h4 class="text-xs font-bold text-slate-900">
               Danh sách hoạt động đã ghi nhận hôm nay
             </h4>
             <span class="px-2 py-0.5 text-[11px] font-semibold bg-slate-100 text-slate-700 rounded-full">
               {{ activityLogs.length }}
             </span>
+
+            <!-- Nút Thêm ảnh cạnh tiêu đề -->
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md border transition-colors cursor-pointer bg-white hover:bg-rose-50 text-rose-600 border-rose-200 shadow-2xs"
+              @click="openUploadModal"
+            >
+              <Camera class="w-3.5 h-3.5" />
+              <span>Thêm ảnh</span>
+              <span v-if="todayPhotos.length > 0" class="px-1.5 py-0.2 text-[10px] font-bold bg-rose-100 text-rose-700 rounded-full">
+                {{ todayPhotos.length }}
+              </span>
+            </button>
           </div>
-          <span class="text-xs font-bold text-rose-600">
-            Tổng cộng: +{{ Math.round(deficitSummary.activityCalories) }} kcal
+
+          <div class="flex items-center gap-3">
+            <button
+              v-if="todayPhotos.length > 0"
+              type="button"
+              class="text-xs font-semibold text-slate-500 hover:text-rose-600 transition-colors inline-flex items-center gap-1 cursor-pointer"
+              @click="openGalleryModal"
+            >
+              <Images class="w-3.5 h-3.5" />
+              <span>Xem {{ todayPhotos.length }} ảnh</span>
+            </button>
+            <span class="text-xs font-bold text-rose-600">
+              Tổng cộng: +{{ Math.round(deficitSummary.activityCalories) }} kcal
+            </span>
+          </div>
+        </div>
+
+        <!-- Compact Photo Strip if photos exist -->
+        <div v-if="todayPhotos.length > 0" class="px-4 py-2 bg-rose-50/40 border-b border-rose-100/60 flex items-center gap-2.5 overflow-x-auto">
+          <span class="text-[11px] font-bold text-rose-800 shrink-0 flex items-center gap-1">
+            <Camera class="w-3.5 h-3.5 text-rose-600" />
+            <span>Ảnh tập:</span>
           </span>
+
+          <div
+            v-for="photo in todayPhotos"
+            :key="photo.id"
+            class="relative group shrink-0 w-11 h-11 rounded-md overflow-hidden border border-rose-200 cursor-pointer shadow-2xs"
+            @click="previewPhotoItem(photo)"
+          >
+            <img :src="photo.imageUrl" :alt="photo.caption || 'Ảnh tập'" class="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+            <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+              <Maximize2 class="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="w-11 h-11 rounded-md border border-dashed border-rose-300 hover:border-rose-500 bg-white hover:bg-rose-50 flex flex-col items-center justify-center text-rose-600 text-[10px] font-bold shrink-0 transition-colors cursor-pointer"
+            title="Thêm ảnh khác"
+            @click="openUploadModal"
+          >
+            <Plus class="w-3.5 h-3.5" />
+          </button>
         </div>
 
         <div class="overflow-x-auto">
@@ -407,29 +379,198 @@
       :loading="isDeletingActivity"
       @confirm="executeDeleteActivity"
     />
+
+    <!-- Confirm Delete Photo Modal -->
+    <AppConfirmDialog
+      v-model="showDeletePhotoConfirm"
+      title="Xóa ảnh tập luyện"
+      message="Bạn có chắc chắn muốn xóa ảnh tập luyện này không? Hành động này không thể hoàn tác."
+      confirm-text="Xóa ảnh"
+      confirm-variant="danger"
+      :loading="isDeletingPhoto"
+      @confirm="executeDeletePhoto"
+    />
+
+    <!-- Modal 1: Upload Photo Modal -->
+    <AppModal v-model="showUploadModal" title="Thêm ảnh tập luyện / Check-in" size="md">
+      <form class="space-y-4" @submit.prevent="submitPhoto">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Ngày ghi nhận</label>
+          <input
+            v-model="uploadForm.logDate"
+            type="date"
+            class="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500"
+            required
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Chọn ảnh từ máy</label>
+          <div
+            class="border-2 border-dashed border-slate-200 hover:border-rose-400 rounded-lg p-4 text-center cursor-pointer bg-slate-50/50 hover:bg-rose-50/20 transition-all relative"
+            @click="triggerFileInput"
+          >
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept="image/*"
+              class="hidden"
+              @change="handleFileSelected"
+            />
+            <div v-if="previewUrl" class="space-y-2">
+              <img :src="previewUrl" alt="Preview" class="max-h-48 mx-auto rounded-md object-contain shadow-2xs" />
+              <p class="text-xs font-semibold text-rose-600">Nhấn để chọn ảnh khác</p>
+            </div>
+            <div v-else class="space-y-1.5 py-4">
+              <UploadCloud class="w-8 h-8 text-slate-400 mx-auto" />
+              <p class="text-xs font-bold text-slate-700">Nhấn để chọn ảnh tập luyện</p>
+              <p class="text-[11px] text-slate-400">Hỗ trợ JPG, PNG, WEBP</p>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!selectedFile">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Hoặc dán đường dẫn ảnh (URL)</label>
+          <AppInput
+            id="photo-url"
+            v-model="uploadForm.imageUrl"
+            placeholder="https://..."
+            @input="onUrlInput"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <AppInput
+            id="photo-weight"
+            v-model.number="uploadForm.weightKg"
+            label="Cân nặng hôm nay (kg) (tùy chọn)"
+            type="number"
+            step="0.1"
+            placeholder="68.5"
+          />
+
+          <AppInput
+            id="photo-caption"
+            v-model="uploadForm.caption"
+            label="Ghi chú buổi tập"
+            placeholder="Ví dụ: Tập ngực + bụng..."
+          />
+        </div>
+
+        <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+          <AppButton variant="secondary" size="md" type="button" @click="showUploadModal = false">
+            Hủy
+          </AppButton>
+          <AppButton variant="primary" size="md" type="submit" :loading="isUploading" :disabled="!selectedFile && !uploadForm.imageUrl">
+            Lưu ảnh tập
+          </AppButton>
+        </div>
+      </form>
+    </AppModal>
+
+    <!-- Modal 2: Gallery Modal -->
+    <AppModal v-model="showGalleryModal" :title="`Album ảnh tập luyện ngày ${formattedDate}`" size="lg">
+      <div class="space-y-4">
+        <div v-if="todayPhotos.length === 0" class="py-8 text-center bg-slate-50 rounded-lg border border-dashed border-slate-200 text-xs text-slate-500">
+          Chưa có ảnh nào được lưu cho ngày này.
+        </div>
+        <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div
+            v-for="photo in todayPhotos"
+            :key="photo.id"
+            class="relative bg-white rounded-lg border border-slate-200 overflow-hidden shadow-2xs group"
+          >
+            <div class="aspect-square bg-slate-100 relative overflow-hidden cursor-pointer" @click="previewPhotoItem(photo)">
+              <img :src="photo.imageUrl" :alt="photo.caption || 'Ảnh tập'" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <Maximize2 class="w-5 h-5" />
+              </div>
+              <span v-if="photo.weightKg" class="absolute top-1.5 left-1.5 px-1.5 py-0.5 text-[10px] font-bold rounded bg-black/60 text-white backdrop-blur-xs inline-flex items-center gap-0.5">
+                <Scale class="w-2.5 h-2.5 text-rose-300" />
+                <span>{{ photo.weightKg }} kg</span>
+              </span>
+            </div>
+            <div class="p-2 bg-white flex items-center justify-between text-xs">
+              <span class="truncate text-slate-700 font-medium text-[11px]">{{ photo.caption || 'Ảnh tập' }}</span>
+              <button
+                type="button"
+                title="Xóa ảnh"
+                class="text-slate-400 hover:text-rose-600 transition-colors p-1 cursor-pointer"
+                @click="confirmDeletePhoto(photo.id)"
+              >
+                <Trash2 class="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+          <AppButton variant="outline" size="sm" :icon="Plus" @click="openUploadModal">
+            Thêm ảnh mới
+          </AppButton>
+          <AppButton variant="secondary" size="sm" @click="showGalleryModal = false">
+            Đóng
+          </AppButton>
+        </div>
+      </div>
+    </AppModal>
+
+    <!-- Modal 3: Preview Zoom Photo -->
+    <AppModal v-model="showPreviewModal" :title="previewPhoto?.caption || 'Chi tiết ảnh tập luyện'" size="lg">
+      <div v-if="previewPhoto" class="space-y-3">
+        <div class="bg-black/90 rounded-lg overflow-hidden flex items-center justify-center p-2 max-h-[70vh]">
+          <img
+            :src="previewPhoto.imageUrl"
+            :alt="previewPhoto.caption || 'Ảnh tập luyện'"
+            class="max-h-[65vh] w-auto object-contain rounded"
+          />
+        </div>
+        <div class="flex items-center justify-between text-xs text-slate-600 bg-slate-50 p-3 rounded-lg">
+          <div>
+            <span class="font-bold text-slate-800">Ngày: {{ formattedDate }}</span>
+            <span v-if="previewPhoto.weightKg" class="ml-3 font-semibold text-rose-600 inline-flex items-center gap-1">
+              <Scale class="w-3 h-3 text-rose-500" />
+              <span>Cân nặng: {{ previewPhoto.weightKg }} kg</span>
+            </span>
+          </div>
+          <button
+            type="button"
+            class="text-rose-600 hover:text-rose-800 font-semibold inline-flex items-center gap-1 cursor-pointer"
+            @click="confirmDeletePhoto(previewPhoto.id)"
+          >
+            <Trash2 class="w-3.5 h-3.5" />
+            <span>Xóa ảnh này</span>
+          </button>
+        </div>
+      </div>
+    </AppModal>
   </div>
 </template>
 
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
 import {
   Flame,
-  Activity,
-  Zap,
-  Utensils,
   Plus,
   Trash2,
   Edit3,
   Check,
   X,
   Dumbbell,
-  TrendingDown,
-  TrendingUp,
   Scale,
+  Camera,
+  Images,
+  Maximize2,
+  UploadCloud,
 } from 'lucide-vue-next';
 import { nutritionService } from '../../services/nutrition.service';
+import { healthPhotoService } from '../../services/health-photo.service';
+import type { HealthWorkoutPhoto } from '../../types/health-photo.types';
 import AppConfirmDialog from '../common/AppConfirmDialog.vue';
+import AppModal from '../common/AppModal.vue';
+import AppInput from '../common/AppInput.vue';
+import AppButton from '../common/AppButton.vue';
 import { useToastStore } from '../../stores/toast.store';
 import type {
   NutritionActivity,
@@ -456,6 +597,29 @@ const activityLogs = ref<NutritionActivityLog[]>([]);
 const showDeleteConfirm = ref<boolean>(false);
 const deletingActivity = ref<NutritionActivityLog | null>(null);
 const isDeletingActivity = ref<boolean>(false);
+
+// Photos State
+const todayPhotos = ref<HealthWorkoutPhoto[]>([]);
+const showUploadModal = ref(false);
+const showGalleryModal = ref(false);
+const showPreviewModal = ref(false);
+const previewPhoto = ref<HealthWorkoutPhoto | null>(null);
+
+const showDeletePhotoConfirm = ref(false);
+const deletingPhotoId = ref<number | null>(null);
+const isDeletingPhoto = ref(false);
+
+const fileInputRef = ref<HTMLInputElement | null>(null);
+const selectedFile = ref<File | null>(null);
+const previewUrl = ref<string | null>(null);
+const isUploading = ref(false);
+
+const uploadForm = reactive({
+  logDate: props.logDate || new Date().toISOString().split('T')[0],
+  imageUrl: '',
+  caption: '',
+  weightKg: undefined as number | undefined,
+});
 
 const deficitSummary = ref<CalorieDeficitSummary>({
   logDate: props.logDate,
@@ -528,81 +692,6 @@ const statusBadgeClass = computed(() => {
   }
 });
 
-const balanceCardClass = computed(() => {
-  switch (deficitSummary.value.status) {
-    case 'DEFICIT':
-      return 'bg-emerald-50/60 border-emerald-200';
-    case 'SURPLUS':
-      return 'bg-amber-50/60 border-amber-200';
-    default:
-      return 'bg-blue-50/60 border-blue-200';
-  }
-});
-
-const balanceIcon = computed(() => {
-  switch (deficitSummary.value.status) {
-    case 'DEFICIT':
-      return TrendingDown;
-    case 'SURPLUS':
-      return TrendingUp;
-    default:
-      return Scale;
-  }
-});
-
-const balanceIconColor = computed(() => {
-  switch (deficitSummary.value.status) {
-    case 'DEFICIT':
-      return 'text-emerald-600';
-    case 'SURPLUS':
-      return 'text-amber-600';
-    default:
-      return 'text-blue-600';
-  }
-});
-
-const balanceTextColor = computed(() => {
-  switch (deficitSummary.value.status) {
-    case 'DEFICIT':
-      return 'text-emerald-700';
-    case 'SURPLUS':
-      return 'text-amber-700';
-    default:
-      return 'text-blue-700';
-  }
-});
-
-const balanceSubtitleColor = computed(() => {
-  switch (deficitSummary.value.status) {
-    case 'DEFICIT':
-      return 'text-emerald-600';
-    case 'SURPLUS':
-      return 'text-amber-600';
-    default:
-      return 'text-blue-600';
-  }
-});
-
-const balanceExplanation = computed(() => {
-  switch (deficitSummary.value.status) {
-    case 'DEFICIT':
-      return 'Nạp ít hơn tiêu hao (Giảm mỡ)';
-    case 'SURPLUS':
-      return 'Nạp nhiều hơn tiêu hao (Tăng cân)';
-    default:
-      return 'Năng lượng cân bằng (Giữ cân)';
-  }
-});
-
-const burnedPercent = computed(() => {
-  if (!deficitSummary.value.totalCaloriesBurned || deficitSummary.value.totalCaloriesBurned === 0) return 0;
-  return Math.round((deficitSummary.value.foodCalories / deficitSummary.value.totalCaloriesBurned) * 100);
-});
-
-const progressBarColor = computed(() => {
-  if (burnedPercent.value <= 100) return 'bg-emerald-500';
-  return 'bg-amber-500';
-});
 
 // Methods
 const formatCategory = (category: string) => {
@@ -780,16 +869,117 @@ const executeDeleteActivity = async () => {
 };
 
 
+// Photo Methods
+const loadTodayPhotos = async () => {
+  try {
+    todayPhotos.value = await healthPhotoService.getPhotosByDate(props.logDate);
+  } catch (err) {
+    console.error('Failed to load today photos:', err);
+  }
+};
+
+const openUploadModal = () => {
+  uploadForm.logDate = props.logDate || new Date().toISOString().split('T')[0];
+  uploadForm.imageUrl = '';
+  uploadForm.caption = '';
+  uploadForm.weightKg = localWeight.value || undefined;
+  selectedFile.value = null;
+  previewUrl.value = null;
+  showUploadModal.value = true;
+};
+
+const openGalleryModal = () => {
+  showGalleryModal.value = true;
+};
+
+const previewPhotoItem = (photo: HealthWorkoutPhoto) => {
+  previewPhoto.value = photo;
+  showPreviewModal.value = true;
+};
+
+const triggerFileInput = () => {
+  fileInputRef.value?.click();
+};
+
+const handleFileSelected = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    const file = target.files[0];
+    selectedFile.value = file;
+    previewUrl.value = URL.createObjectURL(file);
+  }
+};
+
+const onUrlInput = () => {
+  if (uploadForm.imageUrl) {
+    previewUrl.value = uploadForm.imageUrl;
+  }
+};
+
+const submitPhoto = async () => {
+  isUploading.value = true;
+  try {
+    if (selectedFile.value) {
+      await healthPhotoService.uploadPhoto(
+        selectedFile.value,
+        uploadForm.logDate,
+        uploadForm.caption || undefined,
+        uploadForm.weightKg || undefined
+      );
+    } else if (uploadForm.imageUrl) {
+      await healthPhotoService.savePhoto({
+        logDate: uploadForm.logDate,
+        imageUrl: uploadForm.imageUrl,
+        caption: uploadForm.caption || undefined,
+        weightKg: uploadForm.weightKg || undefined,
+      });
+    }
+    toast.success('Đã lưu ảnh tập luyện thành công!');
+    showUploadModal.value = false;
+    await loadTodayPhotos();
+  } catch (err: any) {
+    console.error('Failed to submit photo:', err);
+    toast.error('Không thể lưu ảnh tập luyện');
+  } finally {
+    isUploading.value = false;
+  }
+};
+
+const confirmDeletePhoto = (id: number) => {
+  deletingPhotoId.value = id;
+  showDeletePhotoConfirm.value = true;
+};
+
+const executeDeletePhoto = async () => {
+  if (!deletingPhotoId.value) return;
+  isDeletingPhoto.value = true;
+  try {
+    await healthPhotoService.deletePhoto(deletingPhotoId.value);
+    toast.success('Đã xóa ảnh tập luyện');
+    showDeletePhotoConfirm.value = false;
+    showPreviewModal.value = false;
+    deletingPhotoId.value = null;
+    await loadTodayPhotos();
+  } catch (err) {
+    console.error('Failed to delete photo:', err);
+    toast.error('Không thể xóa ảnh');
+  } finally {
+    isDeletingPhoto.value = false;
+  }
+};
+
 // Lifecycle & Watchers
 onMounted(async () => {
   await loadActivities();
   await fetchDeficitData();
+  await loadTodayPhotos();
 });
 
 watch(
   () => props.logDate,
   () => {
     fetchDeficitData();
+    loadTodayPhotos();
   }
 );
 
@@ -802,5 +992,6 @@ watch(
 
 defineExpose({
   fetchDeficitData,
+  loadTodayPhotos,
 });
 </script>

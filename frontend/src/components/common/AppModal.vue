@@ -2,7 +2,10 @@
   <Teleport to="body">
     <div
       v-if="modelValue"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto bg-slate-900/50 backdrop-blur-sm"
+      :class="[
+        'fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-slate-900/50 backdrop-blur-sm',
+        zIndexClass
+      ]"
       @click.self="closeOnBackdrop && $emit('update:modelValue', false)"
     >
       <div
@@ -49,10 +52,12 @@ const props = withDefaults(
     title?: string;
     size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | 'full';
     closeOnBackdrop?: boolean;
+    zIndexClass?: string;
   }>(),
   {
     size: 'md',
     closeOnBackdrop: true,
+    zIndexClass: 'z-50',
   }
 );
 

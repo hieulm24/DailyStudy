@@ -304,10 +304,11 @@ const userInitial = computed(() => {
   return name.charAt(0).toUpperCase();
 });
 
-const isEnglishOpen = ref(true);
-
 const englishRoutes = ['/vocabulary', '/grammar', '/listening', '/speaking'];
 const isEnglishActive = computed(() => englishRoutes.some(p => route.path.startsWith(p)));
+
+// Only open initially if currently on an English route
+const isEnglishOpen = ref(englishRoutes.some(p => route.path.startsWith(p)));
 
 // Auto-expand English menu if currently navigating inside any English route
 watch(
@@ -316,8 +317,7 @@ watch(
     if (englishRoutes.some(p => newPath.startsWith(p))) {
       isEnglishOpen.value = true;
     }
-  },
-  { immediate: true }
+  }
 );
 
 const englishSubItems = [

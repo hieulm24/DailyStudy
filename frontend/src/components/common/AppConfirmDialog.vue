@@ -2,6 +2,7 @@
   <AppModal
     :model-value="modelValue"
     size="sm"
+    :z-index-class="zIndexClass || 'z-[80]'"
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <template #header>
@@ -38,6 +39,7 @@ withDefaults(
     cancelText?: string;
     confirmVariant?: 'danger' | 'primary';
     loading?: boolean;
+    zIndexClass?: string;
   }>(),
   {
     title: 'Xác nhận hành động',
@@ -46,6 +48,7 @@ withDefaults(
     cancelText: 'Hủy bỏ',
     confirmVariant: 'danger',
     loading: false,
+    zIndexClass: 'z-[80]',
   }
 );
 

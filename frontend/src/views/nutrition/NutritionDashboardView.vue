@@ -81,63 +81,103 @@
       </div>
     </div>
 
-    <!-- Quick Add Bar (Frequently Used / Recent Items) -->
-    <div class="bg-white p-4 rounded-md border border-slate-200">
-      <div class="flex items-center justify-between mb-2.5">
-        <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-          <Sparkles class="w-3.5 h-3.5 text-amber-500" />
-          <span>Thêm nhanh món thường dùng:</span>
-        </div>
-        <span class="text-[11px] text-slate-400">Thêm nhanh trong 1 lượt click</span>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <button
-          v-for="item in quickAddList"
-          :key="item.foodVariantId || item.userFoodId"
-          type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-200 rounded-md transition-colors group cursor-pointer"
-          @click="quickAdd(item)"
-        >
-          <Plus class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600" />
-          <span>{{ item.defaultQuantity }} {{ item.defaultUnit }} {{ item.name }} ({{ (item.state || '').toLowerCase() }})</span>
-        </button>
-
-        <button
-          type="button"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md transition-colors cursor-pointer"
-          @click="openAddModal()"
-        >
-          <Search class="w-3.5 h-3.5" />
-          <span>Tìm món khác...</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Daily Nutrition Summary (Calo & Macro Progress Cards) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-      <!-- Calories -->
-      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-slate-500">Tổng Calories</span>
-            <Flame class="w-4 h-4 text-emerald-600" />
+    <!-- Daily Energy Balance & Deficit Overview (4 Boxes + Meter) -->
+    <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs space-y-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 1. Calories ăn vào (Nạp) -->
+        <div class="p-4 bg-slate-50/60 hover:bg-slate-50 rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between transition-colors">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500">Calories ăn vào</span>
+            <Utensils class="w-4 h-4 text-emerald-600" />
           </div>
-          <div class="flex items-baseline gap-1.5 mt-1">
+          <div class="mt-2.5 flex items-baseline gap-1">
             <span class="text-2xl font-bold text-slate-900">{{ summary.totalCalories.toLocaleString() }}</span>
-            <span class="text-xs text-slate-500 font-medium">/ {{ targetSettings.targetCalories }} kcal</span>
+            <span class="text-xs text-slate-400 font-medium">kcal</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1 flex items-center justify-between">
+            <span>Từ {{ summary.items.length }} món đã ghi nhận</span>
+            <span class="font-medium text-slate-400">Mục tiêu: {{ targetSettings.targetCalories }} kcal</span>
           </div>
         </div>
-        <div class="w-full bg-slate-100 rounded-full h-1.5 mt-4 overflow-hidden">
+
+        <!-- 2. Calories hoạt động (Đốt thêm) -->
+        <div class="p-4 bg-slate-50/60 hover:bg-slate-50 rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between transition-colors">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500">Calories hoạt động</span>
+            <Activity class="w-4 h-4 text-rose-600" />
+          </div>
+          <div class="mt-2.5 flex items-baseline gap-1">
+            <span class="text-2xl font-bold text-rose-600">+{{ Math.round(deficitSummary.activityCalories).toLocaleString() }}</span>
+            <span class="text-xs text-slate-400 font-medium">kcal</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1">
+            {{ deficitSummary.activityLogs?.length || 0 }} hoạt động (Net MET)
+          </div>
+        </div>
+
+        <!-- 3. Tổng tiêu hao (TDEE + Hoạt động) -->
+        <div class="p-4 bg-slate-50/60 hover:bg-slate-50 rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between transition-colors">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500">Tổng tiêu hao</span>
+            <Flame class="w-4 h-4 text-amber-600" />
+          </div>
+          <div class="mt-2.5 flex items-baseline gap-1">
+            <span class="text-2xl font-bold text-amber-700">{{ Math.round(deficitSummary.totalCaloriesBurned).toLocaleString() }}</span>
+            <span class="text-xs text-slate-400 font-medium">kcal</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1">
+            TDEE ({{ deficitSummary.tdee || targetSettings.targetCalories || 2100 }}) + Hoạt động ({{ Math.round(deficitSummary.activityCalories) }})
+          </div>
+        </div>
+
+        <!-- 4. Calorie Balance (Thâm hụt / Thặng dư) -->
+        <div
+          :class="[
+            'p-4 rounded-md border shadow-2xs flex flex-col justify-between transition-colors',
+            balanceCardClass
+          ]"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-700">
+              {{ deficitSummary.status === 'DEFICIT' ? 'Thâm hụt' : (deficitSummary.status === 'SURPLUS' ? 'Thặng dư' : 'Cân bằng') }}
+            </span>
+            <component :is="balanceIcon" class="w-4 h-4" :class="balanceIconColor" />
+          </div>
+          <div class="mt-2.5 flex items-baseline gap-1">
+            <span class="text-2xl font-black tracking-tight" :class="balanceTextColor">
+              {{ deficitSummary.status === 'DEFICIT' ? '-' : (deficitSummary.status === 'SURPLUS' ? '+' : '') }}{{ Math.abs(Math.round(deficitSummary.calorieBalance)).toLocaleString() }}
+            </span>
+            <span class="text-xs text-slate-500 font-medium">kcal</span>
+          </div>
+          <div class="text-[11px] font-semibold mt-1" :class="balanceSubtitleColor">
+            {{ balanceExplanation }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Deficit / Burned Progress Meter -->
+      <div class="bg-slate-50 p-3.5 rounded-md border border-slate-200/80">
+        <div class="flex items-center justify-between text-xs font-semibold mb-1.5">
+          <span class="text-slate-600">Tiến độ tiêu hao vs Ăn vào:</span>
+          <span class="text-slate-900 font-bold">
+            {{ summary.totalCalories.toLocaleString() }} / {{ Math.round(deficitSummary.totalCaloriesBurned).toLocaleString() }} kcal
+            <span class="text-slate-400 font-normal">({{ burnedPercent }}%)</span>
+          </span>
+        </div>
+        <div class="w-full bg-slate-200/70 rounded-full h-2 overflow-hidden flex">
           <div
-            class="bg-emerald-600 h-1.5 rounded-full transition-all duration-300"
-            :style="{ width: `${Math.min(100, (summary.totalCalories / targetSettings.targetCalories) * 100)}%` }"
+            :class="progressBarColor"
+            class="h-2 rounded-full transition-all duration-500"
+            :style="{ width: `${Math.min(100, burnedPercent)}%` }"
           ></div>
         </div>
       </div>
+    </div>
 
+    <!-- Daily Macronutrients Breakdown (4 Cards Grid) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <!-- Protein -->
-      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-semibold text-slate-500">Protein (Đạm)</span>
@@ -157,7 +197,7 @@
       </div>
 
       <!-- Carbohydrate -->
-      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-semibold text-slate-500">Carbohydrate (Đường bột)</span>
@@ -177,7 +217,7 @@
       </div>
 
       <!-- Fat -->
-      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-semibold text-slate-500">Fat (Chất béo)</span>
@@ -197,7 +237,7 @@
       </div>
 
       <!-- Fiber -->
-      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-sm flex flex-col justify-between">
+      <div class="bg-white p-5 rounded-md border border-slate-200 shadow-2xs flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-semibold text-slate-500">Fiber (Chất xơ)</span>
@@ -217,20 +257,89 @@
       </div>
     </div>
 
-    <!-- Calories Tiêu thụ & Thâm hụt Section -->
-    <CalorieDeficitSection
-      ref="deficitSectionRef"
-      :log-date="currentDate"
-      :food-calories="summary.totalCalories"
-      :initial-tdee="targetSettings.targetCalories || 2100"
-      :initial-weight="targetSettings.weight || 68"
-    />
+    <!-- TAB CONTROLS (Thực phẩm & Hoạt động) -->
+    <div class="flex items-center gap-2 border-b border-slate-200">
+      <button
+        type="button"
+        :class="[
+          'inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer -mb-px',
+          activeTab === 'foods'
+            ? 'border-emerald-600 text-emerald-700 bg-white rounded-t-lg shadow-2xs'
+            : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300',
+        ]"
+        @click="activeTab = 'foods'"
+      >
+        <Utensils class="w-4 h-4" />
+        <span>Nhật ký thực phẩm hôm nay</span>
+        <span class="px-2 py-0.5 text-xs font-extrabold rounded-full bg-emerald-100 text-emerald-800">
+          {{ summary.items.length }}
+        </span>
+      </button>
 
-    <!-- Workout Photos / Daily Check-in Section -->
-    <WorkoutPhotoSection :log-date="currentDate" />
+      <button
+        type="button"
+        :class="[
+          'inline-flex items-center gap-2 px-4 py-2.5 text-sm font-bold border-b-2 transition-all cursor-pointer -mb-px',
+          activeTab === 'activity'
+            ? 'border-rose-600 text-rose-700 bg-white rounded-t-lg shadow-2xs'
+            : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300',
+        ]"
+        @click="activeTab = 'activity'"
+      >
+        <Flame class="w-4 h-4" />
+        <span>Hoạt động thể chất & Thâm hụt Calo</span>
+      </button>
+    </div>
 
-    <!-- Main Food List Table Card -->
-    <div class="bg-white rounded-md border border-slate-200 overflow-hidden shadow-2xs">
+    <!-- TAB 1 CONTENT: FOOD LIST & MICRONUTRIENTS -->
+    <div v-show="activeTab === 'foods'" class="space-y-6">
+      <!-- Quick Add Bar (Frequently Used / Recent Items) -->
+      <div class="bg-white p-4 rounded-md border border-slate-200 shadow-2xs">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+            <Sparkles class="w-3.5 h-3.5 text-amber-500" />
+            <span>Thêm nhanh món thường dùng:</span>
+          </div>
+          <span class="text-[11px] text-slate-400">Thêm nhanh trong 1 lượt click</span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <div
+            v-for="item in visibleQuickAddList"
+            :key="item.foodVariantId ? `v-${item.foodVariantId}` : `u-${item.userFoodId}`"
+            class="inline-flex items-center bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 hover:border-emerald-200 rounded-md transition-colors group shadow-2xs overflow-hidden"
+          >
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium cursor-pointer"
+              @click="quickAdd(item)"
+            >
+              <Plus class="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-600" />
+              <span>{{ item.defaultQuantity }} {{ item.defaultUnit }} {{ item.name }} ({{ (item.state || '').toLowerCase() }})</span>
+            </button>
+            <button
+              type="button"
+              class="px-1.5 py-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border-l border-slate-200 group-hover:border-emerald-200"
+              title="Ẩn món này khỏi danh sách thêm nhanh"
+              @click.stop="dismissQuickAddItem(item)"
+            >
+              <X class="w-3 h-3" />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-md transition-colors cursor-pointer"
+            @click="openAddModal()"
+          >
+            <Search class="w-3.5 h-3.5" />
+            <span>Tìm món khác...</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Food List Table Card -->
+      <div class="bg-white rounded-md border border-slate-200 overflow-hidden shadow-2xs">
       <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="p-2.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100">
@@ -448,6 +557,19 @@
         Chưa có dữ liệu vi chất cho ngày này.
       </div>
     </div>
+  </div>
+
+  <!-- TAB 2 CONTENT: CALORIE DEFICIT & PHYSICAL ACTIVITY -->
+  <div v-show="activeTab === 'activity'" class="space-y-6">
+    <CalorieDeficitSection
+      ref="deficitSectionRef"
+      :log-date="currentDate"
+      :food-calories="summary.totalCalories"
+      :initial-tdee="targetSettings.targetCalories || 2100"
+      :initial-weight="targetSettings.weight || 68"
+      @updated="onDeficitUpdated"
+    />
+  </div>
 
     <!-- Modals -->
     <AddFoodModal
@@ -507,13 +629,17 @@ import {
   Trash2,
   Search,
   CheckCircle2,
+  Activity,
+  TrendingDown,
+  TrendingUp,
+  Scale,
+  X,
 } from 'lucide-vue-next';
 import { nutritionService } from '../../services/nutrition.service';
 import AddFoodModal from '../../components/nutrition/AddFoodModal.vue';
 import CreateUserFoodModal from '../../components/nutrition/CreateUserFoodModal.vue';
 import NutritionTargetModal from '../../components/nutrition/NutritionTargetModal.vue';
 import CalorieDeficitSection from '../../components/nutrition/CalorieDeficitSection.vue';
-import WorkoutPhotoSection from '../../components/nutrition/WorkoutPhotoSection.vue';
 import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import { useToastStore } from '../../stores/toast.store';
 import type {
@@ -521,16 +647,16 @@ import type {
   NutritionDailyLogItem,
   NutritionRecentFood,
   NutritionTargetSettings,
+  CalorieDeficitSummary,
 } from '../../types/nutrition';
 
 const toast = useToastStore();
+const activeTab = ref<'foods' | 'activity'>('foods');
 const deficitSectionRef = ref<InstanceType<typeof CalorieDeficitSection> | null>(null);
 
 const showDeleteFoodConfirm = ref(false);
 const deletingFoodItem = ref<NutritionDailyLogItem | null>(null);
 const isDeletingFood = ref(false);
-
-
 
 const getTodayString = () => {
   const d = new Date();
@@ -552,8 +678,53 @@ const summary = ref<NutritionDailySummary>({
   topMicronutrients: [],
 });
 
+const deficitSummary = ref<CalorieDeficitSummary>({
+  logDate: getTodayString(),
+  weightKg: 68,
+  tdee: 2100,
+  foodCalories: 0,
+  activityCalories: 0,
+  totalCaloriesBurned: 2100,
+  calorieBalance: 2100,
+  status: 'DEFICIT',
+  activityLogs: [],
+  loggedFoodsCount: 0,
+});
+
 const quickAddList = ref<NutritionRecentFood[]>([]);
 const isCopying = ref(false);
+
+const DISMISSED_QUICK_ADD_KEY = 'nutrition_dismissed_quick_add';
+const dismissedQuickAddKeys = ref<string[]>([]);
+
+try {
+  const saved = localStorage.getItem(DISMISSED_QUICK_ADD_KEY);
+  if (saved) {
+    dismissedQuickAddKeys.value = JSON.parse(saved);
+  }
+} catch (e) {
+  console.error('Failed to parse dismissed quick add items:', e);
+}
+
+const getItemKey = (item: NutritionRecentFood) => {
+  return (item.name || '').trim().toLowerCase();
+};
+
+const visibleQuickAddList = computed(() => {
+  return quickAddList.value.filter((item) => {
+    const key = getItemKey(item);
+    return !dismissedQuickAddKeys.value.includes(key);
+  });
+});
+
+const dismissQuickAddItem = (item: NutritionRecentFood) => {
+  const key = getItemKey(item);
+  if (!dismissedQuickAddKeys.value.includes(key)) {
+    dismissedQuickAddKeys.value.push(key);
+    localStorage.setItem(DISMISSED_QUICK_ADD_KEY, JSON.stringify(dismissedQuickAddKeys.value));
+    toast.success(`Đã ẩn '${item.name}' khỏi danh sách thêm nhanh`);
+  }
+};
 
 const isAddModalOpen = ref(false);
 const editingLogItem = ref<NutritionDailyLogItem | null>(null);
@@ -569,6 +740,86 @@ const formattedSelectedDate = computed(() => {
   return `${d}/${m}/${y}`;
 });
 
+const balanceCardClass = computed(() => {
+  switch (deficitSummary.value.status) {
+    case 'DEFICIT':
+      return 'bg-emerald-50/60 border-emerald-200';
+    case 'SURPLUS':
+      return 'bg-amber-50/60 border-amber-200';
+    default:
+      return 'bg-blue-50/60 border-blue-200';
+  }
+});
+
+const balanceIcon = computed(() => {
+  switch (deficitSummary.value.status) {
+    case 'DEFICIT':
+      return TrendingDown;
+    case 'SURPLUS':
+      return TrendingUp;
+    default:
+      return Scale;
+  }
+});
+
+const balanceIconColor = computed(() => {
+  switch (deficitSummary.value.status) {
+    case 'DEFICIT':
+      return 'text-emerald-600';
+    case 'SURPLUS':
+      return 'text-amber-600';
+    default:
+      return 'text-blue-600';
+  }
+});
+
+const balanceTextColor = computed(() => {
+  switch (deficitSummary.value.status) {
+    case 'DEFICIT':
+      return 'text-emerald-700';
+    case 'SURPLUS':
+      return 'text-amber-700';
+    default:
+      return 'text-blue-700';
+  }
+});
+
+const balanceSubtitleColor = computed(() => {
+  switch (deficitSummary.value.status) {
+    case 'DEFICIT':
+      return 'text-emerald-600';
+    case 'SURPLUS':
+      return 'text-amber-600';
+    default:
+      return 'text-blue-600';
+  }
+});
+
+const balanceExplanation = computed(() => {
+  switch (deficitSummary.value.status) {
+    case 'DEFICIT':
+      return 'Nạp ít hơn tiêu hao (Giảm mỡ)';
+    case 'SURPLUS':
+      return 'Nạp nhiều hơn tiêu hao (Tăng cân)';
+    default:
+      return 'Năng lượng cân bằng (Giữ cân)';
+  }
+});
+
+const burnedPercent = computed(() => {
+  if (!deficitSummary.value.totalCaloriesBurned || deficitSummary.value.totalCaloriesBurned === 0) return 0;
+  return Math.round(((deficitSummary.value.foodCalories || summary.value.totalCalories) / deficitSummary.value.totalCaloriesBurned) * 100);
+});
+
+const progressBarColor = computed(() => {
+  if (burnedPercent.value <= 100) return 'bg-emerald-500';
+  return 'bg-amber-500';
+});
+
+const onDeficitUpdated = (newDeficit: CalorieDeficitSummary) => {
+  deficitSummary.value = newDeficit;
+};
+
 const navigateDate = (days: number) => {
   const d = new Date(currentDate.value);
   d.setDate(d.getDate() + days);
@@ -583,12 +834,25 @@ const fetchDailySummary = async () => {
   try {
     const data = await nutritionService.getDailySummary(currentDate.value);
     summary.value = data;
+    await fetchDeficitSummary();
     deficitSectionRef.value?.fetchDeficitData();
   } catch (e) {
     console.error('Failed to daily summary:', e);
   }
 };
 
+const fetchDeficitSummary = async () => {
+  try {
+    const data = await nutritionService.getDeficitSummary(
+      currentDate.value,
+      targetSettings.value.targetCalories || 2100,
+      targetSettings.value.weight || 68
+    );
+    deficitSummary.value = data;
+  } catch (e) {
+    console.error('Failed to fetch deficit summary:', e);
+  }
+};
 
 const fetchRecentFoods = async () => {
   try {
@@ -628,6 +892,7 @@ const copyYesterday = async () => {
   try {
     const res = await nutritionService.copyDayLogs(yesterdayStr, currentDate.value);
     summary.value = res;
+    await fetchDeficitSummary();
     toast.success('Đã sao chép toàn bộ món từ hôm qua!');
   } catch (e: any) {
     console.error('Failed to copy yesterday:', e);
@@ -688,6 +953,7 @@ const onCustomFoodCreated = () => {
 
 const onTargetSaved = (targets: NutritionTargetSettings) => {
   targetSettings.value = targets;
+  fetchDeficitSummary();
 };
 
 const getStateBadgeClass = (state: string) => {
