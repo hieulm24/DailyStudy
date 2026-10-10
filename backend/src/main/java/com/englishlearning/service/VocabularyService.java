@@ -119,6 +119,8 @@ public class VocabularyService {
                 .partOfSpeech(request.getPartOfSpeech())
                 .level(request.getLevel())
                 .note(request.getNote())
+                .contextSentence(StringUtils.hasText(request.getContextSentence()) ? request.getContextSentence().trim() : null)
+                .contextMeaning(StringUtils.hasText(request.getContextMeaning()) ? request.getContextMeaning().trim() : null)
                 .status(StringUtils.hasText(request.getStatus()) ? request.getStatus() : "NEW")
                 .masteryLevel(0)
                 .reviewCount(0)
@@ -193,6 +195,8 @@ public class VocabularyService {
         vocabulary.setPartOfSpeech(request.getPartOfSpeech());
         vocabulary.setLevel(request.getLevel());
         vocabulary.setNote(request.getNote());
+        vocabulary.setContextSentence(StringUtils.hasText(request.getContextSentence()) ? request.getContextSentence().trim() : null);
+        vocabulary.setContextMeaning(StringUtils.hasText(request.getContextMeaning()) ? request.getContextMeaning().trim() : null);
         if (StringUtils.hasText(request.getStatus())) {
             vocabulary.setStatus(request.getStatus());
         }
@@ -353,6 +357,8 @@ public class VocabularyService {
                 .partOfSpeech(vocab.getPartOfSpeech())
                 .level(vocab.getLevel())
                 .note(vocab.getNote())
+                .contextSentence(vocab.getContextSentence())
+                .contextMeaning(vocab.getContextMeaning())
                 .status(vocab.getStatus())
                 .topicId(vocab.getTopic() != null ? vocab.getTopic().getId() : null)
                 .topicName(vocab.getTopic() != null ? vocab.getTopic().getName() : null)

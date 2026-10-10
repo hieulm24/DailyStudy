@@ -187,7 +187,16 @@
                 <strong>{{ item.masteryLevel }}/5</strong>
               </span>
             </div>
-            <div class="flex items-center gap-1">
+            <div class="flex items-center gap-1.5">
+              <button
+                type="button"
+                title="Luyện tập bài tập AI"
+                class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-md transition-colors border border-purple-200"
+                @click="goToPractice(item)"
+              >
+                <Sparkles class="w-3.5 h-3.5" />
+                <span>Luyện AI</span>
+              </button>
               <button
                 type="button"
                 title="Sửa"
@@ -440,8 +449,10 @@ import AppSearch from '../../components/common/AppSearch.vue';
 import AppFilter from '../../components/common/AppFilter.vue';
 import { Plus, Sparkles, Edit, Trash2, Star, CheckCircle2, Flame, RotateCcw, Filter, BarChart3 } from 'lucide-vue-next';
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 const route = useRoute();
+const router = useRouter();
 const toastStore = useToastStore();
 const reviewStore = useReviewStore();
 
@@ -549,11 +560,12 @@ const form = reactive({
 });
 
 const levelOptions = [
-  { label: 'A1 - Beginner', value: 'A1' },
-  { label: 'A2 - Elementary', value: 'A2' },
-  { label: 'B1 - Intermediate', value: 'B1' },
-  { label: 'B2 - Upper Intermediate', value: 'B2' },
-  { label: 'C1 - Advanced', value: 'C1' },
+  { label: 'A0 - Mất gốc (Re-learning)', value: 'A0' },
+  { label: 'A1 - Beginner (Nhập môn)', value: 'A1' },
+  { label: 'A2 - Elementary (Sơ cấp)', value: 'A2' },
+  { label: 'B1 - Intermediate (Trung cấp)', value: 'B1' },
+  { label: 'B2 - Upper Intermediate (Nâng cao)', value: 'B2' },
+  { label: 'C1 - Advanced (Thành thạo)', value: 'C1' },
   { label: 'C2 - Mastery', value: 'C2' },
 ];
 
@@ -640,8 +652,11 @@ function openEditModal(item: Grammar) {
 }
 
 function openDetailModal(item: Grammar) {
-  selectedItem.value = item;
-  showDetailModal.value = true;
+  router.push(`/grammar/${item.id}`);
+}
+
+function goToPractice(item: Grammar) {
+  router.push({ path: `/grammar/${item.id}`, query: { tab: 'practice' } });
 }
 
 async function saveGrammar() {

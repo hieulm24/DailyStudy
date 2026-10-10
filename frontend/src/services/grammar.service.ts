@@ -1,5 +1,13 @@
 import api from './api';
-import type { ApiResponse, PageResponse, Grammar } from '../types';
+import type {
+  ApiResponse,
+  PageResponse,
+  Grammar,
+  GrammarExerciseQuestion,
+  GenerateGrammarExerciseRequest,
+  SubmitGrammarExerciseRequest,
+  GrammarExerciseHistory,
+} from '../types';
 
 export interface GrammarFilterParams {
   search?: string;
@@ -38,4 +46,26 @@ export const grammarService = {
   async deleteGrammar(id: number): Promise<void> {
     await api.delete<ApiResponse<void>>(`/grammar/${id}`);
   },
+
+  // --- AI Exercise Methods ---
+  async generateExercises(data: GenerateGrammarExerciseRequest): Promise<GrammarExerciseQuestion[]> {
+    const res = await api.post<ApiResponse<GrammarExerciseQuestion[]>>('/grammar/exercises/generate', data);
+    return res.data.data;
+  },
+
+  async submitExercise(data: SubmitGrammarExerciseRequest): Promise<GrammarExerciseHistory> {
+    const res = await api.post<ApiResponse<GrammarExerciseHistory>>('/grammar/exercises/submit', data);
+    return res.data.data;
+  },
+
+  async getTopicHistory(topicId: number): Promise<GrammarExerciseHistory[]> {
+    const res = await api.get<ApiResponse<GrammarExerciseHistory[]>>(`/grammar/exercises/history/topic/${topicId}`);
+    return res.data.data;
+  },
+
+  async getHistoryDetail(historyId: number): Promise<GrammarExerciseHistory> {
+    const res = await api.get<ApiResponse<GrammarExerciseHistory>>(`/grammar/exercises/history/${historyId}`);
+    return res.data.data;
+  },
 };
+

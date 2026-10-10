@@ -127,6 +127,8 @@ public class ReviewService {
                     builder.title(v.getWord())
                             .subtitle(v.getPronunciation() != null ? v.getPronunciation() : v.getPartOfSpeech())
                             .primaryMeaning(v.getMeaning())
+                            .contextSentence(v.getContextSentence())
+                            .contextMeaning(v.getContextMeaning())
                             .note(v.getNote());
 
                     if (v.getExamples() != null && !v.getExamples().isEmpty()) {

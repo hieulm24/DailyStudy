@@ -26,9 +26,13 @@ public class VocabularyRequest {
     private String status;
     private Long topicId;
 
-    // Example sentence
+    // Short Example sentence
     private String exampleSentence;
     private String exampleMeaning;
+
+    // Extended / Long context sentence
+    private String contextSentence;
+    private String contextMeaning;
 
     // Multiple examples if provided
     private List<VocabularyExampleDto> examples;

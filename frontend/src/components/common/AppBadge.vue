@@ -28,6 +28,7 @@ const props = withDefaults(
 const variantClasses = computed(() => {
   if (props.level) {
     const lvl = props.level.toUpperCase();
+    if (lvl.includes('A0')) return 'bg-teal-50 text-teal-700 border border-teal-200';
     if (lvl.includes('A1') || lvl.includes('A2')) return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
     if (lvl.includes('B1') || lvl.includes('B2')) return 'bg-brand-50 text-brand-700 border border-brand-200';
     if (lvl.includes('C1') || lvl.includes('C2')) return 'bg-purple-50 text-purple-700 border border-purple-200';

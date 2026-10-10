@@ -273,10 +273,20 @@
               Công thức: {{ currentItem?.structure }}
             </div>
 
-            <!-- Example sentence -->
+            <!-- Short Example sentence -->
             <div v-if="currentItem?.exampleSentence" class="p-3.5 bg-slate-50 rounded-md border border-slate-100 text-sm space-y-1.5">
               <span class="font-semibold text-slate-900 block">"{{ currentItem?.exampleSentence }}"</span>
               <span v-if="currentItem?.exampleMeaning" class="text-slate-600 block">{{ currentItem?.exampleMeaning }}</span>
+            </div>
+
+            <!-- Extended Long Context Sentence -->
+            <div v-if="currentItem?.contextSentence" class="p-3.5 bg-purple-50/70 rounded-md border border-purple-200 text-sm space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold text-purple-800 uppercase tracking-wider">Ngữ cảnh / Câu ví dụ mở rộng:</span>
+                <span class="text-[10px] font-semibold text-purple-600 bg-purple-100 px-1.5 py-0.2 rounded">TOEIC Context</span>
+              </div>
+              <p class="font-medium text-slate-900 leading-relaxed">"{{ currentItem?.contextSentence }}"</p>
+              <p v-if="currentItem?.contextMeaning" class="text-xs text-purple-950/80 leading-relaxed">{{ currentItem?.contextMeaning }}</p>
             </div>
 
             <!-- Note -->

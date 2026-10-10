@@ -16,6 +16,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\DashboardContr
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\DocumentController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\GameController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\GrammarController.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\GrammarExerciseController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\HealthWorkoutPhotoController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\ListeningController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\NutritionController.java
@@ -54,10 +55,14 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\game\GameQuestionDto.
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\game\GameQuestionOptionDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\game\GameResultResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\game\GameSessionStartResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GenerateGrammarExerciseRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarExampleDto.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarExerciseHistoryResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarExerciseQuestionDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarFilterRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\GrammarResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\grammar\SubmitGrammarExerciseRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\health\HealthWorkoutPhotoRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\health\HealthWorkoutPhotoResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\listening\ListeningFilterRequest.java
@@ -124,6 +129,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GameQuestion.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GameQuestionOption.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GameSession.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GrammarExample.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GrammarExerciseHistory.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\GrammarTopic.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\HealthWorkoutPhoto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\LearningActivity.java
@@ -163,6 +169,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GameQuestionRe
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GameRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GameSessionRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GrammarExampleRepository.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GrammarExerciseHistoryRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\GrammarTopicRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\HealthWorkoutPhotoRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\LearningActivityRepository.java
@@ -202,6 +209,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\CalorieCalculatio
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\DailyTaskService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\DocumentService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\GameService.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\GrammarAiService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\GrammarService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\HealthWorkoutPhotoService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\ListeningService.java

@@ -28,5 +28,7 @@ public class ReviewItemDto {
     private String structure; // grammar structure
     private String exampleSentence;
     private String exampleMeaning;
+    private String contextSentence;
+    private String contextMeaning;
     private String note;
 }

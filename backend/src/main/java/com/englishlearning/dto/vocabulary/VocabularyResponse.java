@@ -20,6 +20,8 @@ public class VocabularyResponse {
     private String partOfSpeech;
     private String level;
     private String note;
+    private String contextSentence;
+    private String contextMeaning;
     private String status;
     private Long topicId;
     private String topicName;

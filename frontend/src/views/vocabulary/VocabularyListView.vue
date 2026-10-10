@@ -484,7 +484,16 @@
                     <p class="italic text-slate-800 line-clamp-1">"{{ item.examples[0].exampleSentence }}"</p>
                     <p v-if="item.examples[0].meaning" class="text-xs text-slate-500 line-clamp-1">{{ item.examples[0].meaning }}</p>
                   </div>
+                  <div v-else-if="item.contextSentence">
+                    <p class="italic text-purple-800 line-clamp-1">"{{ item.contextSentence }}"</p>
+                    <p v-if="item.contextMeaning" class="text-xs text-slate-500 line-clamp-1">{{ item.contextMeaning }}</p>
+                  </div>
                   <span v-else class="text-slate-300">-</span>
+                  <div v-if="item.contextSentence && item.examples && item.examples.length > 0" class="mt-1">
+                    <span class="inline-flex items-center text-[10px] font-semibold text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">
+                      + Ngữ cảnh dài
+                    </span>
+                  </div>
                 </td>
 
                 <!-- Status -->
@@ -678,15 +687,33 @@
                 <div class="sm:col-span-6">
                   <AppInput
                     v-model="row.exampleSentence"
-                    label="Câu ví dụ (Example Sentence)"
+                    label="Câu ví dụ ngắn"
                     placeholder="e.g. Everything is going according to schedule."
                   />
                 </div>
                 <div class="sm:col-span-6">
                   <AppInput
                     v-model="row.exampleMeaning"
-                    label="Nghĩa câu ví dụ"
+                    label="Nghĩa câu ví dụ ngắn"
                     placeholder="e.g. Mọi thứ đang diễn ra đúng theo lịch trình."
+                  />
+                </div>
+              </div>
+
+              <!-- Row 3: Extended Context Sentence & Meaning -->
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start p-2.5 rounded-md bg-purple-50/40 border border-purple-100">
+                <div class="sm:col-span-6">
+                  <AppInput
+                    v-model="row.contextSentence"
+                    label="Ngữ cảnh / Câu dài (Tiếng Anh)"
+                    placeholder="e.g. All staff members must submit their revised quarterly schedules by Friday."
+                  />
+                </div>
+                <div class="sm:col-span-6">
+                  <AppInput
+                    v-model="row.contextMeaning"
+                    label="Dịch nghĩa câu dài (Tiếng Việt)"
+                    placeholder="e.g. Toàn bộ nhân viên phải nộp lại lịch trình quý đã sửa đổi trước thứ Sáu."
                   />
                 </div>
               </div>
@@ -774,9 +801,9 @@
           required
         />
 
-        <!-- Example Section -->
+        <!-- Short Example Section -->
         <div class="p-4 bg-slate-50/80 rounded-md border border-slate-200 space-y-3">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block">Câu ví dụ thực tế (Example Sentence)</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block">Câu ví dụ ngắn (Short Example)</span>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <AppInput
               v-model="wordForm.exampleSentence"
@@ -787,6 +814,32 @@
               v-model="wordForm.exampleMeaning"
               label="Dịch nghĩa câu ví dụ"
               placeholder="e.g. Hợp đồng hiện đang trong quá trình đàm phán."
+            />
+          </div>
+        </div>
+
+        <!-- Extended Context Sentence Section (Câu dài hơn / Ngữ cảnh đoạn văn) -->
+        <div class="p-4 bg-purple-50/50 rounded-md border border-purple-200/80 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-800 block">
+              Ngữ cảnh / Câu ví dụ mở rộng (Dài hơn)
+            </span>
+            <span class="text-[11px] font-semibold text-purple-700 bg-purple-100 px-2 py-0.5 rounded">
+              TOEIC Context Sentence
+            </span>
+          </div>
+          <div class="space-y-3">
+            <AppTextarea
+              v-model="wordForm.contextSentence"
+              label="Câu dài / Ngữ cảnh tiếng Anh"
+              placeholder="e.g. After months of intense negotiation, both corporate parties finally reached a consensus on the new international trade agreement."
+              rows="2"
+            />
+            <AppTextarea
+              v-model="wordForm.contextMeaning"
+              label="Dịch nghĩa câu dài tiếng Việt"
+              placeholder="e.g. Sau nhiều tháng đàm phán căng thẳng, cả hai tập đoàn cuối cùng đã đạt được sự đồng thuận về hiệp định thương mại quốc tế mới."
+              rows="2"
             />
           </div>
         </div>
@@ -862,6 +915,18 @@
           <div class="p-3.5 bg-brand-50/40 rounded-md border border-brand-100 space-y-1.5">
             <p class="text-sm font-semibold text-slate-900">"{{ selectedWord.examples[0].exampleSentence }}"</p>
             <p v-if="selectedWord.examples[0].meaning" class="text-sm text-slate-600">{{ selectedWord.examples[0].meaning }}</p>
+          </div>
+        </div>
+
+        <!-- Extended Long Context Sentence -->
+        <div v-if="selectedWord.contextSentence">
+          <h4 class="text-xs font-bold text-purple-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+            <span>Ngữ cảnh / Câu ví dụ mở rộng (Dài hơn)</span>
+            <span class="text-[10px] font-semibold text-purple-600 bg-purple-100/70 px-2 py-0.2 rounded">TOEIC Context</span>
+          </h4>
+          <div class="p-3.5 bg-purple-50/60 rounded-md border border-purple-200 space-y-1.5">
+            <p class="text-sm font-medium text-slate-900 leading-relaxed">"{{ selectedWord.contextSentence }}"</p>
+            <p v-if="selectedWord.contextMeaning" class="text-sm text-purple-950 font-normal leading-relaxed">{{ selectedWord.contextMeaning }}</p>
           </div>
         </div>
 
@@ -993,6 +1058,8 @@ interface BatchWordItem {
   partOfSpeech?: string;
   exampleSentence?: string;
   exampleMeaning?: string;
+  contextSentence?: string;
+  contextMeaning?: string;
 }
 
 const topicForm = reactive({
@@ -1023,7 +1090,7 @@ const vocabPageData = ref<PageResponse<Vocabulary>>({
   totalPages: 0,
   isFirst: true,
   isLast: true,
-});
+  });
 
 const vocabFilter = reactive({
   topicId: undefined as number | undefined,
@@ -1057,6 +1124,8 @@ const wordForm = reactive({
   note: '',
   exampleSentence: '',
   exampleMeaning: '',
+  contextSentence: '',
+  contextMeaning: '',
 });
 
 const partOfSpeechOptions = [
@@ -1161,7 +1230,16 @@ function openAddTopicModal() {
   topicForm.level = 'B1';
   topicForm.status = 'NEW';
   topicForm.vocabularies = [
-    { word: '', meaning: '', pronunciation: '', partOfSpeech: 'noun', exampleSentence: '', exampleMeaning: '' }
+    {
+      word: '',
+      meaning: '',
+      pronunciation: '',
+      partOfSpeech: 'noun',
+      exampleSentence: '',
+      exampleMeaning: '',
+      contextSentence: '',
+      contextMeaning: '',
+    }
   ];
   showTopicModal.value = true;
 }
@@ -1185,6 +1263,8 @@ function addBatchWordRow() {
     partOfSpeech: 'noun',
     exampleSentence: '',
     exampleMeaning: '',
+    contextSentence: '',
+    contextMeaning: '',
   });
 }
 
@@ -1322,6 +1402,8 @@ function openAddWordModal(topicId?: number | null) {
   wordForm.note = '';
   wordForm.exampleSentence = '';
   wordForm.exampleMeaning = '';
+  wordForm.contextSentence = '';
+  wordForm.contextMeaning = '';
   showWordModal.value = true;
 }
 
@@ -1335,6 +1417,8 @@ function openEditWordModal(item: Vocabulary) {
   wordForm.partOfSpeech = item.partOfSpeech || 'noun';
   wordForm.level = item.level || 'B1';
   wordForm.note = item.note || '';
+  wordForm.contextSentence = item.contextSentence || '';
+  wordForm.contextMeaning = item.contextMeaning || '';
 
   if (item.examples && item.examples.length > 0) {
     wordForm.exampleSentence = item.examples[0].exampleSentence || '';
@@ -1372,6 +1456,8 @@ async function saveWord() {
         note: wordForm.note,
         exampleSentence: wordForm.exampleSentence,
         exampleMeaning: wordForm.exampleMeaning,
+        contextSentence: wordForm.contextSentence,
+        contextMeaning: wordForm.contextMeaning,
       });
       toastStore.success('Cập nhật từ vựng thành công');
     } else {
@@ -1385,6 +1471,8 @@ async function saveWord() {
         note: wordForm.note,
         exampleSentence: wordForm.exampleSentence,
         exampleMeaning: wordForm.exampleMeaning,
+        contextSentence: wordForm.contextSentence,
+        contextMeaning: wordForm.contextMeaning,
       });
       toastStore.success('Thêm từ vựng mới thành công');
     }

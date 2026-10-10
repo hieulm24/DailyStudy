@@ -70,6 +70,8 @@ export interface VocabularyTopicRequest {
     note?: string;
     exampleSentence?: string;
     exampleMeaning?: string;
+    contextSentence?: string;
+    contextMeaning?: string;
   }>;
 }
 
@@ -90,6 +92,8 @@ export interface Vocabulary {
   partOfSpeech?: string;
   level?: string;
   note?: string;
+  contextSentence?: string;
+  contextMeaning?: string;
   status: 'NEW' | 'LEARNING' | 'REVIEW' | 'MASTERED' | string;
   masteryLevel: number;
   reviewCount: number;
@@ -127,6 +131,59 @@ export interface Grammar {
   createdAt: string;
   updatedAt: string;
   examples: GrammarExample[];
+}
+
+export interface GrammarExerciseQuestion {
+  id: number;
+  questionType?: string;
+  prompt?: string;
+  baseWord?: string;
+  question: string;
+  translation?: string;
+  options: string[];
+  correctAnswer: string;
+  correctIndex?: number;
+  correctedWord?: string;
+  explanation: string;
+  grammarTip?: string;
+}
+
+export interface GenerateGrammarExerciseRequest {
+  topicId: number;
+  numberOfQuestions?: number;
+  exerciseType?: string;
+  level?: string;
+  customFocus?: string;
+}
+
+export interface SubmitGrammarExerciseRequest {
+  topicId: number;
+  title?: string;
+  exerciseType?: string;
+  level?: string;
+  totalQuestions: number;
+  correctCount: number;
+  score: number;
+  timeSpentSeconds?: number;
+  questions: GrammarExerciseQuestion[];
+  userAnswers: Record<string, any>;
+}
+
+export interface GrammarExerciseHistory {
+  id: number;
+  grammarTopicId: number;
+  topicName: string;
+  title: string;
+  exerciseType: string;
+  level?: string;
+  totalQuestions: number;
+  correctCount: number;
+  score: number;
+  timeSpentSeconds: number;
+  questions: GrammarExerciseQuestion[];
+  userAnswers: Record<string, any>;
+  completedAt: string;
+  createdAt: string;
 }
 
 export interface ListeningLesson {
@@ -175,6 +232,8 @@ export interface ReviewItem {
   structure?: string;
   exampleSentence?: string;
   exampleMeaning?: string;
+  contextSentence?: string;
+  contextMeaning?: string;
   note?: string;
 }
 

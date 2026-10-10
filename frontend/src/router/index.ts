@@ -4,6 +4,7 @@ import LoginView from '../views/auth/LoginView.vue';
 import DashboardView from '../views/dashboard/DashboardView.vue';
 import VocabularyListView from '../views/vocabulary/VocabularyListView.vue';
 import GrammarListView from '../views/grammar/GrammarListView.vue';
+import GrammarDetailView from '../views/grammar/GrammarDetailView.vue';
 import ListeningListView from '../views/listening/ListeningListView.vue';
 import SpeakingListView from '../views/speaking/SpeakingListView.vue';
 import ReviewView from '../views/review/ReviewView.vue';
@@ -43,6 +44,11 @@ const routes = [
         path: 'grammar',
         name: 'Grammar',
         component: GrammarListView,
+      },
+      {
+        path: 'grammar/:id',
+        name: 'GrammarDetail',
+        component: GrammarDetailView,
       },
       {
         path: 'listening',

@@ -46,6 +46,12 @@ public class Vocabulary {
     @Column(name = "note", columnDefinition = "NVARCHAR(MAX)")
     private String note;
 
+    @Column(name = "context_sentence", columnDefinition = "NVARCHAR(MAX)")
+    private String contextSentence;
+
+    @Column(name = "context_meaning", columnDefinition = "NVARCHAR(MAX)")
+    private String contextMeaning;
+
     @Column(name = "status", nullable = false, length = 30)
     @Builder.Default
     private String status = "NEW"; // NEW, LEARNING, REVIEW, MASTERED

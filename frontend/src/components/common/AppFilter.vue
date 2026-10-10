@@ -101,12 +101,13 @@
       @change="$emit('update:level', ($event.target as HTMLSelectElement).value); $emit('change')"
     >
       <option value="">Mọi cấp độ (Level)</option>
-      <option value="A1">A1 - Beginner</option>
-      <option value="A2">A2 - Elementary</option>
-      <option value="B1">B1 - Intermediate</option>
-      <option value="B2">B2 - Upper-Intermediate</option>
-      <option value="C1">C1 - Advanced</option>
-      <option value="C2">C2 - Mastery</option>
+      <option value="A0">A0 - Mất gốc</option>
+      <option value="A1">A1 - Nhập môn</option>
+      <option value="A2">A2 - Sơ cấp</option>
+      <option value="B1">B1 - Trung cấp</option>
+      <option value="B2">B2 - Nâng cao</option>
+      <option value="C1">C1 - Thành thạo</option>
+      <option value="C2">C2 - Bản ngữ</option>
     </select>
 
     <!-- Optional Status Filter -->
