@@ -12,7 +12,7 @@
     </div>
 
     <!-- Header Actions -->
-    <div class="flex items-center gap-3.5">
+    <div class="flex items-center gap-3 sm:gap-4">
       <!-- Review Notification Alert Badge -->
       <router-link
         to="/review"
@@ -38,11 +38,40 @@
           <span class="hidden sm:inline">Thêm nhanh</span>
         </AppButton>
       </div>
+
+      <!-- User Profile Header Button -->
+      <router-link
+        to="/profile"
+        title="Quản lý thông tin cá nhân"
+        class="flex items-center gap-2.5 pl-2 sm:pl-3 border-l border-slate-200 group hover:opacity-90 transition-opacity cursor-pointer"
+      >
+        <img
+          v-if="authStore.user?.avatarUrl"
+          :src="authStore.user.avatarUrl"
+          class="w-10 h-10 rounded-full object-cover border border-slate-200 group-hover:ring-2 group-hover:ring-brand-500 transition-all shrink-0"
+        />
+        <div
+          v-else
+          class="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm group-hover:ring-2 group-hover:ring-brand-500 transition-all shrink-0"
+        >
+          {{ userInitial }}
+        </div>
+        <div class="hidden md:flex flex-col text-left">
+          <span class="text-sm font-bold text-slate-800 group-hover:text-brand-600 transition-colors">
+            {{ authStore.user?.displayName || 'Minh Hiếu' }}
+          </span>
+          <span class="text-[11px] text-slate-400 font-medium">
+            Mục tiêu: {{ authStore.user?.targetScore || 650 }}+ TOEIC
+          </span>
+        </div>
+      </router-link>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useAuthStore } from '../../stores/auth.store';
 import { useReviewStore } from '../../stores/review.store';
 import { Menu, Bell, CheckCircle, Plus } from 'lucide-vue-next';
 import AppButton from '../common/AppButton.vue';
@@ -52,5 +81,11 @@ defineEmits<{
   (e: 'quick-add'): void;
 }>();
 
+const authStore = useAuthStore();
 const reviewStore = useReviewStore();
+
+const userInitial = computed(() => {
+  const name = authStore.user?.displayName || 'H';
+  return name.trim().charAt(0).toUpperCase();
+});
 </script>

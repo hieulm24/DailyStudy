@@ -17,6 +17,11 @@ import BookDetailView from '../views/reading/BookDetailView.vue';
 import DailyTasksView from '../views/tasks/DailyTasksView.vue';
 import StatisticsView from '../views/statistics/StatisticsView.vue';
 import SettingsView from '../views/settings/SettingsView.vue';
+import ProfileView from '../views/profile/ProfileView.vue';
+import ItChatView from '../views/it/ItChatView.vue';
+import ItNotesListView from '../views/it/ItNotesListView.vue';
+import ItNoteDetailView from '../views/it/ItNoteDetailView.vue';
+import ItPlaygroundView from '../views/it/ItPlaygroundView.vue';
 
 const routes = [
   {
@@ -109,6 +114,39 @@ const routes = [
         path: 'settings',
         name: 'Settings',
         component: SettingsView,
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: ProfileView,
+      },
+      {
+        path: 'it',
+        redirect: '/it/chat',
+      },
+      {
+        path: 'it-studio',
+        redirect: '/it/chat',
+      },
+      {
+        path: 'it/chat',
+        name: 'ItChat',
+        component: ItChatView,
+      },
+      {
+        path: 'it/notes',
+        name: 'ItNotesList',
+        component: ItNotesListView,
+      },
+      {
+        path: 'it/notes/:id',
+        name: 'ItNoteDetail',
+        component: ItNoteDetailView,
+      },
+      {
+        path: 'it/playground',
+        name: 'ItPlayground',
+        component: ItPlaygroundView,
       },
     ],
   },

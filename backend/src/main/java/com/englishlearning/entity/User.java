@@ -34,6 +34,16 @@ public class User {
     @Builder.Default
     private Boolean isActive = true;
 
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+
+    @Column(name = "bio", length = 500)
+    private String bio;
+
+    @Column(name = "target_score")
+    @Builder.Default
+    private Integer targetScore = 650;
+
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 

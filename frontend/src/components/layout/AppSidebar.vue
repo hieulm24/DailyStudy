@@ -136,6 +136,78 @@
         </div>
       </router-link>
 
+      <!-- Học IT & Kiến trúc (Dropdown Menu) -->
+      <div>
+        <button
+          type="button"
+          :class="[
+            'w-full flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group',
+            isItActive
+              ? 'text-indigo-700 font-semibold bg-indigo-50/70 shadow-2xs'
+              : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
+          ]"
+          @click="isItOpen = !isItOpen"
+        >
+          <div class="flex items-center gap-3">
+            <Cpu
+              :class="[
+                'w-5 h-5 transition-colors',
+                isItActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600',
+              ]"
+            />
+            <span>Học IT & Kiến trúc</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-indigo-100 text-indigo-700">
+              AI
+            </span>
+            <ChevronDown
+              :class="[
+                'w-4.5 h-4.5 text-slate-400 transition-transform duration-200',
+                isItOpen ? 'rotate-180 text-indigo-600' : '',
+              ]"
+            />
+          </div>
+        </button>
+
+        <!-- Sub-menu items -->
+        <transition
+          enter-active-class="transition-all duration-200 ease-out"
+          enter-from-class="opacity-0 max-h-0 overflow-hidden"
+          enter-to-class="opacity-100 max-h-60"
+          leave-active-class="transition-all duration-150 ease-in"
+          leave-from-class="opacity-100 max-h-60"
+          leave-to-class="opacity-0 max-h-0 overflow-hidden"
+        >
+          <div
+            v-show="isItOpen"
+            class="mt-1 ml-4 pl-3 space-y-1 border-l-2 border-slate-100"
+          >
+            <router-link
+              v-for="sub in itSubItems"
+              :key="sub.path"
+              :to="sub.path"
+              :class="[
+                'flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-medium rounded-md transition-colors group',
+                $route.path.startsWith(sub.path)
+                  ? 'bg-indigo-50 text-indigo-700 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+              ]"
+              @click="$emit('close')"
+            >
+              <component
+                :is="sub.icon"
+                :class="[
+                  'w-4 h-4 transition-colors',
+                  $route.path.startsWith(sub.path) ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600',
+                ]"
+              />
+              <span>{{ sub.title }}</span>
+            </router-link>
+          </div>
+        </transition>
+      </div>
+
       <!-- Tiếng Anh (Dropdown Menu) -->
       <div>
         <button
@@ -239,20 +311,38 @@
 
     <!-- User Profile & Logout Footer -->
     <div class="p-3.5 border-t border-slate-100 bg-slate-50/50">
-      <div class="flex items-center justify-between p-3 rounded-md bg-white border border-slate-200">
-        <div class="flex items-center gap-3 overflow-hidden">
-          <div class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm flex-shrink-0">
+      <div class="flex items-center justify-between p-2.5 rounded-xl bg-white border border-slate-200 shadow-2xs hover:border-brand-300 transition-all">
+        <router-link
+          to="/profile"
+          class="flex items-center gap-2.5 overflow-hidden flex-1 group cursor-pointer"
+          title="Xem và chỉnh sửa thông tin cá nhân"
+          @click="$emit('close')"
+        >
+          <img
+            v-if="authStore.user?.avatarUrl"
+            :src="authStore.user.avatarUrl"
+            class="w-9 h-9 rounded-full object-cover border border-slate-200 shrink-0"
+          />
+          <div
+            v-else
+            class="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm shrink-0"
+          >
             {{ userInitial }}
           </div>
           <div class="flex flex-col truncate">
-            <span class="text-sm font-bold text-slate-800 truncate">{{ authStore.user?.displayName || 'Minh Hiếu' }}</span>
-            <span class="text-xs text-slate-500 truncate">{{ authStore.user?.email || 'hieulm24@gmail.com' }}</span>
+            <span class="text-sm font-bold text-slate-800 truncate group-hover:text-brand-600 transition-colors">
+              {{ authStore.user?.displayName || 'Minh Hiếu' }}
+            </span>
+            <span class="text-[11px] text-slate-400 truncate">
+              {{ authStore.user?.email || 'hieulm24@gmail.com' }}
+            </span>
           </div>
-        </div>
+        </router-link>
+
         <button
           type="button"
           title="Đăng xuất"
-          class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
+          class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors ml-1 shrink-0"
           @click="authStore.logout()"
         >
           <LogOut class="w-4 h-4" />
@@ -272,6 +362,9 @@ import {
   BarChart3,
   HeartPulse,
   BookMarked,
+  Cpu,
+  Bot,
+  Code2,
   GraduationCap,
   BookOpen,
   Sparkles,
@@ -304,18 +397,32 @@ const userInitial = computed(() => {
   return name.charAt(0).toUpperCase();
 });
 
+// IT Module navigation state
+const itRoutes = ['/it/chat', '/it/notes', '/it/playground'];
+const isItActive = computed(() => itRoutes.some(p => route.path.startsWith(p)) || route.path.startsWith('/it'));
+const isItOpen = ref(isItActive.value);
+
+const itSubItems = [
+  { title: 'AI Chat & Kiến trúc', path: '/it/chat', icon: Bot },
+  { title: 'Sổ tay Kiến thức', path: '/it/notes', icon: BookOpen },
+  { title: 'Luyện Code & Sandbox', path: '/it/playground', icon: Code2 },
+];
+
 const englishRoutes = ['/vocabulary', '/grammar', '/listening', '/speaking'];
 const isEnglishActive = computed(() => englishRoutes.some(p => route.path.startsWith(p)));
 
 // Only open initially if currently on an English route
 const isEnglishOpen = ref(englishRoutes.some(p => route.path.startsWith(p)));
 
-// Auto-expand English menu if currently navigating inside any English route
+// Auto-expand menu when navigating
 watch(
   () => route.path,
   (newPath) => {
     if (englishRoutes.some(p => newPath.startsWith(p))) {
       isEnglishOpen.value = true;
+    }
+    if (newPath.startsWith('/it')) {
+      isItOpen.value = true;
     }
   }
 );

@@ -139,8 +139,9 @@
               </p>
             </div>
           </div>
-          <span class="text-xs font-bold text-orange-700 bg-orange-50 px-3 py-1.5 rounded border border-orange-200 self-start sm:self-auto">
-            🔥 {{ heatmapData?.currentStreak || 0 }} ngày liên tiếp
+          <span class="inline-flex items-center gap-1.5 text-xs font-bold text-orange-700 bg-orange-50 px-3 py-1.5 rounded border border-orange-200 self-start sm:self-auto">
+            <Flame class="w-3.5 h-3.5 text-orange-500" />
+            <span>{{ heatmapData?.currentStreak || 0 }} ngày liên tiếp</span>
           </span>
         </div>
 

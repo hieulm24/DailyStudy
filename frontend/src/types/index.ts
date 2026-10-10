@@ -20,7 +20,51 @@ export interface User {
   email: string;
   displayName: string;
   avatarUrl?: string;
+  phoneNumber?: string;
+  bio?: string;
+  targetScore?: number;
+  dailyLearningTarget?: number;
   isActive?: boolean;
+  lastLoginAt?: string;
+  createdAt?: string;
+}
+
+export interface UserProfile extends User {
+  currentStreak?: number;
+  totalVocabulary?: number;
+  totalGrammar?: number;
+  totalActivities?: number;
+}
+
+export interface UpdateProfileRequest {
+  displayName: string;
+  avatarUrl?: string;
+  phoneNumber?: string;
+  bio?: string;
+  targetScore?: number;
+  dailyLearningTarget?: number;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface VerifyOtpRequest {
+  email: string;
+  otpCode: string;
+}
+
+export interface ResetPasswordWithOtpRequest {
+  email: string;
+  otpCode: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface AuthResponse {
@@ -528,4 +572,110 @@ export interface DailyTaskReorderItem {
   id: number;
   displayOrder: number;
 }
+
+// ==========================================
+// IT STUDIO & SYSTEM ARCHITECTURE TYPES
+// ==========================================
+
+export interface ItNote {
+  id: number;
+  title: string;
+  category: string;
+  tags?: string;
+  contentMarkdown: string;
+  diagramMermaid?: string;
+  imageUrlsJson?: string;
+  isFavorite: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateOrUpdateItNoteRequest {
+  title: string;
+  category?: string;
+  tags?: string;
+  contentMarkdown: string;
+  diagramMermaid?: string;
+  imageUrlsJson?: string;
+  isFavorite?: boolean;
+}
+
+export interface ItChatMessage {
+  id: number;
+  sessionId: number;
+  senderRole: 'USER' | 'ASSISTANT' | string;
+  content: string;
+  codeSnippet?: string;
+  language?: string;
+  mermaidDiagram?: string;
+  imageUrl?: string;
+  createdAt: string;
+}
+
+export interface ItChatSession {
+  id: number;
+  title: string;
+  topicCategory: string;
+  messages: ItChatMessage[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SendItChatRequest {
+  sessionId?: number;
+  topicCategory?: string;
+  prompt: string;
+  codeSnippet?: string;
+  language?: string;
+  imageUrl?: string;
+  apiKey?: string;
+}
+
+export interface ItAiResponse {
+  answerMarkdown: string;
+  mermaidDiagram?: string;
+  optimizedCode?: string;
+  language?: string;
+  keyTakeaways?: string;
+}
+
+export interface ItCodeSnippet {
+  id: number;
+  title: string;
+  language: string;
+  codeContent: string;
+  explanation?: string;
+  tags?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateOrUpdateSnippetRequest {
+  title: string;
+  language: string;
+  codeContent: string;
+  explanation?: string;
+  tags?: string;
+}
+
+export interface ItPlaygroundExecutionRequest {
+  language: string;
+  code: string;
+  stdin?: string;
+  action?: 'RUN' | 'DEBUG_AI' | 'OPTIMIZE_AI' | 'EXPLAIN_AI' | string;
+  apiKey?: string;
+}
+
+export interface ItPlaygroundExecutionResponse {
+  success: boolean;
+  stdout?: string;
+  stderr?: string;
+  executionTimeMs?: number;
+  aiAnalysis?: string;
+  aiSuggestedCode?: string;
+  mermaidDiagram?: string;
+  sqlResultTable?: Array<Record<string, any>>;
+  sqlColumns?: string[];
+}
+
 
