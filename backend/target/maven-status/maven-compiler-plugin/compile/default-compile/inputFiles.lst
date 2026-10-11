@@ -8,6 +8,7 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\config\FinancialPhysicalN
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\config\RestTemplateConfig.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\config\SecurityConfig.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\config\WebMvcConfig.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\AccountVaultController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\ActivityController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\AiTranslationController.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\controller\AuthController.java
@@ -141,6 +142,16 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskRequest
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskStatsResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskSummaryResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\AccountAttachmentDto.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\AccountCategoryDto.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\AccountCredentialDetailDto.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\AccountCredentialDto.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\AccountPasswordHistoryDto.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\CreateAccountCredentialRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\PasswordGeneratorRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\PasswordGeneratorResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\UpdateAccountCredentialRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\VaultSummaryDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\VocabularyExampleDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\VocabularyFilterRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vocabulary\VocabularyRequest.java
@@ -198,6 +209,10 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\StudyStreak.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\Tag.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\User.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\UserSetting.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\vault\AccountCategory.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\vault\AccountCredential.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\vault\AccountCredentialAttachment.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\vault\AccountPasswordHistory.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\Vocabulary.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\VocabularyExample.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\entity\VocabularyTopic.java
@@ -250,6 +265,10 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\StudyStreakRep
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\TagRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\UserRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\UserSettingRepository.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\vault\AccountCategoryRepository.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\vault\AccountCredentialAttachmentRepository.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\vault\AccountCredentialRepository.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\vault\AccountPasswordHistoryRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\VocabularyExampleRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\VocabularyRepository.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\repository\VocabularyTopicRepository.java
@@ -290,5 +309,8 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\SpeakingService.j
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\StatisticsService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\StudyLinkService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\UsdaFoodDataService.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\vault\AccountVaultService.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\vault\AccountVaultServiceImpl.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\vault\VaultEncryptionService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\VocabularyService.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\service\VocabularyTopicService.java

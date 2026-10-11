@@ -17,6 +17,7 @@ import java.util.List;
 public class NutritionDailyLogResponse {
     private Long id;
     private LocalDate logDate;
+    private Long foodId;
     private Long foodVariantId;
     private Long userFoodId;
     private String foodName;

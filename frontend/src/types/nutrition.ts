@@ -42,6 +42,7 @@ export interface NutritionFoodSearchItem {
 export interface NutritionDailyLogItem {
   id: number;
   logDate: string;
+  foodId?: number;
   foodVariantId?: number;
   userFoodId?: number;
   foodName: string;

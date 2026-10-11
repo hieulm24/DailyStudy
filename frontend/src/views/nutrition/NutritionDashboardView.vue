@@ -270,8 +270,15 @@
         @click="activeTab = 'foods'"
       >
         <Utensils class="w-4 h-4" />
-        <span>Nhật ký thực phẩm hôm nay</span>
-        <span class="px-2 py-0.5 text-xs font-extrabold rounded-full bg-emerald-100 text-emerald-800">
+        <span>Thực phẩm hôm nay</span>
+        <span
+          :class="[
+            'px-2 py-0.5 text-xs font-extrabold rounded-full transition-colors',
+            activeTab === 'foods'
+              ? 'bg-emerald-100 text-emerald-800'
+              : 'bg-slate-100 text-slate-600',
+          ]"
+        >
           {{ summary.items.length }}
         </span>
       </button>
@@ -287,7 +294,17 @@
         @click="activeTab = 'activity'"
       >
         <Flame class="w-4 h-4" />
-        <span>Hoạt động thể chất & Thâm hụt Calo</span>
+        <span>Hoạt động thể chất</span>
+        <span
+          :class="[
+            'px-2 py-0.5 text-xs font-extrabold rounded-full transition-colors',
+            activeTab === 'activity'
+              ? 'bg-rose-100 text-rose-800'
+              : 'bg-slate-100 text-slate-600',
+          ]"
+        >
+          {{ deficitSummary.activityLogs?.length || 0 }}
+        </span>
       </button>
     </div>
 

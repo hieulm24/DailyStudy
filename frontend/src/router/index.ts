@@ -23,6 +23,7 @@ import ItNotesListView from '../views/it/ItNotesListView.vue';
 import ItNoteDetailView from '../views/it/ItNoteDetailView.vue';
 import ItPlaygroundView from '../views/it/ItPlaygroundView.vue';
 import FinancialView from '../views/finance/FinancialView.vue';
+import VaultView from '../views/vault/VaultView.vue';
 
 const routes = [
   {
@@ -117,6 +118,11 @@ const routes = [
         component: FinancialView,
       },
       {
+        path: 'vault',
+        name: 'Vault',
+        component: VaultView,
+      },
+      {
         path: 'settings',
         name: 'Settings',
         component: SettingsView,
@@ -128,11 +134,11 @@ const routes = [
       },
       {
         path: 'it',
-        redirect: '/it/chat',
+        redirect: '/it/notes',
       },
       {
         path: 'it-studio',
-        redirect: '/it/chat',
+        redirect: '/it/notes',
       },
       {
         path: 'it/chat',

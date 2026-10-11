@@ -781,8 +781,8 @@ const closeModal = () => {
 };
 
 watch(
-  () => props.isOpen,
-  async (open) => {
+  [() => props.isOpen, () => props.editingLog],
+  async ([open, editing]) => {
     if (open) {
       errorMessage.value = '';
       lastAddedFood.value = null;
@@ -797,21 +797,92 @@ watch(
         console.error('Failed to load all foods:', e);
       }
 
-      if (props.editingLog) {
+      if (editing) {
         // Pre-fill for edit
-        quantity.value = props.editingLog.quantity;
-        selectedUnit.value = props.editingLog.unit;
-        selectedState.value = props.editingLog.state;
+        quantity.value = editing.quantity;
+        selectedUnit.value = editing.unit;
+        selectedState.value = editing.state;
         searchQuery.value = '';
 
-        if (props.editingLog.foodVariantId) {
+        let matched: NutritionFoodSearchItem | undefined = undefined;
+
+        // 1. Match by variant ID in variants list
+        if (editing.foodVariantId) {
+          matched = allFoods.value.find((f) =>
+            f.variants && f.variants.some((v) => v.id === editing.foodVariantId)
+          );
+        }
+
+        // 2. Match by userFoodId if custom food
+        if (!matched && editing.userFoodId) {
+          matched = allFoods.value.find((f) => f.userFoodId === editing.userFoodId);
+        }
+
+        // 3. Match by foodId if available
+        if (!matched && editing.foodId) {
+          matched = allFoods.value.find((f) => f.foodId === editing.foodId);
+        }
+
+        // 4. Match by name
+        if (!matched && editing.foodName) {
+          const targetName = editing.foodName.trim().toLowerCase();
+          matched = allFoods.value.find((f) => f.name.trim().toLowerCase() === targetName);
+        }
+
+        // 5. If still not matched, perform search with foodName
+        if (!matched && editing.foodName) {
           try {
-            const detail = await nutritionService.getFoodDetail(props.editingLog.foodVariantId);
-            selectedFood.value = detail;
+            const searched = await nutritionService.searchFoods(editing.foodName);
+            matched = searched.find(
+              (f) =>
+                (editing.foodVariantId && f.variants?.some((v) => v.id === editing.foodVariantId)) ||
+                (editing.userFoodId && f.userFoodId === editing.userFoodId) ||
+                (editing.foodId && f.foodId === editing.foodId) ||
+                f.name.trim().toLowerCase() === editing.foodName.trim().toLowerCase()
+            ) || searched[0];
           } catch (e) {
-            console.error('Failed to load food detail for edit:', e);
+            console.error('Failed to search food for edit:', e);
           }
         }
+
+        if (matched) {
+          selectedFood.value = matched;
+          if (editing.state) {
+            const matchedVariant = matched.variants?.find(
+              (v) => v.state.toLowerCase() === editing.state.toLowerCase()
+            );
+            if (matchedVariant) {
+              selectedState.value = matchedVariant.state;
+            } else if (matched.variants?.length > 0) {
+              selectedState.value = matched.variants[0].state;
+            }
+          }
+        } else {
+          // Graceful fallback: construct from editing log data so food name is never wrong
+          selectedFood.value = {
+            foodId: editing.foodId,
+            userFoodId: editing.userFoodId,
+            name: editing.foodName,
+            isUserCustom: editing.isUserCustom ?? !!editing.userFoodId,
+            dataSource: editing.dataSource,
+            variants: [
+              {
+                id: editing.foodVariantId || editing.userFoodId || 0,
+                state: editing.state || 'Tiêu chuẩn',
+                servingAmount: 100,
+                servingUnit: editing.unit || 'g',
+                calories: editing.calories || 0,
+                protein: editing.protein || 0,
+                carbohydrate: editing.carbohydrate || 0,
+                fat: editing.fat || 0,
+                fiber: editing.fiber || 0,
+                micronutrients: editing.micronutrients || [],
+              },
+            ],
+            units: [{ id: 0, unit: editing.unit || 'g' }],
+          };
+        }
+
         updatePreview();
       } else {
         // When opening for ADD: Auto-select Ức gà / first popular item so all form fields are visible
@@ -821,6 +892,8 @@ watch(
           selectFood(allFoods.value[0]);
         }
       }
+    } else {
+      selectedFood.value = null;
     }
   }
 );

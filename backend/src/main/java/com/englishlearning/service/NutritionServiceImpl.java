@@ -195,7 +195,37 @@ public class NutritionServiceImpl implements NutritionService {
             dailyLog.setLogDate(request.getLogDate());
         }
 
-        if (dailyLog.getFoodVariant() != null) {
+        if (request.getFoodVariantId() != null) {
+            NutritionFoodVariant variant = nutritionFoodVariantRepository.findById(request.getFoodVariantId())
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy trạng thái thực phẩm với ID: " + request.getFoodVariantId()));
+            dailyLog.setFoodVariant(variant);
+            dailyLog.setUserFood(null);
+
+            NutritionCalculationService.CalculatedMacroResult res = nutritionCalculationService.calculateForVariant(
+                    variant, request.getQuantity(), request.getUnit());
+            dailyLog.setCalculatedGrams(res.getCalculatedGrams());
+            dailyLog.setCalculatedMl(res.getCalculatedMl());
+            dailyLog.setCalories(res.getCalories());
+            dailyLog.setProtein(res.getProtein());
+            dailyLog.setCarbohydrate(res.getCarbohydrate());
+            dailyLog.setFat(res.getFat());
+            dailyLog.setFiber(res.getFiber());
+        } else if (request.getUserFoodId() != null) {
+            NutritionUserFood userFood = nutritionUserFoodRepository.findByIdAndUserId(request.getUserFoodId(), userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thực phẩm cá nhân với ID: " + request.getUserFoodId()));
+            dailyLog.setUserFood(userFood);
+            dailyLog.setFoodVariant(null);
+
+            NutritionCalculationService.CalculatedMacroResult res = nutritionCalculationService.calculateForUserFood(
+                    userFood, request.getQuantity(), request.getUnit());
+            dailyLog.setCalculatedGrams(res.getCalculatedGrams());
+            dailyLog.setCalculatedMl(res.getCalculatedMl());
+            dailyLog.setCalories(res.getCalories());
+            dailyLog.setProtein(res.getProtein());
+            dailyLog.setCarbohydrate(res.getCarbohydrate());
+            dailyLog.setFat(res.getFat());
+            dailyLog.setFiber(res.getFiber());
+        } else if (dailyLog.getFoodVariant() != null) {
             NutritionCalculationService.CalculatedMacroResult res = nutritionCalculationService.calculateForVariant(
                     dailyLog.getFoodVariant(), request.getQuantity(), request.getUnit());
             dailyLog.setCalculatedGrams(res.getCalculatedGrams());
@@ -463,12 +493,14 @@ public class NutritionServiceImpl implements NutritionService {
         String state = "Mặc định";
         String dataSource = "Chưa rõ";
         boolean isUserCustom = false;
+        Long foodId = null;
         List<NutritionMicronutrientDto> scaledMicros = new ArrayList<>();
 
         if (log.getFoodVariant() != null) {
             NutritionFoodVariant v = log.getFoodVariant();
             if (v.getFood() != null) {
                 foodName = v.getFood().getName();
+                foodId = v.getFood().getId();
             }
             state = v.getState();
             dataSource = v.getDataSource() != null ? v.getDataSource() : (v.getFood() != null ? v.getFood().getDataSource() : "Hệ thống");
@@ -512,6 +544,7 @@ public class NutritionServiceImpl implements NutritionService {
         return NutritionDailyLogResponse.builder()
                 .id(log.getId())
                 .logDate(log.getLogDate())
+                .foodId(foodId)
                 .foodVariantId(log.getFoodVariant() != null ? log.getFoodVariant().getId() : null)
                 .userFoodId(log.getUserFood() != null ? log.getUserFood().getId() : null)
                 .foodName(foodName)

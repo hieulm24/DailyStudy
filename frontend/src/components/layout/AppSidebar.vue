@@ -92,6 +92,28 @@
         </div>
       </router-link>
 
+      <!-- Tài chính cá nhân -->
+      <router-link
+        to="/finance"
+        :class="[
+          'flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group',
+          $route.path.startsWith('/finance')
+            ? 'bg-brand-50 text-brand-700 font-semibold shadow-2xs'
+            : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
+        ]"
+        @click="$emit('close')"
+      >
+        <div class="flex items-center gap-3">
+          <WalletCards
+            :class="[
+              'w-5 h-5 transition-colors',
+              $route.path.startsWith('/finance') ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
+            ]"
+          />
+          <span>Tài chính cá nhân</span>
+        </div>
+      </router-link>
+
       <!-- Sức khỏe -->
       <router-link
         to="/nutrition"
@@ -135,95 +157,6 @@
           <span>Đọc sách</span>
         </div>
       </router-link>
-
-      <!-- Tài chính cá nhân -->
-      <router-link
-        to="/finance"
-        :class="[
-          'flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group',
-          $route.path.startsWith('/finance')
-            ? 'bg-brand-50 text-brand-700 font-semibold shadow-2xs'
-            : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
-        ]"
-        @click="$emit('close')"
-      >
-        <div class="flex items-center gap-3">
-          <WalletCards
-            :class="[
-              'w-5 h-5 transition-colors',
-              $route.path.startsWith('/finance') ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
-            ]"
-          />
-          <span>Tài chính cá nhân</span>
-        </div>
-      </router-link>
-
-      <!-- Học IT & Kiến trúc (Dropdown Menu) -->
-      <div>
-        <button
-          type="button"
-          :class="[
-            'w-full flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group',
-            isItActive
-              ? 'text-indigo-700 font-semibold bg-indigo-50/70 shadow-2xs'
-              : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
-          ]"
-          @click="isItOpen = !isItOpen"
-        >
-          <div class="flex items-center gap-3">
-            <Cpu
-              :class="[
-                'w-5 h-5 transition-colors',
-                isItActive ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600',
-              ]"
-            />
-            <span>Học IT & Kiến trúc</span>
-          </div>
-          <ChevronDown
-            :class="[
-              'w-4.5 h-4.5 text-slate-400 transition-transform duration-200',
-              isItOpen ? 'rotate-180 text-indigo-600' : '',
-            ]"
-          />
-        </button>
-
-        <!-- Sub-menu items -->
-        <transition
-          enter-active-class="transition-all duration-200 ease-out"
-          enter-from-class="opacity-0 max-h-0 overflow-hidden"
-          enter-to-class="opacity-100 max-h-60"
-          leave-active-class="transition-all duration-150 ease-in"
-          leave-from-class="opacity-100 max-h-60"
-          leave-to-class="opacity-0 max-h-0 overflow-hidden"
-        >
-          <div
-            v-show="isItOpen"
-            class="mt-1 ml-4 pl-3 space-y-1 border-l-2 border-slate-100"
-          >
-            <router-link
-              v-for="sub in itSubItems"
-              :key="sub.path"
-              :to="sub.path"
-              :class="[
-                'flex items-center gap-2.5 px-3 py-2 text-[13.5px] font-medium rounded-md transition-colors group',
-                $route.path.startsWith(sub.path)
-                  ? 'bg-indigo-50 text-indigo-700 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
-              ]"
-              @click="$emit('close')"
-            >
-              <component
-                :is="sub.icon"
-                :class="[
-                  'w-4 h-4 transition-colors',
-                  $route.path.startsWith(sub.path) ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600',
-                ]"
-              />
-              <span>{{ sub.title }}</span>
-            </router-link>
-          </div>
-        </transition>
-      </div>
 
       <!-- Tiếng Anh (Dropdown Menu) -->
       <div>
@@ -292,37 +225,177 @@
         </transition>
       </div>
 
-      <!-- Other Menu Items -->
+      <!-- Ôn tập Tiếng Anh (Dropdown Menu) -->
+      <div>
+        <button
+          type="button"
+          :class="[
+            'w-full flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group cursor-pointer',
+            isReviewActive
+              ? 'text-brand-700 font-semibold bg-brand-50/70 shadow-2xs'
+              : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
+          ]"
+          @click="isReviewOpen = !isReviewOpen"
+        >
+          <div class="flex items-center gap-3">
+            <Brain
+              :class="[
+                'w-5 h-5 transition-colors',
+                isReviewActive ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
+              ]"
+            />
+            <span>Ôn tập Tiếng Anh</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span
+              v-if="reviewStore.summary.totalDue > 0"
+              class="inline-flex items-center px-1.5 py-0.5 text-[11px] font-bold rounded-full bg-amber-500 text-white animate-pulse"
+            >
+              {{ reviewStore.summary.totalDue }}
+            </span>
+            <ChevronDown
+              :class="[
+                'w-4.5 h-4.5 text-slate-400 transition-transform duration-200',
+                isReviewOpen ? 'rotate-180 text-brand-600' : '',
+              ]"
+            />
+          </div>
+        </button>
+
+        <!-- Sub-menu items -->
+        <transition
+          enter-active-class="transition-all duration-200 ease-out"
+          enter-from-class="opacity-0 max-h-0 overflow-hidden"
+          enter-to-class="opacity-100 max-h-60"
+          leave-active-class="transition-all duration-150 ease-in"
+          leave-from-class="opacity-100 max-h-60"
+          leave-to-class="opacity-0 max-h-0 overflow-hidden"
+        >
+          <div
+            v-show="isReviewOpen"
+            class="mt-1 ml-4 pl-3 space-y-1 border-l-2 border-slate-100"
+          >
+            <router-link
+              v-for="sub in reviewSubItems"
+              :key="sub.path"
+              :to="sub.path"
+              :class="[
+                'flex items-center justify-between px-3 py-2 text-[13.5px] font-medium rounded-md transition-colors group',
+                $route.path.startsWith(sub.path)
+                  ? 'bg-brand-50 text-brand-700 font-semibold'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900',
+              ]"
+              @click="$emit('close')"
+            >
+              <div class="flex items-center gap-2.5">
+                <component
+                  :is="sub.icon"
+                  :class="[
+                    'w-4 h-4 transition-colors',
+                    $route.path.startsWith(sub.path) ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
+                  ]"
+                />
+                <span>{{ sub.title }}</span>
+              </div>
+
+              <!-- Review badge -->
+              <span
+                v-if="sub.badge && reviewStore.summary.totalDue > 0"
+                class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-500 text-white animate-pulse"
+              >
+                {{ reviewStore.summary.totalDue }}
+              </span>
+            </router-link>
+          </div>
+        </transition>
+      </div>
+
+      <!-- Ghi chú IT -->
       <router-link
-        v-for="item in otherNavItems"
-        :key="item.path"
-        :to="item.path"
+        to="/it/notes"
         :class="[
           'flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group',
-          $route.path === item.path
+          $route.path.startsWith('/it')
             ? 'bg-brand-50 text-brand-700 font-semibold shadow-2xs'
             : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
         ]"
         @click="$emit('close')"
       >
         <div class="flex items-center gap-3">
-          <component
-            :is="item.icon"
+          <Cpu
             :class="[
               'w-5 h-5 transition-colors',
-              $route.path === item.path ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
+              $route.path.startsWith('/it') ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
             ]"
           />
-          <span>{{ item.title }}</span>
+          <span>Ghi chú IT</span>
         </div>
+      </router-link>
 
-        <!-- Review badge -->
-        <span
-          v-if="item.badge && reviewStore.summary.totalDue > 0"
-          class="inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-500 text-white animate-pulse"
-        >
-          {{ reviewStore.summary.totalDue }}
-        </span>
+      <!-- Kho tài liệu -->
+      <router-link
+        to="/documents"
+        :class="[
+          'flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group',
+          $route.path.startsWith('/documents')
+            ? 'bg-brand-50 text-brand-700 font-semibold shadow-2xs'
+            : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
+        ]"
+        @click="$emit('close')"
+      >
+        <div class="flex items-center gap-3">
+          <FolderArchive
+            :class="[
+              'w-5 h-5 transition-colors',
+              $route.path.startsWith('/documents') ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
+            ]"
+          />
+          <span>Kho tài liệu</span>
+        </div>
+      </router-link>
+
+      <!-- Két mật khẩu -->
+      <router-link
+        to="/vault"
+        :class="[
+          'flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group',
+          $route.path.startsWith('/vault')
+            ? 'bg-brand-50 text-brand-700 font-semibold shadow-2xs'
+            : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
+        ]"
+        @click="$emit('close')"
+      >
+        <div class="flex items-center gap-3">
+          <KeyRound
+            :class="[
+              'w-5 h-5 transition-colors',
+              $route.path.startsWith('/vault') ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
+            ]"
+          />
+          <span>Két mật khẩu</span>
+        </div>
+      </router-link>
+
+      <!-- Cài đặt -->
+      <router-link
+        to="/settings"
+        :class="[
+          'flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group',
+          $route.path === '/settings'
+            ? 'bg-brand-50 text-brand-700 font-semibold shadow-2xs'
+            : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
+        ]"
+        @click="$emit('close')"
+      >
+        <div class="flex items-center gap-3">
+          <Settings
+            :class="[
+              'w-5 h-5 transition-colors',
+              $route.path === '/settings' ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
+            ]"
+          />
+          <span>Cài đặt</span>
+        </div>
       </router-link>
     </nav>
 
@@ -381,14 +454,14 @@ import {
   BookMarked,
   WalletCards,
   Cpu,
-  Bot,
-  Code2,
   GraduationCap,
   BookOpen,
+  KeyRound,
   Sparkles,
   Headphones,
   Mic,
-  RefreshCw,
+  Brain,
+  Layers,
   Gamepad2,
   FolderArchive,
   CalendarCheck,
@@ -415,35 +488,11 @@ const userInitial = computed(() => {
   return name.charAt(0).toUpperCase();
 });
 
-// IT Module navigation state
-const itRoutes = ['/it/chat', '/it/notes', '/it/playground'];
-const isItActive = computed(() => itRoutes.some(p => route.path.startsWith(p)) || route.path.startsWith('/it'));
-const isItOpen = ref(isItActive.value);
-
-const itSubItems = [
-  { title: 'Chat & Kiến trúc', path: '/it/chat', icon: Bot },
-  { title: 'Sổ tay Kiến thức', path: '/it/notes', icon: BookOpen },
-  { title: 'Luyện Code & Sandbox', path: '/it/playground', icon: Code2 },
-];
-
 const englishRoutes = ['/vocabulary', '/grammar', '/listening', '/speaking'];
 const isEnglishActive = computed(() => englishRoutes.some(p => route.path.startsWith(p)));
 
 // Only open initially if currently on an English route
 const isEnglishOpen = ref(englishRoutes.some(p => route.path.startsWith(p)));
-
-// Auto-expand menu when navigating
-watch(
-  () => route.path,
-  (newPath) => {
-    if (englishRoutes.some(p => newPath.startsWith(p))) {
-      isEnglishOpen.value = true;
-    }
-    if (newPath.startsWith('/it')) {
-      isItOpen.value = true;
-    }
-  }
-);
 
 const englishSubItems = [
   { title: 'Từ vựng', path: '/vocabulary', icon: BookOpen },
@@ -452,10 +501,25 @@ const englishSubItems = [
   { title: 'Luyện nói', path: '/speaking', icon: Mic },
 ];
 
-const otherNavItems = [
-  { title: 'Ôn tập Tiếng Anh', path: '/review', icon: RefreshCw, badge: true },
+const reviewRoutes = ['/review', '/games'];
+const isReviewActive = computed(() => reviewRoutes.some(p => route.path.startsWith(p)));
+const isReviewOpen = ref(reviewRoutes.some(p => route.path.startsWith(p)));
+
+// Auto-expand review menu when navigating
+watch(
+  () => route.path,
+  (newPath) => {
+    if (englishRoutes.some(p => newPath.startsWith(p))) {
+      isEnglishOpen.value = true;
+    }
+    if (reviewRoutes.some(p => newPath.startsWith(p))) {
+      isReviewOpen.value = true;
+    }
+  }
+);
+
+const reviewSubItems = [
+  { title: 'Ôn theo chủ đề', path: '/review', icon: Layers, badge: true },
   { title: 'Trò chơi Tiếng Anh', path: '/games', icon: Gamepad2 },
-  { title: 'Kho tài liệu', path: '/documents', icon: FolderArchive },
-  { title: 'Cài đặt', path: '/settings', icon: Settings },
 ];
 </script>

@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-6 max-w-5xl mx-auto pb-16">
+  <div class="space-y-6 w-full pb-16 animate-in fade-in duration-200">
     <!-- Profile Hero Card -->
-    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+    <div class="bg-white rounded-md border border-slate-200 overflow-hidden shadow-xs">
       <!-- Gradient Banner Cover -->
       <div class="h-36 sm:h-48 bg-gradient-to-r from-brand-600 via-brand-500 to-indigo-600 relative overflow-hidden">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
@@ -129,11 +129,11 @@
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="flex border-b border-slate-200 bg-white rounded-xl p-1.5 shadow-2xs gap-1">
+    <div class="flex border border-slate-200 bg-white rounded-md p-1.5 shadow-xs gap-1">
       <button
         type="button"
-        class="flex-1 py-2.5 px-4 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2"
-        :class="activeTab === 'info' ? 'bg-brand-50 text-brand-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+        class="flex-1 py-2.5 px-4 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+        :class="activeTab === 'info' ? 'bg-brand-50 text-brand-700 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
         @click="activeTab = 'info'"
       >
         <UserIcon class="w-4 h-4" />
@@ -142,8 +142,8 @@
 
       <button
         type="button"
-        class="flex-1 py-2.5 px-4 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2"
-        :class="activeTab === 'security' ? 'bg-brand-50 text-brand-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+        class="flex-1 py-2.5 px-4 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+        :class="activeTab === 'security' ? 'bg-brand-50 text-brand-700 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
         @click="activeTab = 'security'"
       >
         <KeyRound class="w-4 h-4" />
@@ -152,8 +152,8 @@
 
       <button
         type="button"
-        class="flex-1 py-2.5 px-4 text-sm font-semibold rounded-lg transition-all flex items-center justify-center gap-2"
-        :class="activeTab === 'forgot' ? 'bg-brand-50 text-brand-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
+        class="flex-1 py-2.5 px-4 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+        :class="activeTab === 'forgot' ? 'bg-brand-50 text-brand-700 shadow-2xs font-bold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'"
         @click="activeTab = 'forgot'"
       >
         <MailCheck class="w-4 h-4" />
@@ -164,7 +164,7 @@
     <!-- ============================================================= -->
     <!-- TAB 1: THÔNG TIN CÁ NHÂN (PROFILE DETAILS)                     -->
     <!-- ============================================================= -->
-    <div v-if="activeTab === 'info'" class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+    <div v-if="activeTab === 'info'" class="bg-white rounded-md border border-slate-200 p-6 sm:p-7 shadow-xs space-y-6">
       <div>
         <h2 class="text-lg font-bold text-slate-900">Chi tiết thông tin tài khoản</h2>
         <p class="text-xs text-slate-500 mt-0.5">Cập nhật họ tên, mục tiêu TOEIC và thời gian học tập cá nhân.</p>
@@ -268,39 +268,41 @@
     <!-- ============================================================= -->
     <!-- TAB 2: ĐỔI MẬT KHẨU (CHANGE PASSWORD)                          -->
     <!-- ============================================================= -->
-    <div v-if="activeTab === 'security'" class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+    <div v-if="activeTab === 'security'" class="bg-white rounded-md border border-slate-200 p-6 sm:p-7 shadow-xs space-y-6">
       <div>
         <h2 class="text-lg font-bold text-slate-900">Đổi mật khẩu tài khoản</h2>
         <p class="text-xs text-slate-500 mt-0.5">Để bảo vệ tài khoản, hãy sử dụng mật khẩu mạnh có chữ hoa, chữ thường và số.</p>
       </div>
 
-      <form class="space-y-4 max-w-xl" @submit.prevent="handleChangePassword">
-        <AppInput
-          v-model="pwdForm.currentPassword"
-          type="password"
-          label="Mật khẩu hiện tại"
-          placeholder="••••••••"
-          :icon="Lock"
-          required
-        />
+      <form class="space-y-5" @submit.prevent="handleChangePassword">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <AppInput
+            v-model="pwdForm.currentPassword"
+            type="password"
+            label="Mật khẩu hiện tại"
+            placeholder="••••••••"
+            :icon="Lock"
+            required
+          />
 
-        <AppInput
-          v-model="pwdForm.newPassword"
-          type="password"
-          label="Mật khẩu mới (tối thiểu 6 ký tự)"
-          placeholder="••••••••"
-          :icon="Key"
-          required
-        />
+          <AppInput
+            v-model="pwdForm.newPassword"
+            type="password"
+            label="Mật khẩu mới (tối thiểu 6 ký tự)"
+            placeholder="••••••••"
+            :icon="Key"
+            required
+          />
 
-        <AppInput
-          v-model="pwdForm.confirmPassword"
-          type="password"
-          label="Xác nhận lại mật khẩu mới"
-          placeholder="••••••••"
-          :icon="CheckCircle2"
-          required
-        />
+          <AppInput
+            v-model="pwdForm.confirmPassword"
+            type="password"
+            label="Xác nhận lại mật khẩu mới"
+            placeholder="••••••••"
+            :icon="CheckCircle2"
+            required
+          />
+        </div>
 
         <!-- Password match warning -->
         <div
@@ -314,7 +316,7 @@
         <div class="flex items-center justify-between pt-4 border-t border-slate-100">
           <button
             type="button"
-            class="text-xs text-brand-600 hover:text-brand-700 font-semibold hover:underline flex items-center gap-1"
+            class="text-xs text-brand-600 hover:text-brand-700 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
             @click="activeTab = 'forgot'"
           >
             <HelpCircle class="w-3.5 h-3.5" />
@@ -337,15 +339,15 @@
     <!-- ============================================================= -->
     <!-- TAB 3: QUÊN MẬT KHẨU & ĐẶT LẠI QUA MÃ OTP EMAIL                -->
     <!-- ============================================================= -->
-    <div v-if="activeTab === 'forgot'" class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">
+    <div v-if="activeTab === 'forgot'" class="bg-white rounded-md border border-slate-200 p-6 sm:p-7 shadow-xs space-y-6">
       <div>
         <h2 class="text-lg font-bold text-slate-900">Khôi phục mật khẩu qua Email OTP</h2>
         <p class="text-xs text-slate-500 mt-0.5">Hệ thống sẽ gửi mã xác thực 6 số đến email đăng ký của bạn để bạn tạo mật khẩu mới.</p>
       </div>
 
       <!-- Step 1: Send OTP -->
-      <div v-if="forgotStep === 1" class="max-w-md space-y-4">
-        <div class="p-4 bg-brand-50 border border-brand-200 rounded-xl text-xs text-brand-900 space-y-1">
+      <div v-if="forgotStep === 1" class="max-w-2xl space-y-4">
+        <div class="p-4 bg-brand-50 border border-brand-200 rounded-md text-xs text-brand-900 space-y-1">
           <div class="font-bold flex items-center gap-1.5">
             <Mail class="w-4 h-4 text-brand-600" />
             <span>Bước 1: Nhập email nhận mã OTP</span>
@@ -377,8 +379,8 @@
       </div>
 
       <!-- Step 2: Enter OTP & New Password -->
-      <div v-else-if="forgotStep === 2" class="max-w-md space-y-4">
-        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 space-y-1">
+      <div v-else-if="forgotStep === 2" class="max-w-2xl space-y-4">
+        <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-md text-xs text-emerald-900 space-y-1">
           <div class="font-bold flex items-center gap-1.5">
             <CheckCircle2 class="w-4 h-4 text-emerald-600" />
             <span>Mã OTP đã được gửi thành công đến: {{ forgotForm.email }}</span>
@@ -401,23 +403,25 @@
             />
           </div>
 
-          <AppInput
-            v-model="forgotForm.newPassword"
-            type="password"
-            label="Mật khẩu mới (tối thiểu 6 ký tự)"
-            placeholder="••••••••"
-            :icon="Key"
-            required
-          />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <AppInput
+              v-model="forgotForm.newPassword"
+              type="password"
+              label="Mật khẩu mới (tối thiểu 6 ký tự)"
+              placeholder="••••••••"
+              :icon="Key"
+              required
+            />
 
-          <AppInput
-            v-model="forgotForm.confirmPassword"
-            type="password"
-            label="Xác nhận lại mật khẩu mới"
-            placeholder="••••••••"
-            :icon="CheckCircle2"
-            required
-          />
+            <AppInput
+              v-model="forgotForm.confirmPassword"
+              type="password"
+              label="Xác nhận lại mật khẩu mới"
+              placeholder="••••••••"
+              :icon="CheckCircle2"
+              required
+            />
+          </div>
 
           <div class="flex items-center gap-3 pt-2">
             <AppButton
@@ -444,7 +448,7 @@
       </div>
 
       <!-- Step 3: Success Completed -->
-      <div v-else class="max-w-md p-6 bg-emerald-50 rounded-2xl border border-emerald-200 text-center space-y-3">
+      <div v-else class="max-w-xl p-6 bg-emerald-50 rounded-md border border-emerald-200 text-center space-y-3">
         <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
           <CheckCircle2 class="w-6 h-6" />
         </div>
