@@ -136,12 +136,15 @@ D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\statistics\StreakHeat
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\studylink\StudyLinkFilterRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\studylink\StudyLinkRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\studylink\StudyLinkResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\BulkCreateTasksRequest.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\CopyTasksRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskFilterRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskReorderItem.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskRequest.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskStatsResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\DailyTaskSummaryResponse.java
+D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\task\FrequentTaskResponse.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\AccountAttachmentDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\AccountCategoryDto.java
 D:\TOEIC_650\backend\src\main\java\com\englishlearning\dto\vault\AccountCredentialDetailDto.java

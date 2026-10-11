@@ -28,6 +28,15 @@
           <span>Thống kê theo ngày</span>
         </router-link>
 
+        <button
+          type="button"
+          @click="openQuickAddModal"
+          class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs sm:text-sm font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-md hover:bg-amber-100/80 transition-colors shadow-xs cursor-pointer"
+        >
+          <Zap class="w-4 h-4 text-amber-600 fill-amber-500" />
+          <span>Thêm nhanh</span>
+        </button>
+
         <AppButton variant="primary" size="md" :icon="Plus" @click="openCreateModal">
           <span>Thêm việc mới</span>
         </AppButton>
@@ -73,16 +82,26 @@
           <button
             type="button"
             @click="jumpToDate(-1)"
-            class="px-2.5 py-1.5 border border-slate-200 rounded text-slate-600 hover:bg-slate-50 transition-colors font-medium"
+            class="px-2.5 py-1.5 border border-slate-200 rounded text-slate-600 hover:bg-slate-50 transition-colors font-medium cursor-pointer"
           >
             Hôm qua
           </button>
           <button
             type="button"
             @click="jumpToDate(1)"
-            class="px-2.5 py-1.5 border border-slate-200 rounded text-slate-600 hover:bg-slate-50 transition-colors font-medium"
+            class="px-2.5 py-1.5 border border-slate-200 rounded text-slate-600 hover:bg-slate-50 transition-colors font-medium cursor-pointer"
           >
             Ngày mai
+          </button>
+          <button
+            type="button"
+            @click="copyFromYesterday"
+            :disabled="isCopying"
+            class="inline-flex items-center gap-1 px-2.5 py-1.5 border border-slate-200 rounded text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-300 transition-colors font-semibold shadow-2xs cursor-pointer disabled:opacity-50"
+            title="Sao chép các công việc của ngày hôm qua sang ngày đang chọn"
+          >
+            <Copy class="w-3.5 h-3.5 text-brand-600" />
+            <span>{{ isCopying ? 'Đang chép...' : 'Sao chép từ hôm qua' }}</span>
           </button>
         </div>
 
@@ -555,14 +574,86 @@
     <AppModal
       v-model="showTaskModal"
       :title="isEditing ? 'Chỉnh sửa việc cần làm' : 'Thêm việc cần làm mới'"
-      size="xl"
+      size="2xl"
     >
-      <form @submit.prevent="saveTask" class="space-y-6 py-3">
+      <form @submit.prevent="saveTask" class="space-y-5 py-3">
+        <!-- Box Gợi ý việc thường làm nằm ngang riêng biệt (Horizontal Quick Suggestions Bar) -->
+        <div
+          v-if="!isEditing && quickPillSuggestions.length > 0"
+          class="bg-gradient-to-r from-amber-50/70 via-slate-50 to-indigo-50/50 p-4 rounded-md border border-amber-200/80 shadow-2xs space-y-2.5"
+        >
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 min-w-0">
+              <div class="w-6 h-6 rounded-md bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                <Zap class="w-3.5 h-3.5 text-amber-600 fill-amber-600" />
+              </div>
+              <div class="flex items-baseline gap-2 min-w-0">
+                <span class="text-xs sm:text-sm font-bold text-slate-800 whitespace-nowrap">
+                  Gợi ý việc thường làm
+                </span>
+                <span class="text-xs text-slate-500 font-medium truncate hidden sm:inline">
+                  (Bấm 1-click để tự động điền tiêu đề, loại việc, thời gian & mức ưu tiên)
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              @click="openQuickAddModal"
+              class="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:text-brand-700 bg-white hover:bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200/80 shadow-2xs transition-colors shrink-0 cursor-pointer"
+              title="Mở popup chọn nhiều việc cùng lúc"
+            >
+              <Layers class="w-3.5 h-3.5 text-brand-600" />
+              <span>Thêm hàng loạt</span>
+              <ChevronRight class="w-3.5 h-3.5 text-slate-400" />
+            </button>
+          </div>
+
+          <!-- Dải thẻ gợi ý nằm ngang, cuộn ngang mượt -->
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
+            <button
+              v-for="(p, idx) in quickPillSuggestions"
+              :key="idx"
+              type="button"
+              @click="applyQuickPill(p)"
+              :class="[
+                'group inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-md border shadow-2xs transition-all whitespace-nowrap cursor-pointer shrink-0',
+                form.title === p.title
+                  ? 'bg-brand-600 text-white border-brand-600 shadow-xs'
+                  : 'bg-white hover:bg-brand-50 hover:text-brand-700 text-slate-700 border-slate-200 hover:border-brand-300'
+              ]"
+              :title="`Bấm để điền: ${p.title} (${p.estimatedTime || 'N/A'})`"
+            >
+              <Zap
+                :class="[
+                  'w-3.5 h-3.5 shrink-0 transition-colors',
+                  form.title === p.title
+                    ? 'text-amber-300 fill-amber-300'
+                    : 'text-amber-500 fill-amber-500 group-hover:text-brand-600 group-hover:fill-brand-600'
+                ]"
+              />
+              <span>{{ p.title }}</span>
+              <span
+                v-if="p.estimatedTime"
+                :class="[
+                  'inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded transition-colors',
+                  form.title === p.title
+                    ? 'bg-brand-700 text-white'
+                    : 'bg-slate-100 group-hover:bg-brand-100 text-slate-500 group-hover:text-brand-700'
+                ]"
+              >
+                <Clock class="w-2.5 h-2.5 opacity-70" />
+                <span>{{ p.estimatedTime }}</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
         <!-- Section 1: Thông tin cơ bản -->
         <div class="bg-slate-50/70 p-5 sm:p-6 rounded-md border border-slate-200/80 space-y-5">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
             <div class="md:col-span-1">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide mb-2">
+              <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
                 Ngày thực hiện <span class="text-rose-500">*</span>
               </label>
               <input
@@ -574,7 +665,7 @@
             </div>
 
             <div class="md:col-span-2">
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide mb-2">
+              <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
                 Tiêu đề công việc <span class="text-rose-500">*</span>
               </label>
               <input
@@ -590,8 +681,8 @@
           <!-- Phân loại & Mức độ ưu tiên & Trạng thái -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 pt-1">
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide mb-2">
-                Phân loại (Category)
+              <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
+                Phân loại công việc
               </label>
               <select
                 v-model="form.category"
@@ -608,7 +699,7 @@
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide mb-2">
+              <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
                 Mức độ ưu tiên
               </label>
               <select
@@ -623,7 +714,7 @@
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide mb-2">
+              <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
                 Trạng thái ban đầu
               </label>
               <select
@@ -645,7 +736,7 @@
         <div class="bg-slate-50/70 p-5 sm:p-6 rounded-md border border-slate-200/80 space-y-5">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide mb-2">
+              <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
                 Thời gian ước tính / Khung giờ
               </label>
               <input
@@ -675,7 +766,7 @@
             </div>
 
             <div>
-              <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide mb-2">
+              <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
                 Thứ tự hiển thị (STT)
               </label>
               <input
@@ -690,7 +781,7 @@
 
           <!-- Ghi chú chi tiết -->
           <div class="pt-1">
-            <label class="block text-xs sm:text-sm font-bold text-slate-700 uppercase tracking-wide mb-2">
+            <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
               Ghi chú / Chi tiết công việc
             </label>
             <textarea
@@ -741,6 +832,237 @@
       </form>
     </AppModal>
 
+    <!-- Quick Add Modal (Thêm nhanh công việc hàng ngày) -->
+    <AppModal
+      v-model="showQuickAddModal"
+      title="Thêm nhanh các công việc thường ngày"
+      size="2xl"
+    >
+      <div class="space-y-4">
+        <!-- Subheader & Date Context -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-brand-50/70 rounded-md border border-brand-100">
+          <div>
+            <div class="flex items-center gap-2">
+              <Zap class="w-4 h-4 text-amber-500 fill-amber-500" />
+              <span class="text-sm font-bold text-slate-900">
+                Thêm vào ngày: <span class="text-brand-700 underline font-extrabold">{{ formattedSelectedDateLabel }}</span>
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Chọn các công việc quen thuộc bên dưới để tạo ngay lập tức mà không cần gõ lại.
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2 self-start sm:self-auto shrink-0">
+            <button
+              type="button"
+              @click="toggleSelectAll"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs cursor-pointer"
+            >
+              {{ isAllSelected ? 'Bỏ chọn tất cả' : 'Chọn tất cả' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab Switcher & Search Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <!-- Tabs -->
+          <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-md border border-slate-200">
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded transition-colors cursor-pointer"
+              :class="quickAddTab === 'FREQUENT' ? 'bg-white text-brand-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+              @click="quickAddTab = 'FREQUENT'"
+            >
+              <Zap class="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <span>Việc thường làm ({{ frequentTasks.length }})</span>
+            </button>
+            <button
+              type="button"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded transition-colors cursor-pointer"
+              :class="quickAddTab === 'CUSTOM' ? 'bg-white text-brand-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+              @click="quickAddTab = 'CUSTOM'"
+            >
+              <Star class="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+              <span>Mẫu của tôi ({{ customPresets.length }})</span>
+            </button>
+          </div>
+
+          <!-- Search & Category Filters -->
+          <div class="flex items-center gap-2 flex-1 sm:max-w-md">
+            <div class="relative flex-1">
+              <Search class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                v-model="quickSearchQuery"
+                placeholder="Tìm việc mẫu..."
+                class="w-full pl-8 pr-3 py-1.5 text-xs rounded-md border border-slate-200 bg-white text-slate-800 font-medium focus:outline-none focus:border-brand-500 shadow-2xs"
+              />
+            </div>
+
+            <select
+              v-model="quickCategoryFilter"
+              class="text-xs px-2.5 py-1.5 rounded-md border border-slate-200 bg-white text-slate-700 font-medium shadow-2xs focus:outline-none"
+            >
+              <option value="ALL">Tất cả danh mục</option>
+              <option value="ENGLISH">Tiếng Anh</option>
+              <option value="WORK">Công việc</option>
+              <option value="STUDY">Học tập</option>
+              <option value="HEALTH">Sức khỏe</option>
+              <option value="PERSONAL">Cá nhân</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom Preset Creator (Only in CUSTOM tab) -->
+        <div v-if="quickAddTab === 'CUSTOM'" class="p-3.5 bg-slate-50 rounded-md border border-slate-200 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-800">Tự tạo mẫu công việc quen thuộc</span>
+            <button
+              type="button"
+              @click="showNewPresetForm = !showNewPresetForm"
+              class="inline-flex items-center gap-1 text-xs text-brand-600 hover:text-brand-700 font-semibold cursor-pointer"
+            >
+              <X v-if="showNewPresetForm" class="w-3.5 h-3.5" />
+              <Plus v-else class="w-3.5 h-3.5" />
+              <span>{{ showNewPresetForm ? 'Đóng form' : 'Tạo mẫu mới' }}</span>
+            </button>
+          </div>
+
+          <form v-if="showNewPresetForm" @submit.prevent="saveNewCustomPreset" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 pt-2">
+            <input
+              type="text"
+              v-model="newPresetForm.title"
+              required
+              placeholder="Tiêu đề việc mẫu..."
+              class="sm:col-span-2 text-xs px-3 py-2 rounded-md border border-slate-200 bg-white focus:outline-none focus:border-brand-500"
+            />
+            <select
+              v-model="newPresetForm.category"
+              class="text-xs px-3 py-2 rounded-md border border-slate-200 bg-white focus:outline-none"
+            >
+              <option value="ENGLISH">Tiếng Anh</option>
+              <option value="WORK">Công việc</option>
+              <option value="STUDY">Học tập</option>
+              <option value="HEALTH">Sức khỏe</option>
+              <option value="PERSONAL">Cá nhân</option>
+            </select>
+            <div class="flex items-center gap-2">
+              <input
+                type="text"
+                v-model="newPresetForm.estimatedTime"
+                placeholder="VD: 30 phút"
+                class="w-full text-xs px-3 py-2 rounded-md border border-slate-200 bg-white focus:outline-none"
+              />
+              <button
+                type="submit"
+                class="px-3 py-2 bg-brand-600 text-white rounded-md text-xs font-bold hover:bg-brand-700 shrink-0 cursor-pointer"
+              >
+                Lưu
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Task List Items -->
+        <div v-if="isLoadingFrequent" class="p-12 text-center text-sm text-slate-400">
+          Đang tải danh sách công việc thường làm...
+        </div>
+
+        <div v-else-if="filteredQuickTasks.length === 0" class="p-12 text-center text-sm text-slate-400 bg-slate-50/50 rounded-md border border-slate-100">
+          Không tìm thấy công việc nào phù hợp với bộ lọc.
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto pr-1">
+          <div
+            v-for="item in filteredQuickTasks"
+            :key="item.idKey"
+            @click="toggleSelectTask(item.idKey)"
+            :class="[
+              'p-3.5 rounded-md border transition-all cursor-pointer flex items-start gap-3 select-none',
+              isTaskSelected(item.idKey)
+                ? 'bg-brand-50/70 border-brand-500 ring-2 ring-brand-500/10 shadow-2xs'
+                : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50',
+            ]"
+          >
+            <!-- Checkbox -->
+            <div class="pt-0.5">
+              <input
+                type="checkbox"
+                :checked="isTaskSelected(item.idKey)"
+                class="w-4.5 h-4.5 text-brand-600 rounded border-slate-300 focus:ring-brand-500 cursor-pointer pointer-events-none"
+              />
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-sm font-bold text-slate-900 truncate">
+                  {{ item.title }}
+                </span>
+                <!-- Delete preset button if in custom tab -->
+                <button
+                  v-if="quickAddTab === 'CUSTOM'"
+                  type="button"
+                  @click.stop="deleteCustomPreset(item.customIndex!)"
+                  class="p-1 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
+                  title="Xóa mẫu này"
+                >
+                  <Trash2 class="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <!-- Meta pills -->
+              <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded" :class="getCategoryBadgeClass(item.category)">
+                  {{ getCategoryLabel(item.category) }}
+                </span>
+                <span class="text-[11px] font-bold px-1.5 py-0.5 rounded" :class="getPriorityBadgeClass(item.priority)">
+                  {{ getPriorityLabel(item.priority) }}
+                </span>
+                <span
+                  v-if="item.estimatedTime"
+                  class="inline-flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600"
+                >
+                  <Clock class="w-3 h-3 text-slate-400" />
+                  <span>{{ item.estimatedTime }}</span>
+                </span>
+                <span v-if="item.frequency && item.frequency > 0" class="text-[11px] font-medium px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200/60">
+                  Đã làm {{ item.frequency }} lần
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-between pt-4 border-t border-slate-200">
+          <div class="text-xs font-semibold text-slate-600">
+            Đã chọn: <span class="font-bold text-brand-600 text-sm">{{ selectedTaskCount }}</span> công việc
+          </div>
+
+          <div class="flex items-center gap-2.5">
+            <button
+              type="button"
+              @click="showQuickAddModal = false"
+              class="px-4 py-2 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
+            >
+              Hủy bỏ
+            </button>
+            <AppButton
+              variant="primary"
+              size="md"
+              :disabled="selectedTaskCount === 0"
+              :loading="isBulkSaving"
+              @click="submitBulkTasks"
+            >
+              <span>Thêm {{ selectedTaskCount > 0 ? selectedTaskCount : '' }} việc vào ngày này</span>
+            </AppButton>
+          </div>
+        </div>
+      </div>
+    </AppModal>
+
     <!-- Delete Confirmation Modal -->
     <AppConfirmDialog
       v-model="showDeleteConfirm"
@@ -758,7 +1080,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { taskService } from '../../services/task.service';
 import { useToastStore } from '../../stores/toast.store';
-import type { DailyTask, DailyTaskRequest } from '../../types';
+import type { DailyTask, DailyTaskRequest, FrequentTask } from '../../types';
 import AppButton from '../../components/common/AppButton.vue';
 import AppModal from '../../components/common/AppModal.vue';
 import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
@@ -784,6 +1106,11 @@ import {
   Trash2,
   Play,
   Pause,
+  Zap,
+  Copy,
+  Star,
+  Layers,
+  X,
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -871,6 +1198,9 @@ onMounted(async () => {
   if (route.query.action === 'add') {
     openCreateModal();
   }
+
+  loadCustomPresets();
+  loadFrequentTasks();
 });
 
 watch(
@@ -1116,6 +1446,10 @@ function openCreateModal() {
   form.isCompleted = false;
   form.displayOrder = tasks.value.length;
   form.estimatedTime = '';
+  loadCustomPresets();
+  if (frequentTasks.value.length === 0) {
+    loadFrequentTasks();
+  }
   showTaskModal.value = true;
 }
 
@@ -1340,5 +1674,247 @@ async function changeTaskStatus(task: DailyTask, newStatus: string) {
 async function toggleTaskInProgress(task: DailyTask) {
   const targetStatus = task.status === 'IN_PROGRESS' ? 'TODO' : 'IN_PROGRESS';
   await changeTaskStatus(task, targetStatus);
+}
+
+// ==========================================
+// QUICK ADD & TASK TEMPLATES LOGIC
+// ==========================================
+const showQuickAddModal = ref(false);
+const isLoadingFrequent = ref(false);
+const isBulkSaving = ref(false);
+const isCopying = ref(false);
+
+const frequentTasks = ref<FrequentTask[]>([]);
+const selectedTaskKeys = ref<Set<string>>(new Set());
+const quickAddTab = ref<'FREQUENT' | 'CUSTOM'>('FREQUENT');
+const quickSearchQuery = ref('');
+const quickCategoryFilter = ref('ALL');
+
+const CUSTOM_PRESETS_STORAGE_KEY = 'pmh_daily_task_custom_presets';
+const customPresets = ref<FrequentTask[]>([]);
+const showNewPresetForm = ref(false);
+const newPresetForm = reactive({
+  title: '',
+  category: 'ENGLISH',
+  priority: 'MEDIUM',
+  estimatedTime: '',
+});
+
+function loadCustomPresets() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_PRESETS_STORAGE_KEY);
+    if (raw) {
+      customPresets.value = JSON.parse(raw);
+    } else {
+      customPresets.value = [];
+    }
+  } catch (e) {
+    customPresets.value = [];
+  }
+}
+
+function saveNewCustomPreset() {
+  if (!newPresetForm.title.trim()) return;
+  customPresets.value.push({
+    title: newPresetForm.title.trim(),
+    category: newPresetForm.category,
+    priority: newPresetForm.priority as any,
+    estimatedTime: newPresetForm.estimatedTime.trim() || undefined,
+  });
+  localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(customPresets.value));
+  newPresetForm.title = '';
+  newPresetForm.estimatedTime = '';
+  showNewPresetForm.value = false;
+  toast.success('Đã lưu mẫu công việc mới');
+}
+
+function deleteCustomPreset(index: number) {
+  customPresets.value.splice(index, 1);
+  localStorage.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(customPresets.value));
+  toast.success('Đã xóa mẫu công việc');
+}
+
+const DEFAULT_HABIT_PRESETS: FrequentTask[] = [
+  { title: 'Học 30 từ vựng TOEIC mới', category: 'ENGLISH', priority: 'HIGH', estimatedTime: '30 phút' },
+  { title: 'Luyện đề Listening TOEIC Part 1 & 2', category: 'ENGLISH', priority: 'HIGH', estimatedTime: '45 phút' },
+  { title: 'Luyện đọc Reading TOEIC Part 5 & 7', category: 'ENGLISH', priority: 'HIGH', estimatedTime: '45 phút' },
+  { title: 'Tập thể dục / Chạy bộ / Gym', category: 'HEALTH', priority: 'MEDIUM', estimatedTime: '45 phút' },
+  { title: 'Đọc 10 trang sách / Note kiến thức IT', category: 'STUDY', priority: 'MEDIUM', estimatedTime: '30 phút' },
+  { title: 'Check email & Lên kế hoạch công việc', category: 'WORK', priority: 'MEDIUM', estimatedTime: '20 phút' },
+  { title: 'Review code & Dọn dẹp task tồn', category: 'WORK', priority: 'HIGH', estimatedTime: '1 giờ' },
+  { title: 'Dọn dẹp bàn làm việc & Nghỉ ngơi', category: 'PERSONAL', priority: 'LOW', estimatedTime: '15 phút' },
+];
+
+// Quick Habit Pill Suggestions for regular Add Task modal
+const quickPillSuggestions = computed(() => {
+  const combined: FrequentTask[] = [
+    ...customPresets.value,
+    ...frequentTasks.value,
+    ...DEFAULT_HABIT_PRESETS,
+  ];
+  const uniqueTitles = new Set<string>();
+  const list: FrequentTask[] = [];
+  for (const item of combined) {
+    const key = item.title.trim().toLowerCase();
+    if (!uniqueTitles.has(key)) {
+      uniqueTitles.add(key);
+      list.push(item);
+    }
+    if (list.length >= 12) break;
+  }
+  return list;
+});
+
+function applyQuickPill(p: FrequentTask) {
+  form.title = p.title;
+  if (p.category) form.category = p.category;
+  if (p.priority) form.priority = p.priority as any;
+  if (p.estimatedTime) form.estimatedTime = p.estimatedTime;
+  toast.success(`Đã chọn: ${p.title}`);
+}
+
+async function loadFrequentTasks() {
+  try {
+    isLoadingFrequent.value = true;
+    frequentTasks.value = await taskService.getFrequentTasks(30);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoadingFrequent.value = false;
+  }
+}
+
+async function openQuickAddModal() {
+  selectedTaskKeys.value = new Set();
+  quickSearchQuery.value = '';
+  quickCategoryFilter.value = 'ALL';
+  loadCustomPresets();
+  showQuickAddModal.value = true;
+  await loadFrequentTasks();
+}
+
+interface QuickTaskDisplayItem extends FrequentTask {
+  idKey: string;
+  customIndex?: number;
+}
+
+const currentSourceQuickTasks = computed<QuickTaskDisplayItem[]>(() => {
+  if (quickAddTab.value === 'CUSTOM') {
+    return customPresets.value.map((item, idx) => ({
+      ...item,
+      idKey: `custom_${idx}_${item.title}`,
+      customIndex: idx,
+    }));
+  }
+  return frequentTasks.value.map((item, idx) => ({
+    ...item,
+    idKey: `frequent_${idx}_${item.title}`,
+  }));
+});
+
+const filteredQuickTasks = computed(() => {
+  return currentSourceQuickTasks.value.filter((item) => {
+    if (quickCategoryFilter.value !== 'ALL' && item.category !== quickCategoryFilter.value) {
+      return false;
+    }
+    if (quickSearchQuery.value.trim()) {
+      const q = quickSearchQuery.value.toLowerCase();
+      if (!item.title.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+});
+
+function isTaskSelected(idKey: string) {
+  return selectedTaskKeys.value.has(idKey);
+}
+
+function toggleSelectTask(idKey: string) {
+  if (selectedTaskKeys.value.has(idKey)) {
+    selectedTaskKeys.value.delete(idKey);
+  } else {
+    selectedTaskKeys.value.add(idKey);
+  }
+}
+
+const isAllSelected = computed(() => {
+  if (filteredQuickTasks.value.length === 0) return false;
+  return filteredQuickTasks.value.every((t) => selectedTaskKeys.value.has(t.idKey));
+});
+
+function toggleSelectAll() {
+  if (isAllSelected.value) {
+    for (const t of filteredQuickTasks.value) {
+      selectedTaskKeys.value.delete(t.idKey);
+    }
+  } else {
+    for (const t of filteredQuickTasks.value) {
+      selectedTaskKeys.value.add(t.idKey);
+    }
+  }
+}
+
+const selectedTaskCount = computed(() => selectedTaskKeys.value.size);
+
+async function submitBulkTasks() {
+  if (selectedTaskCount.value === 0) {
+    toast.warning('Vui lòng chọn ít nhất 1 công việc để thêm');
+    return;
+  }
+
+  const allAvailable = currentSourceQuickTasks.value;
+  const chosenItems = allAvailable.filter((t) => selectedTaskKeys.value.has(t.idKey));
+
+  if (chosenItems.length === 0) return;
+
+  isBulkSaving.value = true;
+  try {
+    const payload = chosenItems.map((item) => ({
+      taskDate: selectedDate.value,
+      title: item.title,
+      description: item.description || '',
+      category: item.category || 'ENGLISH',
+      priority: (item.priority || 'MEDIUM') as any,
+      status: 'TODO' as any,
+      isCompleted: false,
+      estimatedTime: item.estimatedTime || '',
+    }));
+
+    await taskService.bulkCreateTasks({
+      taskDate: selectedDate.value,
+      tasks: payload,
+    });
+
+    toast.success(`Đã thêm ${chosenItems.length} công việc vào ngày ${formattedSelectedDateLabel.value}!`);
+    showQuickAddModal.value = false;
+    await loadTasksForSelectedDate();
+  } catch (error: any) {
+    const msg = error?.response?.data?.message || 'Không thể thêm công việc';
+    toast.error(msg);
+  } finally {
+    isBulkSaving.value = false;
+  }
+}
+
+async function copyFromYesterday() {
+  const current = new Date(selectedDate.value + 'T00:00:00');
+  current.setDate(current.getDate() - 1);
+  const yesterdayStr = getLocalDateString(current);
+
+  isCopying.value = true;
+  try {
+    const res = await taskService.copyTasksFromDate({
+      sourceDate: yesterdayStr,
+      targetDate: selectedDate.value,
+      onlyIncomplete: false,
+    });
+    toast.success(`Đã sao chép ${res.length} công việc từ ngày hôm qua!`);
+    await loadTasksForSelectedDate();
+  } catch (error: any) {
+    const msg = error?.response?.data?.message || 'Không thể sao chép công việc từ hôm qua';
+    toast.warning(msg);
+  } finally {
+    isCopying.value = false;
+  }
 }
 </script>

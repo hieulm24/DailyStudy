@@ -514,10 +514,10 @@
     <AppModal
       v-model="showPlanIncomeModal"
       title="Thiết lập Thu nhập dự kiến tháng"
-      size="md"
+      size="lg"
     >
-      <form @submit.prevent="submitPlanIncome" class="space-y-4">
-        <div class="p-3 rounded-md bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-800 leading-relaxed">
+      <form @submit.prevent="submitPlanIncome" class="space-y-4 sm:space-y-5 py-1">
+        <div class="p-3.5 rounded-md bg-emerald-50/70 border border-emerald-100 text-xs sm:text-sm text-emerald-800 leading-relaxed">
           Nhập số tiền thu nhập bạn dự kiến kiếm được trong <strong>Tháng {{ month }}/{{ year }}</strong> và chọn ví nhận tiền. Hệ thống sẽ tính số dư dự kiến của ví đó và đối soát với các mục tiêu tài chính.
         </div>
 
@@ -532,12 +532,12 @@
 
         <!-- Chọn ví nhận tiền -->
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
             Ví / Tài khoản nhận tiền (tùy chọn)
           </label>
           <select
             v-model="planIncomeForm.accountId"
-            class="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800"
           >
             <option :value="null">-- Không chỉ định ví (Tính tổng chung) --</option>
             <option
@@ -551,39 +551,39 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
             Ghi chú kế hoạch (tùy chọn)
           </label>
           <textarea
             v-model="planIncomeForm.note"
-            rows="2"
+            rows="3"
             placeholder="Ví dụ: Lương cứng + Thưởng dự án tháng này..."
-            class="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800 resize-none"
           ></textarea>
         </div>
 
-        <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-100">
+        <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-200">
           <div>
             <button
               v-if="(budgetPlan?.expectedIncome || 0) > 0"
               type="button"
               @click="confirmDeletePlanIncome"
-              class="px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors"
+              class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
             >
               Xóa thu nhập dự kiến
             </button>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-3">
             <AppButton
               variant="secondary"
-              size="sm"
+              size="md"
               @click="showPlanIncomeModal = false"
             >
               Hủy
             </AppButton>
             <AppButton
               variant="primary"
-              size="sm"
+              size="md"
               type="submit"
               :loading="savingIncome"
             >
@@ -598,18 +598,18 @@
     <AppModal
       v-model="showBudgetItemModal"
       :title="isEditingItem ? 'Chỉnh sửa khoản dự chi' : 'Thêm khoản dự kiến chi'"
-      size="md"
+      size="lg"
     >
-      <form @submit.prevent="submitBudgetItem" class="space-y-4">
+      <form @submit.prevent="submitBudgetItem" class="space-y-4 sm:space-y-5 py-1">
         <!-- Danh mục chi tiêu -->
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
             Khoản chi tiêu (Danh mục) <span class="text-rose-500">*</span>
           </label>
           <select
             v-model="budgetItemForm.categoryId"
             :disabled="isEditingItem"
-            class="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white disabled:bg-slate-50"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800 disabled:bg-slate-50"
             required
           >
             <option :value="0" disabled>-- Chọn danh mục chi tiêu --</option>
@@ -628,12 +628,12 @@
 
         <!-- Chọn ví chi tiền -->
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
             Dự kiến chi từ ví nào?
           </label>
           <select
             v-model="budgetItemForm.accountId"
-            class="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800"
           >
             <option :value="null">-- Tất cả ví (Không phân biệt ví) --</option>
             <option
@@ -661,28 +661,28 @@
 
         <!-- Ghi chú khoản chi -->
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
             Ghi chú (tùy chọn)
           </label>
           <input
             v-model="budgetItemForm.note"
             type="text"
             placeholder="Ví dụ: Giới hạn tiền ăn trưa, tiền trọ..."
-            class="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800"
           />
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
           <AppButton
             variant="secondary"
-            size="sm"
+            size="md"
             @click="showBudgetItemModal = false"
           >
             Hủy
           </AppButton>
           <AppButton
             variant="primary"
-            size="sm"
+            size="md"
             type="submit"
             :loading="savingItem"
           >

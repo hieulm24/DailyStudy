@@ -114,4 +114,28 @@ public class DailyTaskController {
         DailyTaskStatsResponse response = dailyTaskService.getTaskStats(userPrincipal.getId());
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
+
+    @GetMapping("/frequent")
+    public ResponseEntity<ApiResponse<List<FrequentTaskResponse>>> getFrequentTasks(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestParam(value = "limit", defaultValue = "25") int limit) {
+        List<FrequentTaskResponse> response = dailyTaskService.getFrequentTasks(userPrincipal.getId(), limit);
+        return ResponseEntity.ok(ApiResponse.ok(response));
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<ApiResponse<List<DailyTaskResponse>>> bulkCreateTasks(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Valid @RequestBody BulkCreateTasksRequest request) {
+        List<DailyTaskResponse> response = dailyTaskService.bulkCreateTasks(userPrincipal.getId(), request);
+        return ResponseEntity.ok(ApiResponse.ok("Đã thêm " + response.size() + " công việc thành công", response));
+    }
+
+    @PostMapping("/copy-from-date")
+    public ResponseEntity<ApiResponse<List<DailyTaskResponse>>> copyTasksFromDate(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @Valid @RequestBody CopyTasksRequest request) {
+        List<DailyTaskResponse> response = dailyTaskService.copyTasksFromDate(userPrincipal.getId(), request);
+        return ResponseEntity.ok(ApiResponse.ok("Đã sao chép " + response.size() + " công việc thành công", response));
+    }
 }

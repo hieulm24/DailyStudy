@@ -253,24 +253,24 @@
     <AppModal
       v-model="isModalOpen"
       :title="isEditing ? 'Chỉnh sửa giao dịch' : 'Thêm giao dịch mới'"
-      size="md"
+      size="lg"
     >
-      <form @submit.prevent="saveTransaction" class="space-y-4 text-xs">
+      <form @submit.prevent="saveTransaction" class="space-y-4 sm:space-y-5 py-2">
         <!-- Loại giao dịch Selector Buttons -->
         <div>
-          <label class="block font-bold text-slate-700 mb-1.5">Loại giao dịch *</label>
-          <div class="grid grid-cols-3 gap-2">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-2">Loại giao dịch <span class="text-rose-500">*</span></label>
+          <div class="grid grid-cols-3 gap-2.5">
             <button
               type="button"
               @click="formData.type = 'EXPENSE'"
               :class="[
-                'py-2 px-3 rounded-md font-bold text-xs flex items-center justify-center gap-1.5 border transition-all',
+                'py-2.5 px-3 rounded-md font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
                 formData.type === 'EXPENSE'
                   ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50',
               ]"
             >
-              <ArrowUpRight class="w-4 h-4" />
+              <ArrowUpRight class="w-4 h-4 text-rose-600" />
               <span>Chi tiêu</span>
             </button>
 
@@ -278,13 +278,13 @@
               type="button"
               @click="formData.type = 'INCOME'"
               :class="[
-                'py-2 px-3 rounded-md font-bold text-xs flex items-center justify-center gap-1.5 border transition-all',
+                'py-2.5 px-3 rounded-md font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
                 formData.type === 'INCOME'
                   ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-2xs'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50',
               ]"
             >
-              <ArrowDownLeft class="w-4 h-4" />
+              <ArrowDownLeft class="w-4 h-4 text-emerald-600" />
               <span>Thu nhập</span>
             </button>
 
@@ -292,13 +292,13 @@
               type="button"
               @click="formData.type = 'TRANSFER'"
               :class="[
-                'py-2 px-3 rounded-md font-bold text-xs flex items-center justify-center gap-1.5 border transition-all',
+                'py-2.5 px-3 rounded-md font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
                 formData.type === 'TRANSFER'
                   ? 'bg-indigo-50 border-indigo-300 text-indigo-700 shadow-2xs'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50',
               ]"
             >
-              <ArrowRightLeft class="w-4 h-4" />
+              <ArrowRightLeft class="w-4 h-4 text-indigo-600" />
               <span>Chuyển tiền</span>
             </button>
           </div>
@@ -306,7 +306,7 @@
 
         <!-- Số tiền -->
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Số tiền (VNĐ) *</label>
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Số tiền (VNĐ) <span class="text-rose-500">*</span></label>
           <CurrencyInput
             v-model="formData.amount"
             placeholder="Ví dụ: 50.000"
@@ -316,13 +316,13 @@
 
         <!-- Tài khoản nguồn -->
         <div>
-          <label class="block font-bold text-slate-700 mb-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
             {{ formData.type === 'TRANSFER' ? 'Tài khoản chuyển đi *' : 'Tài khoản thanh toán *' }}
           </label>
           <select
             v-model="formData.accountId"
             required
-            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors shadow-2xs"
           >
             <option :value="undefined" disabled>-- Chọn tài khoản --</option>
             <option v-for="acc in accounts" :key="acc.id" :value="acc.id">
@@ -333,11 +333,11 @@
 
         <!-- Tài khoản đích (Chỉ hiện khi TRANSFER) -->
         <div v-if="formData.type === 'TRANSFER'">
-          <label class="block font-bold text-slate-700 mb-1">Tài khoản nhận tiền *</label>
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Tài khoản nhận tiền <span class="text-rose-500">*</span></label>
           <select
             v-model="formData.toAccountId"
             required
-            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors shadow-2xs"
           >
             <option :value="undefined" disabled>-- Chọn tài khoản đích --</option>
             <option
@@ -352,10 +352,10 @@
 
         <!-- Danh mục (Chỉ hiện khi INCOME hoặc EXPENSE) -->
         <div v-if="formData.type !== 'TRANSFER'">
-          <label class="block font-bold text-slate-700 mb-1">Danh mục thu/chi</label>
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Danh mục thu/chi</label>
           <select
             v-model="formData.categoryId"
-            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors shadow-2xs"
           >
             <option :value="undefined">-- Chọn danh mục phù hợp --</option>
             <option
@@ -370,51 +370,51 @@
 
         <!-- Ngày giờ giao dịch -->
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Ngày giờ giao dịch *</label>
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Ngày giờ giao dịch <span class="text-rose-500">*</span></label>
           <input
             v-model="formData.transactionDate"
             type="datetime-local"
             required
-            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors shadow-2xs"
           />
         </div>
 
         <!-- Mô tả ngắn -->
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Mô tả giao dịch</label>
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Mô tả giao dịch</label>
           <input
             v-model="formData.description"
             type="text"
             maxlength="255"
             placeholder="Ví dụ: Ăn trưa bún bò, Tiền lương tháng 10..."
-            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors shadow-2xs"
           />
         </div>
 
         <!-- Ghi chú chi tiết -->
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Ghi chú thêm</label>
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Ghi chú thêm</label>
           <textarea
             v-model="formData.note"
-            rows="2"
+            rows="3"
             placeholder="Ghi chú chi tiết hoặc lưu ý bổ sung..."
-            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors shadow-2xs resize-none"
           ></textarea>
         </div>
 
         <!-- Modal Footer Actions -->
-        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
           <button
             type="button"
             @click="isModalOpen = false"
-            class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
+            class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
           >
             Hủy
           </button>
           <button
             type="submit"
             :disabled="submitting"
-            class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 disabled:opacity-50 rounded-md transition-colors shadow-xs"
+            class="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 disabled:opacity-50 rounded-md transition-colors shadow-xs cursor-pointer"
           >
             <Save class="w-4 h-4" />
             <span>{{ isEditing ? 'Lưu thay đổi' : 'Thêm giao dịch' }}</span>

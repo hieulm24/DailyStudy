@@ -8,6 +8,9 @@ import type {
   DailyTaskSummary,
   DailyTaskStats,
   DailyTaskReorderItem,
+  FrequentTask,
+  BulkCreateTasksRequest,
+  CopyTasksRequest,
 } from '../types';
 
 export const taskService = {
@@ -65,6 +68,23 @@ export const taskService = {
     const res = await api.get<ApiResponse<DailyTaskStats>>('/tasks/stats', {
       params: { fromDate, toDate },
     });
+    return res.data.data;
+  },
+
+  async getFrequentTasks(limit = 25): Promise<FrequentTask[]> {
+    const res = await api.get<ApiResponse<FrequentTask[]>>('/tasks/frequent', {
+      params: { limit },
+    });
+    return res.data.data;
+  },
+
+  async bulkCreateTasks(data: BulkCreateTasksRequest): Promise<DailyTask[]> {
+    const res = await api.post<ApiResponse<DailyTask[]>>('/tasks/bulk', data);
+    return res.data.data;
+  },
+
+  async copyTasksFromDate(data: CopyTasksRequest): Promise<DailyTask[]> {
+    const res = await api.post<ApiResponse<DailyTask[]>>('/tasks/copy-from-date', data);
     return res.data.data;
   },
 };

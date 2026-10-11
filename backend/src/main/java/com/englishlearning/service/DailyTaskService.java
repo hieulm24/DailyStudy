@@ -382,6 +382,154 @@ public class DailyTaskService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public List<FrequentTaskResponse> getFrequentTasks(Long userId, int limit) {
+        int max = limit > 0 ? limit : 25;
+        List<Object[]> rows = dailyTaskRepository.findFrequentTasksByUserId(userId, PageRequest.of(0, max));
+
+        List<FrequentTaskResponse> list = new ArrayList<>();
+        Set<String> titles = new HashSet<>();
+
+        for (Object[] row : rows) {
+            String title = (String) row[0];
+            if (StringUtils.hasText(title)) {
+                String cat = (String) row[1];
+                String prio = (String) row[2];
+                String est = (String) row[3];
+                Long freq = row[4] != null ? ((Number) row[4]).longValue() : 1L;
+
+                list.add(FrequentTaskResponse.builder()
+                        .title(title.trim())
+                        .category(cat != null ? cat : "GENERAL")
+                        .priority(prio != null ? prio : "MEDIUM")
+                        .estimatedTime(est)
+                        .frequency(freq)
+                        .build());
+                titles.add(title.trim().toLowerCase());
+            }
+        }
+
+        // Add curated default recommendations
+        List<FrequentTaskResponse> defaults = List.of(
+                FrequentTaskResponse.builder().title("Luyện 20 từ vựng Tiếng Anh").category("ENGLISH").priority("HIGH").estimatedTime("30 phút").frequency(0L).build(),
+                FrequentTaskResponse.builder().title("Học 1 bài Ngữ pháp mới").category("ENGLISH").priority("MEDIUM").estimatedTime("30 phút").frequency(0L).build(),
+                FrequentTaskResponse.builder().title("Luyện nghe Podcast 15 phút").category("ENGLISH").priority("MEDIUM").estimatedTime("15 phút").frequency(0L).build(),
+                FrequentTaskResponse.builder().title("Đọc 15 trang sách").category("STUDY").priority("MEDIUM").estimatedTime("20 phút").frequency(0L).build(),
+                FrequentTaskResponse.builder().title("Tập thể dục / Gym 45 phút").category("HEALTH").priority("HIGH").estimatedTime("45 phút").frequency(0L).build(),
+                FrequentTaskResponse.builder().title("Uống đủ 2L nước trong ngày").category("HEALTH").priority("MEDIUM").estimatedTime("5 phút").frequency(0L).build(),
+                FrequentTaskResponse.builder().title("Lập kế hoạch & Review công việc").category("WORK").priority("MEDIUM").estimatedTime("15 phút").frequency(0L).build()
+        );
+
+        for (FrequentTaskResponse def : defaults) {
+            if (!titles.contains(def.getTitle().toLowerCase())) {
+                list.add(def);
+                titles.add(def.getTitle().toLowerCase());
+            }
+        }
+
+        return list;
+    }
+
+    @Transactional
+    public List<DailyTaskResponse> bulkCreateTasks(Long userId, BulkCreateTasksRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin người dùng"));
+
+        if (request.getTasks() == null || request.getTasks().isEmpty()) {
+            throw new BadRequestException("Danh sách công việc không được để trống");
+        }
+
+        LocalDate date = request.getTaskDate() != null ? request.getTaskDate() : LocalDate.now();
+        int currentMaxOrder = dailyTaskRepository.findMaxDisplayOrderByUserIdAndTaskDate(userId, date);
+
+        List<DailyTask> toSave = new ArrayList<>();
+        for (DailyTaskRequest item : request.getTasks()) {
+            if (!StringUtils.hasText(item.getTitle())) continue;
+
+            currentMaxOrder++;
+            DailyTask task = DailyTask.builder()
+                    .user(user)
+                    .taskDate(date)
+                    .title(item.getTitle().trim())
+                    .description(item.getDescription())
+                    .category(StringUtils.hasText(item.getCategory()) ? item.getCategory().trim() : "GENERAL")
+                    .priority(StringUtils.hasText(item.getPriority()) ? item.getPriority().toUpperCase() : "MEDIUM")
+                    .status("TODO")
+                    .isCompleted(false)
+                    .displayOrder(currentMaxOrder)
+                    .estimatedTime(item.getEstimatedTime())
+                    .completedAt(null)
+                    .build();
+            toSave.add(task);
+        }
+
+        List<DailyTask> saved = dailyTaskRepository.saveAll(toSave);
+        return saved.stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<DailyTaskResponse> copyTasksFromDate(Long userId, CopyTasksRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy thông tin người dùng"));
+
+        LocalDate sourceDate = request.getSourceDate();
+        LocalDate targetDate = request.getTargetDate() != null ? request.getTargetDate() : LocalDate.now();
+
+        List<DailyTask> sourceTasks = dailyTaskRepository.findByUserIdAndTaskDateOrderByDisplayOrderAscCreatedAtAsc(userId, sourceDate);
+        if (sourceTasks.isEmpty()) {
+            throw new BadRequestException("Không có công việc nào trong ngày " + sourceDate.format(VI_DATE_FORMAT) + " để sao chép");
+        }
+
+        if (Boolean.TRUE.equals(request.getOnlyIncomplete())) {
+            sourceTasks = sourceTasks.stream()
+                    .filter(t -> !Boolean.TRUE.equals(t.getIsCompleted()))
+                    .collect(Collectors.toList());
+            if (sourceTasks.isEmpty()) {
+                throw new BadRequestException("Tất cả công việc ngày " + sourceDate.format(VI_DATE_FORMAT) + " đều đã hoàn thành!");
+            }
+        }
+
+        // Avoid adding duplicate titles if already on targetDate
+        List<DailyTask> existingOnTarget = dailyTaskRepository.findByUserIdAndTaskDateOrderByDisplayOrderAscCreatedAtAsc(userId, targetDate);
+        Set<String> existingTitles = existingOnTarget.stream()
+                .map(t -> t.getTitle().trim().toLowerCase())
+                .collect(Collectors.toSet());
+
+        int currentMaxOrder = dailyTaskRepository.findMaxDisplayOrderByUserIdAndTaskDate(userId, targetDate);
+
+        List<DailyTask> toSave = new ArrayList<>();
+        for (DailyTask src : sourceTasks) {
+            String title = src.getTitle().trim();
+            if (existingTitles.contains(title.toLowerCase())) {
+                continue;
+            }
+
+            currentMaxOrder++;
+            DailyTask task = DailyTask.builder()
+                    .user(user)
+                    .taskDate(targetDate)
+                    .title(title)
+                    .description(src.getDescription())
+                    .category(src.getCategory())
+                    .priority(src.getPriority())
+                    .status("TODO")
+                    .isCompleted(false)
+                    .displayOrder(currentMaxOrder)
+                    .estimatedTime(src.getEstimatedTime())
+                    .completedAt(null)
+                    .build();
+            toSave.add(task);
+            existingTitles.add(title.toLowerCase());
+        }
+
+        if (toSave.isEmpty()) {
+            throw new BadRequestException("Tất cả công việc đã có sẵn trong ngày " + targetDate.format(VI_DATE_FORMAT));
+        }
+
+        List<DailyTask> saved = dailyTaskRepository.saveAll(toSave);
+        return saved.stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
     private DailyTaskResponse mapToResponse(DailyTask task) {
         return DailyTaskResponse.builder()
                 .id(task.getId())

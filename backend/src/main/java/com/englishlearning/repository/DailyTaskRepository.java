@@ -41,4 +41,10 @@ public interface DailyTaskRepository extends JpaRepository<DailyTask, Long>, Jpa
 
     @Query("SELECT COALESCE(MAX(d.displayOrder), 0) FROM DailyTask d WHERE d.user.id = :userId AND d.taskDate = :taskDate")
     Integer findMaxDisplayOrderByUserIdAndTaskDate(@Param("userId") Long userId, @Param("taskDate") LocalDate taskDate);
+
+    @Query("SELECT d.title, d.category, d.priority, d.estimatedTime, COUNT(d) " +
+           "FROM DailyTask d WHERE d.user.id = :userId " +
+           "GROUP BY d.title, d.category, d.priority, d.estimatedTime " +
+           "ORDER BY COUNT(d) DESC")
+    List<Object[]> findFrequentTasksByUserId(@Param("userId") Long userId, Pageable pageable);
 }

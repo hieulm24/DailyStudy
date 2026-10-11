@@ -573,6 +573,26 @@ export interface DailyTaskReorderItem {
   displayOrder: number;
 }
 
+export interface FrequentTask {
+  title: string;
+  category?: string;
+  priority?: TaskPriority;
+  estimatedTime?: string;
+  description?: string;
+  frequency?: number;
+}
+
+export interface BulkCreateTasksRequest {
+  taskDate: string;
+  tasks: DailyTaskRequest[];
+}
+
+export interface CopyTasksRequest {
+  sourceDate: string;
+  targetDate: string;
+  onlyIncomplete?: boolean;
+}
+
 // ==========================================
 // IT STUDIO & SYSTEM ARCHITECTURE TYPES
 // ==========================================

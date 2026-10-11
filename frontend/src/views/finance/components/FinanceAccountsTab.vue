@@ -226,26 +226,26 @@
     <AppModal
       v-model="isModalOpen"
       :title="isEditing ? 'Chỉnh sửa tài khoản & Điều chỉnh số dư' : 'Thêm tài khoản mới'"
-      size="md"
+      size="lg"
     >
-      <form @submit.prevent="saveAccount" class="space-y-4 text-xs">
+      <form @submit.prevent="saveAccount" class="space-y-4 sm:space-y-5 py-2">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Tên tài khoản / Ví *</label>
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Tên tài khoản / Ví <span class="text-rose-500">*</span></label>
           <input
             v-model="formData.name"
             type="text"
             required
             placeholder="Ví dụ: Techcombank, Tiền mặt, Ví Momo..."
-            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors shadow-2xs"
           />
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">Loại tài khoản *</label>
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Loại tài khoản <span class="text-rose-500">*</span></label>
           <select
             v-model="formData.accountType"
             required
-            class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors shadow-2xs"
           >
             <option value="CASH">Tiền mặt</option>
             <option value="BANK">Tài khoản Ngân hàng</option>
@@ -257,7 +257,7 @@
 
         <!-- WHEN CREATING NEW ACCOUNT -->
         <div v-if="!isEditing">
-          <label class="block font-bold text-slate-700 mb-1">Số dư ban đầu (VNĐ) *</label>
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">Số dư ban đầu (VNĐ) <span class="text-rose-500">*</span></label>
           <CurrencyInput
             v-model="formData.initialBalance"
             placeholder="Ví dụ: 2.000.000"
@@ -268,21 +268,21 @@
         </div>
 
         <!-- WHEN EDITING: INTERACTIVE BALANCE ADJUSTMENT & LIVE CALCULATION -->
-        <div v-else class="space-y-3.5 p-3.5 rounded-md border border-slate-200 bg-slate-50/70">
+        <div v-else class="space-y-4 p-4 rounded-md border border-slate-200 bg-slate-50/70">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-slate-800">Điều chỉnh số dư ví</span>
+            <span class="text-xs sm:text-sm font-bold text-slate-800">Điều chỉnh số dư ví</span>
             <div class="text-xs text-slate-500">
-              Số dư hiện có: <strong class="text-sm font-bold text-slate-900">{{ formatCurrency(selectedAccountForEdit?.currentBalance) }}</strong>
+              Số dư hiện có: <strong class="text-sm font-bold text-slate-900 ml-1">{{ formatCurrency(selectedAccountForEdit?.currentBalance) }}</strong>
             </div>
           </div>
 
           <!-- Mode Selector Tabs -->
-          <div class="grid grid-cols-3 gap-1.5 p-1 bg-white rounded-md border border-slate-200 text-xs font-bold">
+          <div class="grid grid-cols-3 gap-2 p-1 bg-white rounded-md border border-slate-200 text-xs sm:text-sm font-bold">
             <button
               type="button"
               @click="balanceAdjustMode = 'add'"
               :class="[
-                'py-1.5 px-2 rounded transition-all flex items-center justify-center gap-1 cursor-pointer',
+                'py-2 px-3 rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer',
                 balanceAdjustMode === 'add'
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
@@ -295,7 +295,7 @@
               type="button"
               @click="balanceAdjustMode = 'subtract'"
               :class="[
-                'py-1.5 px-2 rounded transition-all flex items-center justify-center gap-1 cursor-pointer',
+                'py-2 px-3 rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer',
                 balanceAdjustMode === 'subtract'
                   ? 'bg-rose-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
@@ -308,7 +308,7 @@
               type="button"
               @click="balanceAdjustMode = 'set'"
               :class="[
-                'py-1.5 px-2 rounded transition-all flex items-center justify-center gap-1 cursor-pointer',
+                'py-2 px-3 rounded transition-all flex items-center justify-center gap-1.5 cursor-pointer',
                 balanceAdjustMode === 'set'
                   ? 'bg-brand-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
@@ -353,7 +353,7 @@
           <!-- Live Calculation Preview Card -->
           <div
             :class="[
-              'p-3 rounded-md border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all',
+              'p-3.5 rounded-md border flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all',
               balanceAdjustMode === 'add'
                 ? 'bg-emerald-50/80 border-emerald-200'
                 : balanceAdjustMode === 'subtract'
@@ -362,15 +362,15 @@
             ]"
           >
             <!-- Calculation left side -->
-            <div class="flex items-center gap-2.5 flex-wrap text-xs">
+            <div class="flex items-center gap-3 flex-wrap text-xs sm:text-sm">
               <div>
-                <span class="block text-[10px] text-slate-400 font-semibold uppercase">Số tiền hiện có</span>
-                <span class="font-bold text-slate-800 text-sm">{{ formatCurrency(selectedAccountForEdit?.currentBalance) }}</span>
+                <span class="block text-[10px] sm:text-xs text-slate-500 font-semibold uppercase">Số tiền hiện có</span>
+                <span class="font-bold text-slate-800 text-sm sm:text-base">{{ formatCurrency(selectedAccountForEdit?.currentBalance) }}</span>
               </div>
 
               <span
                 :class="[
-                  'text-base font-extrabold px-1',
+                  'text-lg font-extrabold px-1',
                   balanceAdjustMode === 'add'
                     ? 'text-emerald-600'
                     : balanceAdjustMode === 'subtract'
@@ -390,29 +390,29 @@
                     : 'text-indigo-700',
                 ]"
               >
-                <span class="block text-[10px] opacity-75 font-semibold uppercase">
+                <span class="block text-[10px] sm:text-xs opacity-75 font-semibold uppercase">
                   {{ balanceAdjustMode === 'add' ? 'Thêm tiền' : balanceAdjustMode === 'subtract' ? 'Trừ đi' : 'Số mới' }}
                 </span>
-                <span class="font-bold text-sm">
+                <span class="font-bold text-sm sm:text-base">
                   {{ balanceAdjustMode === 'set' ? formatCurrency(directNewBalance) : formatCurrency(adjustAmount) }}
                 </span>
               </div>
 
-              <span class="text-base font-extrabold text-slate-400 px-1">=</span>
+              <span class="text-lg font-extrabold text-slate-400 px-1">=</span>
             </div>
 
             <!-- New Result right side -->
             <div class="text-left sm:text-right">
-              <span class="block text-[10px] text-slate-500 font-semibold uppercase">Số dư mới sau update</span>
+              <span class="block text-[10px] sm:text-xs text-slate-500 font-semibold uppercase">Số dư mới sau update</span>
               <span
                 :class="[
-                  'text-base font-extrabold tracking-tight',
+                  'text-base sm:text-lg font-extrabold tracking-tight',
                   finalProjectedBalance >= 0 ? 'text-emerald-700' : 'text-rose-600',
                 ]"
               >
                 {{ formatCurrency(finalProjectedBalance) }}
               </span>
-              <p v-if="finalProjectedBalance < 0" class="text-[10px] text-rose-600 font-bold mt-0.5">
+              <p v-if="finalProjectedBalance < 0" class="text-[10px] sm:text-xs text-rose-600 font-bold mt-0.5">
                 ⚠️ Cảnh báo: Số dư ví sẽ bị âm!
               </p>
             </div>
@@ -424,27 +424,27 @@
             id="accountActiveCheck"
             v-model="formData.isActive"
             type="checkbox"
-            class="w-4 h-4 rounded text-brand-600 focus:ring-brand-500"
+            class="w-4.5 h-4.5 rounded text-brand-600 focus:ring-brand-500 cursor-pointer"
           />
-          <label for="accountActiveCheck" class="font-medium text-slate-700 cursor-pointer">
+          <label for="accountActiveCheck" class="text-xs sm:text-sm font-medium text-slate-700 cursor-pointer select-none">
             Kích hoạt sử dụng tài khoản này
           </label>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
           <button
             type="button"
             @click="isModalOpen = false"
-            class="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-md"
+            class="px-4 py-2.5 text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
           >
             Hủy
           </button>
           <button
             type="submit"
             :disabled="submitting"
-            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 disabled:opacity-50 rounded-md shadow-xs"
+            class="inline-flex items-center gap-1.5 px-5 py-2.5 text-xs sm:text-sm font-bold text-white bg-brand-600 hover:bg-brand-700 disabled:opacity-50 rounded-md transition-colors shadow-xs cursor-pointer"
           >
-            <Save class="w-3.5 h-3.5" />
+            <Save class="w-4 h-4" />
             <span>{{ isEditing ? 'Lưu thay đổi' : 'Thêm tài khoản' }}</span>
           </button>
         </div>
@@ -457,7 +457,7 @@
     <AppModal
       v-model="isHistoryOpen"
       :title="`Lịch sử giao dịch: ${selectedAccountForHistory?.name || ''}`"
-      size="xl"
+      size="2xl"
     >
       <div class="space-y-4">
         <!-- Quick Stats of Account -->
