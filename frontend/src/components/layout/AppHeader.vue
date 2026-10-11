@@ -13,7 +13,7 @@
 
     <!-- Header Actions -->
     <div class="flex items-center gap-3 sm:gap-4">
-      <!-- Review Notification Alert Badge -->
+      <!-- Review Notification Alert Badge (chỉ hiện khi có mục cần ôn) -->
       <router-link
         to="/review"
         v-if="reviewStore.summary.totalDue > 0"
@@ -22,22 +22,6 @@
         <Bell class="w-4 h-4 text-amber-600 animate-bounce" />
         <span>Cần ôn <strong>{{ reviewStore.summary.totalDue }}</strong> mục</span>
       </router-link>
-
-      <router-link
-        to="/review"
-        v-else
-        class="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 text-sm font-medium rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200"
-      >
-        <CheckCircle class="w-4 h-4 text-emerald-600" />
-        <span>Đã hoàn thành ôn tập</span>
-      </router-link>
-
-      <!-- Quick Add Buttons -->
-      <div class="relative">
-        <AppButton variant="primary" size="md" :icon="Plus" @click="$emit('quick-add')">
-          <span class="hidden sm:inline">Thêm nhanh</span>
-        </AppButton>
-      </div>
 
       <!-- User Profile Header Button -->
       <router-link
@@ -73,12 +57,10 @@
 import { computed } from 'vue';
 import { useAuthStore } from '../../stores/auth.store';
 import { useReviewStore } from '../../stores/review.store';
-import { Menu, Bell, CheckCircle, Plus } from 'lucide-vue-next';
-import AppButton from '../common/AppButton.vue';
+import { Menu, Bell } from 'lucide-vue-next';
 
 defineEmits<{
   (e: 'toggle-sidebar'): void;
-  (e: 'quick-add'): void;
 }>();
 
 const authStore = useAuthStore();

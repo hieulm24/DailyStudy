@@ -136,6 +136,28 @@
         </div>
       </router-link>
 
+      <!-- Tài chính cá nhân -->
+      <router-link
+        to="/finance"
+        :class="[
+          'flex items-center justify-between px-3.5 py-2.5 text-[14.5px] font-medium rounded-lg transition-all duration-150 group',
+          $route.path.startsWith('/finance')
+            ? 'bg-brand-50 text-brand-700 font-semibold shadow-2xs'
+            : 'text-slate-700 hover:bg-slate-100/80 hover:text-slate-900',
+        ]"
+        @click="$emit('close')"
+      >
+        <div class="flex items-center gap-3">
+          <WalletCards
+            :class="[
+              'w-5 h-5 transition-colors',
+              $route.path.startsWith('/finance') ? 'text-brand-600' : 'text-slate-400 group-hover:text-slate-600',
+            ]"
+          />
+          <span>Tài chính cá nhân</span>
+        </div>
+      </router-link>
+
       <!-- Học IT & Kiến trúc (Dropdown Menu) -->
       <div>
         <button
@@ -157,17 +179,12 @@
             />
             <span>Học IT & Kiến trúc</span>
           </div>
-          <div class="flex items-center gap-1.5">
-            <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-indigo-100 text-indigo-700">
-              AI
-            </span>
-            <ChevronDown
-              :class="[
-                'w-4.5 h-4.5 text-slate-400 transition-transform duration-200',
-                isItOpen ? 'rotate-180 text-indigo-600' : '',
-              ]"
-            />
-          </div>
+          <ChevronDown
+            :class="[
+              'w-4.5 h-4.5 text-slate-400 transition-transform duration-200',
+              isItOpen ? 'rotate-180 text-indigo-600' : '',
+            ]"
+          />
         </button>
 
         <!-- Sub-menu items -->
@@ -362,6 +379,7 @@ import {
   BarChart3,
   HeartPulse,
   BookMarked,
+  WalletCards,
   Cpu,
   Bot,
   Code2,
@@ -403,7 +421,7 @@ const isItActive = computed(() => itRoutes.some(p => route.path.startsWith(p)) |
 const isItOpen = ref(isItActive.value);
 
 const itSubItems = [
-  { title: 'AI Chat & Kiến trúc', path: '/it/chat', icon: Bot },
+  { title: 'Chat & Kiến trúc', path: '/it/chat', icon: Bot },
   { title: 'Sổ tay Kiến thức', path: '/it/notes', icon: BookOpen },
   { title: 'Luyện Code & Sandbox', path: '/it/playground', icon: Code2 },
 ];

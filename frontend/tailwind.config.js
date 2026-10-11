@@ -15,6 +15,9 @@ export default {
         'lg': '7px',
         'full': '9999px',
       },
+      spacing: {
+        '4.5': '1.125rem',
+      },
       colors: {
         brand: {
           50: '#eff6ff',

@@ -22,6 +22,7 @@ import ItChatView from '../views/it/ItChatView.vue';
 import ItNotesListView from '../views/it/ItNotesListView.vue';
 import ItNoteDetailView from '../views/it/ItNoteDetailView.vue';
 import ItPlaygroundView from '../views/it/ItPlaygroundView.vue';
+import FinancialView from '../views/finance/FinancialView.vue';
 
 const routes = [
   {
@@ -109,6 +110,11 @@ const routes = [
         path: 'statistics',
         name: 'Statistics',
         component: StatisticsView,
+      },
+      {
+        path: 'finance',
+        name: 'Financial',
+        component: FinancialView,
       },
       {
         path: 'settings',

@@ -101,10 +101,11 @@
       </AppButton>
     </div>
 
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div
-        v-for="note in filteredNotes"
-        :key="note.id"
+    <div v-else class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          v-for="note in paginatedNotes"
+          :key="note.id"
         class="bg-white rounded-md border border-slate-200 p-4 shadow-xs hover:border-indigo-300 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer space-y-3 overflow-hidden"
         @click="goToNoteDetail(note.id)"
       >
@@ -224,6 +225,21 @@
         </div>
       </div>
     </div>
+
+    <!-- Pagination Footer -->
+    <div class="bg-white rounded-md border border-slate-200 overflow-hidden shadow-xs">
+      <AppPagination
+        v-if="filteredNotes.length > 0"
+        :current-page="currentPage"
+        :total-pages="totalPages"
+        :page-size="pageSize"
+        :total-elements="filteredNotes.length"
+        :show-page-size="true"
+        @update:page="handlePageChange"
+        @update:page-size="handlePageSizeChange"
+      />
+    </div>
+  </div>
 
     <!-- MODAL: TẠO / CHỈNH SỬA GHI CHÚ IT -->
     <AppModal
@@ -403,6 +419,7 @@ import type { ItNote } from '../../types';
 import AppButton from '../../components/common/AppButton.vue';
 import AppInput from '../../components/common/AppInput.vue';
 import AppModal from '../../components/common/AppModal.vue';
+import AppPagination from '../../components/common/AppPagination.vue';
 import {
   Plus,
   Search,
@@ -458,8 +475,31 @@ async function loadNotes() {
   }
 }
 
+const currentPage = ref(0);
+const pageSize = ref(9);
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredNotes.value.length / pageSize.value) || 1;
+});
+
+const paginatedNotes = computed(() => {
+  const start = currentPage.value * pageSize.value;
+  return filteredNotes.value.slice(start, start + pageSize.value);
+});
+
+function handlePageChange(page: number) {
+  currentPage.value = page;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function handlePageSizeChange(size: number) {
+  pageSize.value = size;
+  currentPage.value = 0;
+}
+
 function selectCategory(catId: string) {
   selectedCategory.value = catId;
+  currentPage.value = 0;
   loadNotes();
 }
 
@@ -467,12 +507,14 @@ let debounceTimer: any = null;
 function debounceSearch() {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
+    currentPage.value = 0;
     loadNotes();
   }, 350);
 }
 
 function toggleFavoriteFilter() {
   onlyFavorites.value = !onlyFavorites.value;
+  currentPage.value = 0;
 }
 
 const filteredNotes = computed(() => {

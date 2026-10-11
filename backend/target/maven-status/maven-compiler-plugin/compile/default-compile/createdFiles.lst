@@ -58,6 +58,7 @@ com\englishlearning\dto\nutrition\CalorieDeficitSummaryResponse$CalorieDeficitSu
 com\englishlearning\dto\review\TopicReviewSummaryDto$TopicReviewSummaryDtoBuilder.class
 com\englishlearning\dto\nutrition\NutritionUnitDto.class
 com\englishlearning\dto\nutrition\NutritionStatisticsResponse$CategorySummary.class
+com\englishlearning\entity\financial\FinancialCategory$FinancialCategoryBuilder.class
 com\englishlearning\entity\nutrition\NutritionFoodUnit$NutritionFoodUnitBuilder.class
 com\englishlearning\repository\nutrition\NutritionDailyLogRepository.class
 com\englishlearning\dto\book\ReadingStatsResponse.class
@@ -115,6 +116,7 @@ com\englishlearning\dto\statistics\ActivityDto$ActivityDtoBuilder.class
 com\englishlearning\entity\ReviewItem$ReviewItemBuilder.class
 com\englishlearning\dto\document\DocumentResponse$DocumentResponseBuilder.class
 com\englishlearning\dto\listening\ListeningResponse.class
+com\englishlearning\entity\financial\FinancialCategory.class
 com\englishlearning\dto\grammar\GrammarResponse.class
 com\englishlearning\entity\GameSession.class
 com\englishlearning\dto\nutrition\NutritionStatisticsResponse$CategorySummary$CategorySummaryBuilder.class
@@ -221,10 +223,12 @@ com\englishlearning\dto\review\ReviewItemDto$ReviewItemDtoBuilder.class
 com\englishlearning\service\CalorieCalculationService.class
 com\englishlearning\dto\book\ReadingLogResponse.class
 com\englishlearning\dto\nutrition\NutritionActivityDto$NutritionActivityDtoBuilder.class
+com\englishlearning\entity\financial\FinancialTransaction.class
 com\englishlearning\entity\nutrition\NutritionActivity.class
 com\englishlearning\repository\nutrition\NutritionFoodVariantRepository.class
 com\englishlearning\dto\nutrition\NutritionActivityLogRequest.class
 com\englishlearning\dto\game\GameDto$GameDtoBuilder.class
+com\englishlearning\entity\financial\FinancialTransaction$FinancialTransactionBuilder.class
 com\englishlearning\dto\task\DailyTaskStatsResponse$DailyTaskStatsResponseBuilder.class
 com\englishlearning\entity\EntityTag.class
 com\englishlearning\dto\book\BookQuoteResponse.class

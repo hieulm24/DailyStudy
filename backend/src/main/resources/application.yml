@@ -19,6 +19,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
+      naming:
+        physical-strategy: com.englishlearning.config.FinancialPhysicalNamingStrategy
     show-sql: false
     properties:
       hibernate:
