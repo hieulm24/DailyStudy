@@ -433,12 +433,23 @@
           type="button"
           title="Đăng xuất"
           class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors ml-1 shrink-0"
-          @click="authStore.logout()"
+          @click="showLogoutConfirm = true"
         >
           <LogOut class="w-4 h-4" />
         </button>
       </div>
     </div>
+
+    <!-- Confirm Logout Dialog -->
+    <AppConfirmDialog
+      v-model="showLogoutConfirm"
+      title="Xác nhận đăng xuất"
+      message="Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?"
+      confirm-text="Đăng xuất"
+      confirm-variant="danger"
+      type="warning"
+      @confirm="authStore.logout()"
+    />
   </aside>
 </template>
 
@@ -447,6 +458,7 @@ import { ref, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth.store';
 import { useReviewStore } from '../../stores/review.store';
+import AppConfirmDialog from '../common/AppConfirmDialog.vue';
 import {
   LayoutDashboard,
   BarChart3,
@@ -487,6 +499,8 @@ const userInitial = computed(() => {
   const name = authStore.user?.displayName || 'Hiếu';
   return name.charAt(0).toUpperCase();
 });
+
+const showLogoutConfirm = ref(false);
 
 const englishRoutes = ['/vocabulary', '/grammar', '/listening', '/speaking'];
 const isEnglishActive = computed(() => englishRoutes.some(p => route.path.startsWith(p)));

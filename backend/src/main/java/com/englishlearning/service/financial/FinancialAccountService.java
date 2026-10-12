@@ -23,8 +23,9 @@ public class FinancialAccountService {
     private final FinancialTransactionRepository transactionRepository;
     private final FinancialGoalContributionRepository goalContributionRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<AccountResponse> getAllAccounts(Boolean activeOnly) {
+        ensureDefaultCashAccount();
         List<FinancialAccount> accounts = Boolean.TRUE.equals(activeOnly)
                 ? accountRepository.findByIsActiveTrueOrderByNameAsc()
                 : accountRepository.findAllByOrderByCreatedAtDesc();
@@ -32,6 +33,18 @@ public class FinancialAccountService {
         return accounts.stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    private void ensureDefaultCashAccount() {
+        if (!accountRepository.existsByAccountType("CASH") && !accountRepository.existsByNameIgnoreCase("Tiền mặt")) {
+            FinancialAccount cash = FinancialAccount.builder()
+                    .name("Tiền mặt")
+                    .accountType("CASH")
+                    .initialBalance(BigDecimal.ZERO)
+                    .isActive(true)
+                    .build();
+            accountRepository.save(cash);
+        }
     }
 
     @Transactional(readOnly = true)

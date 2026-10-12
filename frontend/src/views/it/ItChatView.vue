@@ -79,7 +79,7 @@
               type="button"
               title="Xóa phiên"
               class="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 rounded-sm transition-opacity"
-              @click.stop="deleteSession(s.id)"
+              @click.stop="confirmDeleteSession(s.id)"
             >
               <Trash2 class="w-3.5 h-3.5" />
             </button>
@@ -438,7 +438,7 @@
             v-if="hasGeminiKey"
             type="button"
             class="text-xs text-rose-600 hover:text-rose-800 font-semibold underline"
-            @click="clearApiKey"
+            @click="showClearKeyConfirm = true"
           >
             Xóa API Key
           </button>
@@ -455,6 +455,29 @@
         </div>
       </div>
     </AppModal>
+
+    <!-- Confirm Delete Session Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteSessionConfirm"
+      title="Xóa phiên chat"
+      message="Bạn có chắc chắn muốn xóa phiên thảo luận này không? Toàn bộ tin nhắn trong phiên sẽ bị xóa."
+      confirm-text="Xóa phiên"
+      confirm-variant="danger"
+      type="error"
+      :loading="isDeletingSession"
+      @confirm="executeDeleteSession"
+    />
+
+    <!-- Confirm Clear API Key Dialog -->
+    <AppConfirmDialog
+      v-model="showClearKeyConfirm"
+      title="Xóa Gemini API Key"
+      message="Bạn có chắc chắn muốn gỡ API Key khỏi trình duyệt không? Hệ thống sẽ chuyển về chế độ Offline AI."
+      confirm-text="Xóa API Key"
+      confirm-variant="danger"
+      type="warning"
+      @confirm="executeClearApiKey"
+    />
   </div>
 </template>
 
@@ -467,6 +490,7 @@ import type { ItChatSession, ItChatMessage } from '../../types';
 import AppInput from '../../components/common/AppInput.vue';
 import AppButton from '../../components/common/AppButton.vue';
 import AppModal from '../../components/common/AppModal.vue';
+import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import {
   Bot,
   Plus,
@@ -567,11 +591,23 @@ function createNewSession() {
   showMobileSessions.value = false;
 }
 
-async function deleteSession(id: number) {
+const showDeleteSessionConfirm = ref(false);
+const sessionToDeleteId = ref<number | null>(null);
+const isDeletingSession = ref(false);
+
+function confirmDeleteSession(id: number) {
   if (id === 0) {
     createNewSession();
     return;
   }
+  sessionToDeleteId.value = id;
+  showDeleteSessionConfirm.value = true;
+}
+
+async function executeDeleteSession() {
+  if (!sessionToDeleteId.value) return;
+  isDeletingSession.value = true;
+  const id = sessionToDeleteId.value;
   try {
     await itStudioService.deleteSession(id);
     sessions.value = sessions.value.filter((s) => s.id !== id);
@@ -584,8 +620,12 @@ async function deleteSession(id: number) {
       }
     }
     toastStore.success('Đã xóa phiên chat');
+    showDeleteSessionConfirm.value = false;
+    sessionToDeleteId.value = null;
   } catch (err) {
     toastStore.error('Không thể xóa phiên chat');
+  } finally {
+    isDeletingSession.value = false;
   }
 }
 
@@ -740,10 +780,13 @@ function saveApiKey() {
   showApiKeyModal.value = false;
 }
 
-function clearApiKey() {
+const showClearKeyConfirm = ref(false);
+
+function executeClearApiKey() {
   localStorage.removeItem('gemini_api_key');
   geminiKeyInput.value = '';
   toastStore.info('Đã xóa API Key. Hệ thống chuyển về chế độ Offline.');
+  showClearKeyConfirm.value = false;
   showApiKeyModal.value = false;
 }
 </script>

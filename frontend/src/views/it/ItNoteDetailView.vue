@@ -39,7 +39,7 @@
           type="button"
           title="Xóa bài"
           class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-md transition-colors"
-          @click="deleteNote"
+          @click="showDeleteConfirm = true"
         >
           <Trash2 class="w-4 h-4" />
         </button>
@@ -348,6 +348,18 @@
         />
       </div>
     </div>
+
+    <!-- Confirm Delete Note Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteConfirm"
+      title="Xóa bài ghi chú"
+      message="Bạn có chắc chắn muốn xóa bài ghi chú này không? Thao tác này không thể hoàn tác."
+      confirm-text="Xóa ghi chú"
+      confirm-variant="danger"
+      type="error"
+      :loading="isDeleting"
+      @confirm="executeDeleteNote"
+    />
   </div>
 </template>
 
@@ -358,6 +370,7 @@ import { itStudioService } from '../../services/it-studio.service';
 import { useToastStore } from '../../stores/toast.store';
 import type { ItNote } from '../../types';
 import AppButton from '../../components/common/AppButton.vue';
+import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import AppInput from '../../components/common/AppInput.vue';
 import AppModal from '../../components/common/AppModal.vue';
 import {
@@ -423,15 +436,21 @@ async function toggleFavorite() {
   }
 }
 
-async function deleteNote() {
+const showDeleteConfirm = ref(false);
+const isDeleting = ref(false);
+
+async function executeDeleteNote() {
   if (!note.value) return;
-  if (!confirm('Bạn có chắc chắn muốn xóa bài ghi chú này?')) return;
+  isDeleting.value = true;
   try {
     await itStudioService.deleteNote(note.value.id);
     toastStore.success('Đã xóa bài ghi chú');
+    showDeleteConfirm.value = false;
     router.push('/it/notes');
   } catch (err) {
     toastStore.error('Không thể xóa bài ghi chú');
+  } finally {
+    isDeleting.value = false;
   }
 }
 

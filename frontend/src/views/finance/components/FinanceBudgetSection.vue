@@ -179,7 +179,7 @@
           <div class="flex items-center gap-2">
             <Wallet class="w-4 h-4 text-brand-600" />
             <h4 class="text-xs sm:text-sm font-bold text-slate-800">
-              Dự báo biến động số dư từng ví sau chi tiêu ({{ budgetPlan.accountForecasts.length }} ví)
+              Dự báo biến động số dư từng ví & tiền mặt ({{ budgetPlan.accountForecasts.length }} nguồn tiền)
             </h4>
           </div>
           <span class="text-xs text-slate-500 hidden sm:inline">
@@ -187,7 +187,7 @@
           </span>
         </div>
 
-        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           <div
             v-for="acc in budgetPlan.accountForecasts"
             :key="acc.accountId"
@@ -200,7 +200,13 @@
           >
             <div>
               <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-800 truncate">{{ acc.accountName }}</span>
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <Banknote v-if="acc.accountType === 'CASH'" class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <Landmark v-else-if="acc.accountType === 'BANK'" class="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <Smartphone v-else-if="acc.accountType === 'EWALLET'" class="w-3.5 h-3.5 text-pink-600 shrink-0" />
+                  <CreditCard v-else class="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                  <span class="text-xs font-bold text-slate-800 truncate">{{ acc.accountName }}</span>
+                </div>
                 <span
                   v-if="acc.isDeficit"
                   class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-rose-100 text-rose-700"
@@ -333,12 +339,16 @@
                 <td class="py-3 px-4">
                   <span
                     :class="[
-                      'inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold',
+                      'inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold',
                       item.accountId ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-600',
                     ]"
                   >
-                    <Wallet class="w-3 h-3" />
-                    {{ item.accountName || 'Tất cả ví' }}
+                    <Banknote v-if="item.accountType === 'CASH'" class="w-3 h-3 text-emerald-600 shrink-0" />
+                    <Landmark v-else-if="item.accountType === 'BANK'" class="w-3 h-3 text-blue-600 shrink-0" />
+                    <Smartphone v-else-if="item.accountType === 'EWALLET'" class="w-3 h-3 text-pink-600 shrink-0" />
+                    <CreditCard v-else-if="item.accountType === 'CREDIT'" class="w-3 h-3 text-purple-600 shrink-0" />
+                    <Wallet v-else class="w-3 h-3 text-slate-500 shrink-0" />
+                    <span>{{ item.accountName || 'Tất cả ví' }}</span>
                   </span>
                 </td>
 
@@ -457,24 +467,12 @@
         />
 
         <!-- Chọn ví nhận tiền -->
-        <div>
-          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
-            Ví / Tài khoản nhận tiền (tùy chọn)
-          </label>
-          <select
-            v-model="planIncomeForm.accountId"
-            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800"
-          >
-            <option :value="null">-- Không chỉ định ví (Tính tổng chung) --</option>
-            <option
-              v-for="acc in allAccounts"
-              :key="acc.id"
-              :value="acc.id"
-            >
-              {{ acc.name }} (Số dư hiện tại: {{ formatCurrency(acc.currentBalance) }})
-            </option>
-          </select>
-        </div>
+        <AccountSelect
+          v-model="planIncomeForm.accountId"
+          :accounts="allAccounts"
+          label="Ví / Tài khoản nhận tiền (tùy chọn)"
+          placeholder="-- Không chỉ định ví (Tính tổng chung) --"
+        />
 
         <div>
           <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
@@ -552,45 +550,13 @@
         </div>
 
         <!-- Chọn ví chi tiền -->
-        <div>
-          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
-            Dự kiến chi từ ví nào? <span class="text-rose-500">*</span>
-          </label>
-          <select
-            v-model="budgetItemForm.accountId"
-            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800"
-            required
-          >
-            <option :value="null" disabled>-- Chọn ví thanh toán --</option>
-            <option
-              v-for="acc in allAccounts"
-              :key="acc.id"
-              :value="acc.id"
-            >
-              {{ acc.name }} (Hiện có: {{ formatCurrency(acc.currentBalance) }})
-            </option>
-          </select>
-          <div
-            v-if="selectedWalletInBudgetForm"
-            :class="[
-              'mt-1.5 p-2 rounded-md border text-xs flex items-center justify-between transition-colors',
-              (selectedWalletInBudgetForm.currentBalance || 0) <= 0
-                ? 'bg-rose-50 border-rose-200 text-rose-700'
-                : 'bg-slate-50 border-slate-200/80 text-slate-700'
-            ]"
-          >
-            <div class="flex items-center gap-1.5">
-              <Wallet class="w-3.5 h-3.5" :class="(selectedWalletInBudgetForm.currentBalance || 0) <= 0 ? 'text-rose-500' : 'text-slate-500'" />
-              <span>Số dư hiện tại của ví:</span>
-            </div>
-            <span class="font-bold">
-              {{ formatCurrency(selectedWalletInBudgetForm.currentBalance) }}
-            </span>
-          </div>
-          <p class="text-[11px] text-slate-400 mt-1">
-            Bắt buộc chọn ví cụ thể để hệ thống tính chính xác số dư dự kiến còn lại của ví sau chi tiêu.
-          </p>
-        </div>
+        <AccountSelect
+          v-model="budgetItemForm.accountId"
+          :accounts="allAccounts"
+          label="Dự kiến chi từ ví / nguồn tiền nào? (Tiền mặt, Ngân hàng...)"
+          placeholder="-- Chọn nguồn tiền (Tiền mặt hoặc Ngân hàng) --"
+          :required="true"
+        />
 
         <!-- Số tiền dự kiến -->
         <CurrencyInput
@@ -683,11 +649,16 @@ import {
   AlertTriangle,
   Coins,
   Wallet,
+  Banknote,
+  Landmark,
+  Smartphone,
+  CreditCard,
 } from 'lucide-vue-next';
 import AppModal from '../../../components/common/AppModal.vue';
 import AppButton from '../../../components/common/AppButton.vue';
 import AppConfirmDialog from '../../../components/common/AppConfirmDialog.vue';
 import CurrencyInput from '../../../components/common/CurrencyInput.vue';
+import AccountSelect from './AccountSelect.vue';
 import { financialService } from '../../../services/financial.service';
 import type {
   MonthlyBudgetPlan,
@@ -744,11 +715,6 @@ const budgetItemForm = ref<{
   accountId: null,
   plannedAmount: 0,
   note: '',
-});
-
-const selectedWalletInBudgetForm = computed(() => {
-  if (!budgetItemForm.value.accountId) return null;
-  return allAccounts.value.find((a) => a.id === budgetItemForm.value.accountId) || null;
 });
 
 // Delete Confirmation State

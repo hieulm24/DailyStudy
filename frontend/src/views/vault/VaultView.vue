@@ -667,12 +667,24 @@
       @changed="onDetailChanged"
     />
 
+    <!-- Confirm Move to Trash Dialog -->
+    <AppConfirmDialog
+      v-model="showTrashConfirm"
+      title="Chuyển vào thùng rác"
+      message="Bạn có chắc chắn muốn chuyển tài khoản này vào thùng rác không? Bạn có thể khôi phục lại bất kỳ lúc nào."
+      confirm-text="Chuyển vào thùng rác"
+      confirm-variant="danger"
+      type="warning"
+      :loading="isTrashing"
+      @confirm="executeMoveToTrash"
+    />
 
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
+import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import {
   KeyRound,
   ShieldCheck,
@@ -853,15 +865,29 @@ async function toggleFavorite(item: AccountCredential) {
 }
 
 // Trash / Restore
-async function moveToTrash(id: number) {
-  if (!confirm('Chuyển tài khoản vào thùng rác? Bạn có thể khôi phục lại bất kỳ lúc nào.')) return;
+const showTrashConfirm = ref(false);
+const itemToTrashId = ref<number | null>(null);
+const isTrashing = ref(false);
+
+function moveToTrash(id: number) {
+  itemToTrashId.value = id;
+  showTrashConfirm.value = true;
+}
+
+async function executeMoveToTrash() {
+  if (!itemToTrashId.value) return;
+  isTrashing.value = true;
   try {
-    await vaultService.moveToTrash(id);
+    await vaultService.moveToTrash(itemToTrashId.value);
     toast.success('Đã chuyển tài khoản vào thùng rác');
+    showTrashConfirm.value = false;
+    itemToTrashId.value = null;
     loadCredentials();
     loadSummary();
   } catch (err) {
     toast.error('Không thể chuyển vào thùng rác');
+  } finally {
+    isTrashing.value = false;
   }
 }
 

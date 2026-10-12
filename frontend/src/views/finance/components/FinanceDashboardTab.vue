@@ -208,7 +208,7 @@
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-base font-bold text-slate-900">Lịch sử biến động & Tích lũy số dư</h3>
-              <p class="text-xs text-slate-500">Xu hướng dòng tiền thuần (Thu - Chi) theo từng tháng</p>
+              <p class="text-xs text-slate-500">Đường tăng trưởng tổng tài sản tích lũy qua từng tháng</p>
             </div>
           </div>
 
@@ -665,21 +665,30 @@ const trendChartOptions = {
 
 const balanceTrendConfig = computed(() => {
   if (!reportData.value?.balanceTrend || reportData.value.balanceTrend.length === 0) return null;
-  const labels = reportData.value.balanceTrend.map((b) => b.date);
+  const labels = reportData.value.balanceTrend.map((b) => {
+    if (b.date && b.date.includes('-')) {
+      const parts = b.date.split('-');
+      return `Tháng ${parseInt(parts[1], 10)}/${parts[0]}`;
+    }
+    return b.date;
+  });
   const balanceData = reportData.value.balanceTrend.map((b) => b.balance);
 
   return {
     labels,
     datasets: [
       {
-        label: 'Số dư thuần (Thu - Chi)',
+        label: 'Tổng tài sản tích lũy',
         data: balanceData,
-        borderColor: '#3b82f6',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37, 99, 235, 0.12)',
         fill: true,
         tension: 0.35,
         pointBackgroundColor: '#2563eb',
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
         pointRadius: 4,
+        pointHoverRadius: 6,
       },
     ],
   };
@@ -692,7 +701,7 @@ const balanceTrendOptions = {
     legend: { display: false },
     tooltip: {
       callbacks: {
-        label: (context: any) => `Biến động: ${formatCurrency(context.raw)}`,
+        label: (context: any) => `Tổng tài sản: ${formatCurrency(context.raw)}`,
       },
     },
   },

@@ -217,7 +217,7 @@
               type="button"
               title="Xóa bài"
               class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-sm transition-colors"
-              @click="deleteNote(note.id)"
+              @click="confirmDeleteNote(note.id)"
             >
               <Trash2 class="w-3.5 h-3.5" />
             </button>
@@ -407,6 +407,18 @@
         </div>
       </form>
     </AppModal>
+
+    <!-- Confirm Delete Note Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteNoteConfirm"
+      title="Xóa bài ghi chú"
+      message="Bạn có chắc chắn muốn xóa bài ghi chú này không? Thao tác này không thể hoàn tác."
+      confirm-text="Xóa ghi chú"
+      confirm-variant="danger"
+      type="error"
+      :loading="isDeletingNote"
+      @confirm="executeDeleteNote"
+    />
   </div>
 </template>
 
@@ -420,6 +432,7 @@ import AppButton from '../../components/common/AppButton.vue';
 import AppInput from '../../components/common/AppInput.vue';
 import AppModal from '../../components/common/AppModal.vue';
 import AppPagination from '../../components/common/AppPagination.vue';
+import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import {
   Plus,
   Search,
@@ -538,14 +551,28 @@ async function toggleFavorite(note: ItNote) {
   }
 }
 
-async function deleteNote(id: number) {
-  if (!confirm('Bạn có chắc chắn muốn xóa bài ghi chú này?')) return;
+const showDeleteNoteConfirm = ref(false);
+const noteToDeleteId = ref<number | null>(null);
+const isDeletingNote = ref(false);
+
+function confirmDeleteNote(id: number) {
+  noteToDeleteId.value = id;
+  showDeleteNoteConfirm.value = true;
+}
+
+async function executeDeleteNote() {
+  if (!noteToDeleteId.value) return;
+  isDeletingNote.value = true;
   try {
-    await itStudioService.deleteNote(id);
+    await itStudioService.deleteNote(noteToDeleteId.value);
     toastStore.success('Đã xóa bài ghi chú');
-    notes.value = notes.value.filter((n) => n.id !== id);
+    notes.value = notes.value.filter((n) => n.id !== noteToDeleteId.value);
+    showDeleteNoteConfirm.value = false;
+    noteToDeleteId.value = null;
   } catch (err) {
     toastStore.error('Không thể xóa bài ghi chú');
+  } finally {
+    isDeletingNote.value = false;
   }
 }
 

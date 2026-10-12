@@ -31,7 +31,7 @@
           type="button"
           title="Xóa cuốn sách này"
           class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 bg-white transition-colors"
-          @click="confirmDeleteBook"
+          @click="showDeleteBookConfirm = true"
         >
           <Trash2 class="w-4 h-4" />
         </button>
@@ -148,150 +148,151 @@
       <!-- 2-COLUMN LAYOUT -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- LEFT 2 COLS: QUOTES & PHILOSOPHY SECTION (TÂM ĐIỂM) -->
-        <div class="lg:col-span-2 space-y-6">
-          <!-- QUOTES HEADER & TOOLBAR -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-4">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-              <div class="flex items-center gap-2.5">
-                <div class="p-2 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-100">
-                  <Quote class="w-5 h-5" />
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
+            <!-- Compact Header Bar -->
+            <div class="px-4 py-3 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2.5">
+              <div class="flex items-center gap-2">
+                <div class="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100">
+                  <Quote class="w-4 h-4" />
                 </div>
-                <div>
-                  <h2 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                    <span>Kho Triết Lý & Trích Dẫn Của Sách</span>
-                    <span class="px-2 py-0.5 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-800">
-                      {{ filteredQuotes.length }}
-                    </span>
-                  </h2>
-                  <p class="text-xs text-slate-500">
-                    Lưu lại các câu nói hay, tư tưởng sâu sắc và bài học ứng dụng vào cuộc sống
-                  </p>
-                </div>
+                <h2 class="text-sm sm:text-base font-extrabold text-slate-900 flex items-center gap-2">
+                  <span>Kho Triết Lý & Trích Dẫn</span>
+                  <span class="px-2 py-0.5 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-800">
+                    {{ filteredQuotes.length }}
+                  </span>
+                </h2>
               </div>
 
+              <!-- Controls -->
+              <div class="flex items-center gap-2">
+                <!-- Search Input (Only when quotes exist or searching) -->
+                <div v-if="(book?.quotes?.length || 0) > 0 || quoteSearchKeyword" class="relative">
+                  <Search class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    v-model="quoteSearchKeyword"
+                    type="text"
+                    placeholder="Tìm trích dẫn..."
+                    class="w-32 sm:w-44 pl-8 pr-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:ring-1 focus:ring-brand-500"
+                  />
+                </div>
+
+                <!-- Favorite Filter Toggle -->
+                <button
+                  v-if="(book?.quotes?.length || 0) > 0"
+                  type="button"
+                  :class="[
+                    'flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all cursor-pointer',
+                    filterFavoriteOnly
+                      ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-2xs'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50',
+                  ]"
+                  @click="filterFavoriteOnly = !filterFavoriteOnly"
+                >
+                  <Star :class="['w-3.5 h-3.5', filterFavoriteOnly ? 'fill-amber-500 text-amber-500' : 'text-slate-400']" />
+                  <span class="hidden sm:inline">Tâm đắc</span>
+                </button>
+
+                <AppButton variant="primary" size="sm" :icon="Plus" @click="openAddQuoteModal">
+                  Thêm triết lý
+                </AppButton>
+              </div>
+            </div>
+
+            <!-- Empty State -->
+            <div v-if="filteredQuotes.length === 0" class="p-8 text-center space-y-3">
+              <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto">
+                <Sparkles class="w-5 h-5" />
+              </div>
+              <div class="space-y-1">
+                <p class="text-sm font-bold text-slate-800">
+                  {{ quoteSearchKeyword ? 'Không tìm thấy câu trích dẫn nào phù hợp' : 'Chưa có câu triết lý nào được ghi lại' }}
+                </p>
+                <p class="text-xs text-slate-500 max-w-md mx-auto">
+                  Trong quá trình đọc cuốn sách này, hãy ghi lại những câu nói chạm tới cảm xúc hoặc bài học sâu sắc để xem lại sau này!
+                </p>
+              </div>
               <AppButton variant="primary" size="sm" :icon="Plus" @click="openAddQuoteModal">
-                Thêm câu nói / Triết lý
+                Ghi lại câu triết lý đầu tiên
               </AppButton>
             </div>
 
-            <!-- Search & Favorite Filter -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-              <div class="relative flex-1">
-                <Search class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  v-model="quoteSearchKeyword"
-                  type="text"
-                  placeholder="Tìm theo nội dung câu trích dẫn, bài học..."
-                  class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
-                />
-              </div>
-
-              <button
-                type="button"
-                :class="[
-                  'flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg border transition-all shrink-0 cursor-pointer',
-                  filterFavoriteOnly
-                    ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-2xs'
-                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50',
-                ]"
-                @click="filterFavoriteOnly = !filterFavoriteOnly"
+            <!-- QUOTES LIST -->
+            <div v-else class="divide-y divide-slate-100">
+              <div
+                v-for="quote in filteredQuotes"
+                :key="quote.id"
+                class="p-3 sm:p-3.5 hover:bg-slate-50/50 transition-colors space-y-1.5 relative group"
               >
-                <Star :class="['w-3.5 h-3.5', filterFavoriteOnly ? 'fill-amber-500 text-amber-500' : 'text-slate-400']" />
-                <span>Chỉ xem câu tâm đắc</span>
-              </button>
-            </div>
-          </div>
+                <!-- Top bar of quote: Badges + Date + Actions -->
+                <div class="flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 flex-wrap text-[11px]">
+                    <span
+                      v-if="quote.chapter"
+                      class="inline-flex items-center gap-1 px-1.5 py-0.5 font-medium rounded bg-indigo-50 text-indigo-700 border border-indigo-100"
+                    >
+                      <Bookmark class="w-3 h-3 text-indigo-600" />
+                      <span>{{ quote.chapter }}</span>
+                    </span>
+                    <span
+                      v-if="quote.pageNumber"
+                      class="inline-flex items-center gap-1 px-1.5 py-0.5 font-medium rounded bg-slate-100 text-slate-700"
+                    >
+                      <BookOpen class="w-3 h-3 text-slate-500" />
+                      <span>Trang {{ quote.pageNumber }}</span>
+                    </span>
+                    <span class="text-[11px] text-slate-400">
+                      {{ formatDate(quote.createdAt) }}
+                    </span>
+                  </div>
 
-          <!-- QUOTES LIST -->
-          <div v-if="filteredQuotes.length === 0" class="bg-white rounded-2xl border border-slate-200/80 p-8 text-center space-y-3">
-            <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-500 flex items-center justify-center mx-auto">
-              <Sparkles class="w-6 h-6" />
-            </div>
-            <div class="space-y-1">
-              <p class="text-sm font-bold text-slate-800">
-                {{ quoteSearchKeyword ? 'Không tìm thấy câu trích dẫn nào phù hợp' : 'Chưa có câu triết lý nào được ghi lại' }}
-              </p>
-              <p class="text-xs text-slate-500 max-w-md mx-auto">
-                Trong quá trình đọc cuốn sách này, hãy ghi lại những câu nói chạm tới cảm xúc hoặc những bài học sâu sắc để xem lại sau này!
-              </p>
-            </div>
-            <AppButton variant="primary" size="sm" :icon="Plus" @click="openAddQuoteModal">
-              Ghi lại câu triết lý đầu tiên
-            </AppButton>
-          </div>
-
-          <div v-else class="space-y-4">
-            <div
-              v-for="quote in filteredQuotes"
-              :key="quote.id"
-              class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs space-y-3.5 hover:shadow-md transition-all relative group"
-            >
-              <!-- Top bar of quote card -->
-              <div class="flex items-start justify-between gap-3">
-                <div class="flex items-center gap-2">
-                  <span v-if="quote.chapter" class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100">
-                    <Bookmark class="w-3 h-3 text-indigo-600" />
-                    <span>{{ quote.chapter }}</span>
-                  </span>
-                  <span v-if="quote.pageNumber" class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-bold rounded-md bg-slate-100 text-slate-700">
-                    <BookOpen class="w-3 h-3 text-slate-500" />
-                    <span>Trang {{ quote.pageNumber }}</span>
-                  </span>
+                  <!-- Action buttons -->
+                  <div class="flex items-center gap-0.5">
+                    <button
+                      type="button"
+                      :title="quote.isFavorite ? 'Bỏ yêu thích' : 'Đánh dấu tâm đắc'"
+                      class="p-1 rounded-md hover:bg-slate-100 transition-colors cursor-pointer"
+                      @click="toggleFavorite(quote)"
+                    >
+                      <Star :class="['w-3.5 h-3.5', quote.isFavorite ? 'fill-amber-400 text-amber-400' : 'text-slate-300 hover:text-slate-500']" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Chỉnh sửa câu này"
+                      class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
+                      @click="openEditQuoteModal(quote)"
+                    >
+                      <Edit2 class="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      title="Xóa câu này"
+                      class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                      @click="confirmDeleteQuote(quote.id)"
+                    >
+                      <Trash2 class="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
-                <div class="flex items-center gap-1">
-                  <button
-                    type="button"
-                    :title="quote.isFavorite ? 'Bỏ yêu thích' : 'Đánh dấu tâm đắc'"
-                    class="p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                    @click="toggleFavorite(quote)"
-                  >
-                    <Star :class="['w-4 h-4', quote.isFavorite ? 'fill-amber-400 text-amber-400' : 'text-slate-300 hover:text-slate-500']" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Chỉnh sửa câu này"
-                    class="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
-                    @click="openEditQuoteModal(quote)"
-                  >
-                    <Edit2 class="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    title="Xóa câu này"
-                    class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
-                    @click="confirmDeleteQuote(quote.id)"
-                  >
-                    <Trash2 class="w-3.5 h-3.5" />
-                  </button>
+                <!-- Main Quote Text -->
+                <div class="pl-3 border-l-2 border-indigo-500 py-0.5">
+                  <p class="text-sm font-medium italic text-slate-800 leading-relaxed">
+                    “{{ quote.quoteText?.normalize('NFC') || quote.quoteText }}”
+                  </p>
                 </div>
-              </div>
 
-              <!-- Main Quote Text -->
-              <div class="relative pl-5 border-l-3 border-brand-500 py-1">
-                <p class="text-sm sm:text-base font-serif italic text-slate-900 leading-relaxed font-semibold">
-                  “{{ quote.quoteText }}”
-                </p>
-              </div>
-
-              <!-- Personal Lesson / Practical Application -->
-              <div v-if="quote.note" class="bg-gradient-to-r from-amber-50/80 to-amber-50/30 p-3.5 rounded-xl border border-amber-200/80 space-y-1">
-                <div class="flex items-center gap-1.5 text-amber-900 font-bold text-xs">
-                  <Lightbulb class="w-3.5 h-3.5 text-amber-600" />
-                  <span>Bài học đúc kết & Áp dụng thực tế:</span>
+                <!-- Personal Lesson / Practical Application (Compact inline pill) -->
+                <div
+                  v-if="quote.note"
+                  class="flex items-start gap-1.5 bg-amber-50/70 border border-amber-200/50 px-2.5 py-1 rounded-md text-xs leading-relaxed text-amber-950"
+                >
+                  <Lightbulb class="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                  <p class="min-w-0">
+                    <span class="font-bold text-amber-900">Bài học: </span>
+                    <span>{{ quote.note?.normalize('NFC') || quote.note }}</span>
+                  </p>
                 </div>
-                <p class="text-xs text-amber-950/90 leading-relaxed whitespace-pre-line pl-5 font-medium">
-                  {{ quote.note }}
-                </p>
-              </div>
-
-              <!-- Quote Footer -->
-              <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
-                <span>Ghi chú lúc: {{ formatDate(quote.createdAt) }}</span>
-                <span v-if="quote.isFavorite" class="inline-flex items-center gap-1 text-amber-600 font-bold">
-                  <Star class="w-3 h-3 fill-amber-500 text-amber-500" />
-                  <span>Câu tâm đắc</span>
-                </span>
               </div>
             </div>
           </div>
@@ -605,6 +606,30 @@
         </div>
       </form>
     </AppModal>
+
+    <!-- Confirm Delete Book Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteBookConfirm"
+      title="Xóa cuốn sách"
+      :message="`Bạn có chắc chắn muốn xóa cuốn sách '${book?.title}' và toàn bộ triết lý của nó không?`"
+      confirm-text="Xóa sách"
+      confirm-variant="danger"
+      type="error"
+      :loading="isDeletingBook"
+      @confirm="executeDeleteBook"
+    />
+
+    <!-- Confirm Delete Quote Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteQuoteConfirm"
+      title="Xóa câu triết lý"
+      message="Bạn có chắc chắn muốn xóa câu triết lý này không?"
+      confirm-text="Xóa triết lý"
+      confirm-variant="danger"
+      type="warning"
+      :loading="isDeletingQuote"
+      @confirm="executeDeleteQuote"
+    />
   </div>
 </template>
 
@@ -617,6 +642,7 @@ import AppButton from '../../components/common/AppButton.vue';
 import AppInput from '../../components/common/AppInput.vue';
 import AppTextarea from '../../components/common/AppTextarea.vue';
 import AppModal from '../../components/common/AppModal.vue';
+import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import {
   ArrowLeft,
   BookOpen,
@@ -755,21 +781,23 @@ function openEditQuoteModal(quote: BookQuote) {
 async function saveQuote() {
   if (!quoteForm.quoteText.trim() || !book.value) return;
   savingQuote.value = true;
+  const normalizedText = quoteForm.quoteText.trim().normalize('NFC');
+  const normalizedNote = quoteForm.note?.trim() ? quoteForm.note.trim().normalize('NFC') : undefined;
   try {
     if (isEditingQuote.value && editingQuoteId.value) {
       await bookService.updateQuote(editingQuoteId.value, {
-        quoteText: quoteForm.quoteText,
+        quoteText: normalizedText,
         pageNumber: quoteForm.pageNumber || undefined,
         chapter: quoteForm.chapter || undefined,
-        note: quoteForm.note || undefined,
+        note: normalizedNote,
         isFavorite: quoteForm.isFavorite,
       });
     } else {
       await bookService.addQuote(book.value.id, {
-        quoteText: quoteForm.quoteText,
+        quoteText: normalizedText,
         pageNumber: quoteForm.pageNumber || undefined,
         chapter: quoteForm.chapter || undefined,
-        note: quoteForm.note || undefined,
+        note: normalizedNote,
         isFavorite: quoteForm.isFavorite,
       });
     }
@@ -791,13 +819,27 @@ async function toggleFavorite(quote: BookQuote) {
   }
 }
 
-async function confirmDeleteQuote(id: number) {
-  if (!confirm('Bạn có chắc chắn muốn xóa câu triết lý này?')) return;
+const showDeleteQuoteConfirm = ref(false);
+const quoteToDeleteId = ref<number | null>(null);
+const isDeletingQuote = ref(false);
+
+function confirmDeleteQuote(id: number) {
+  quoteToDeleteId.value = id;
+  showDeleteQuoteConfirm.value = true;
+}
+
+async function executeDeleteQuote() {
+  if (!quoteToDeleteId.value) return;
+  isDeletingQuote.value = true;
   try {
-    await bookService.deleteQuote(id);
+    await bookService.deleteQuote(quoteToDeleteId.value);
+    showDeleteQuoteConfirm.value = false;
+    quoteToDeleteId.value = null;
     await loadBookDetail();
   } catch (err) {
     console.error('Failed to delete quote', err);
+  } finally {
+    isDeletingQuote.value = false;
   }
 }
 
@@ -888,14 +930,20 @@ async function saveBook() {
   }
 }
 
-async function confirmDeleteBook() {
+const showDeleteBookConfirm = ref(false);
+const isDeletingBook = ref(false);
+
+async function executeDeleteBook() {
   if (!book.value) return;
-  if (!confirm(`Bạn có chắc chắn muốn xóa cuốn sách "${book.value.title}" và toàn bộ triết lý của nó?`)) return;
+  isDeletingBook.value = true;
   try {
     await bookService.deleteBook(book.value.id);
+    showDeleteBookConfirm.value = false;
     router.push('/reading');
   } catch (err) {
     console.error('Failed to delete book', err);
+  } finally {
+    isDeletingBook.value = false;
   }
 }
 

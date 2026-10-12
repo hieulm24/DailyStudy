@@ -460,11 +460,23 @@
       </div>
     </div>
 
+    <!-- Confirm Delete Attachment Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteAttachmentConfirm"
+      title="Xóa tệp đính kèm"
+      message="Bạn có chắc chắn muốn xóa tệp đính kèm này không? Thao tác này sẽ gỡ tệp khỏi tài khoản ngay lập tức."
+      confirm-text="Xóa tệp"
+      confirm-variant="danger"
+      type="warning"
+      :loading="isDeletingAttachment"
+      @confirm="executeDeleteAttachment"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue';
+import AppConfirmDialog from '../../../components/common/AppConfirmDialog.vue';
 import {
   KeyRound,
   X,
@@ -609,13 +621,28 @@ const removePendingFile = (index: number) => {
   pendingFiles.value.splice(index, 1);
 };
 
-const removeExistingAttachment = async (attachmentId: number) => {
+const showDeleteAttachmentConfirm = ref(false);
+const attachmentToDeleteId = ref<number | null>(null);
+const isDeletingAttachment = ref(false);
+
+const removeExistingAttachment = (attachmentId: number) => {
+  attachmentToDeleteId.value = attachmentId;
+  showDeleteAttachmentConfirm.value = true;
+};
+
+const executeDeleteAttachment = async () => {
+  if (!attachmentToDeleteId.value) return;
+  isDeletingAttachment.value = true;
   try {
-    await vaultService.deleteAttachment(attachmentId);
-    existingAttachments.value = existingAttachments.value.filter(a => a.id !== attachmentId);
+    await vaultService.deleteAttachment(attachmentToDeleteId.value);
+    existingAttachments.value = existingAttachments.value.filter(a => a.id !== attachmentToDeleteId.value);
     toast.success('Đã xóa tệp đính kèm');
+    showDeleteAttachmentConfirm.value = false;
+    attachmentToDeleteId.value = null;
   } catch (e: any) {
     toast.error('Không thể xóa tệp');
+  } finally {
+    isDeletingAttachment.value = false;
   }
 };
 

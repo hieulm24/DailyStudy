@@ -16,4 +16,6 @@ public interface FinancialAccountRepository extends JpaRepository<FinancialAccou
     boolean existsByNameIgnoreCase(String name);
 
     boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
+
+    boolean existsByAccountType(String accountType);
 }

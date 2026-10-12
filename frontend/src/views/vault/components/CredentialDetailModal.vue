@@ -463,7 +463,7 @@
                     type="button"
                     class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
                     title="Xóa tệp đính kèm này"
-                    @click="deleteAttachment(att.id)"
+                    @click="confirmDeleteAttachment(att.id)"
                   >
                     <Trash2 class="w-3.5 h-3.5" />
                   </button>
@@ -562,7 +562,7 @@
                 <button
                   type="button"
                   class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
-                  @click="handlePermanentDelete"
+                  @click="showPermanentDeleteConfirm = true"
                 >
                   <Trash2 class="w-3.5 h-3.5" />
                   <span>Xóa vĩnh viễn</span>
@@ -573,7 +573,7 @@
               <button
                 type="button"
                 class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
-                @click="handleMoveToTrash"
+                @click="showTrashConfirm = true"
               >
                 <Trash2 class="w-3.5 h-3.5" />
                 <span>Chuyển vào thùng rác</span>
@@ -677,11 +677,48 @@
         </div>
       </div>
     </div>
+
+    <!-- Confirm Move to Trash Dialog -->
+    <AppConfirmDialog
+      v-model="showTrashConfirm"
+      title="Chuyển vào thùng rác"
+      message="Chuyển tài khoản này vào thùng rác? Bạn có thể khôi phục lại bất kỳ lúc nào."
+      confirm-text="Chuyển vào thùng rác"
+      confirm-variant="danger"
+      type="warning"
+      :loading="isActionLoading"
+      @confirm="executeMoveToTrash"
+    />
+
+    <!-- Confirm Permanent Delete Dialog -->
+    <AppConfirmDialog
+      v-model="showPermanentDeleteConfirm"
+      title="Xác nhận xóa vĩnh viễn"
+      message="CẢNH BÁO: Xóa vĩnh viễn tài khoản và tất cả tệp đính kèm liên quan? Hành động này KHÔNG THỂ khôi phục lại!"
+      confirm-text="Xóa vĩnh viễn"
+      confirm-variant="danger"
+      type="error"
+      :loading="isActionLoading"
+      @confirm="executePermanentDelete"
+    />
+
+    <!-- Confirm Delete Attachment Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteAttachmentConfirm"
+      title="Xóa tệp đính kèm"
+      message="Bạn có chắc chắn muốn xóa tệp đính kèm này không?"
+      confirm-text="Xóa tệp"
+      confirm-variant="danger"
+      type="warning"
+      :loading="isActionLoading"
+      @confirm="executeDeleteAttachment"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue';
+import AppConfirmDialog from '../../../components/common/AppConfirmDialog.vue';
 import {
   X,
   Star,
@@ -926,17 +963,26 @@ async function handleToggleFavorite() {
   }
 }
 
-// Trash / Restore / Delete
-async function handleMoveToTrash() {
+// Trash / Restore / Delete Confirm Dialog States
+const showTrashConfirm = ref(false);
+const showPermanentDeleteConfirm = ref(false);
+const showDeleteAttachmentConfirm = ref(false);
+const attachmentToDeleteId = ref<number | null>(null);
+const isActionLoading = ref(false);
+
+async function executeMoveToTrash() {
   if (!credential.value) return;
-  if (!confirm('Chuyển tài khoản này vào thùng rác? Bạn có thể khôi phục lại bất kỳ lúc nào.')) return;
+  isActionLoading.value = true;
   try {
     await vaultService.moveToTrash(credential.value.id);
     toast.success('Đã chuyển tài khoản vào thùng rác');
+    showTrashConfirm.value = false;
     emit('changed');
     emit('close');
   } catch (err: any) {
     toast.error('Không thể chuyển vào thùng rác');
+  } finally {
+    isActionLoading.value = false;
   }
 }
 
@@ -952,18 +998,19 @@ async function handleRestore() {
   }
 }
 
-async function handlePermanentDelete() {
+async function executePermanentDelete() {
   if (!credential.value) return;
-  if (!confirm('CẢNH BÁO: Xóa vĩnh viễn tài khoản và tất cả tệp đính kèm liên quan? Hành động này KHÔNG THỂ khôi phục!')) {
-    return;
-  }
+  isActionLoading.value = true;
   try {
     await vaultService.deletePermanently(credential.value.id);
     toast.success('Đã xóa vĩnh viễn tài khoản');
+    showPermanentDeleteConfirm.value = false;
     emit('changed');
     emit('close');
   } catch (err: any) {
     toast.error('Không thể xóa tài khoản');
+  } finally {
+    isActionLoading.value = false;
   }
 }
 
@@ -990,17 +1037,27 @@ async function onFileSelectedForUpload(event: Event) {
 }
 
 // Delete attachment
-async function deleteAttachment(attachmentId: number) {
-  if (!confirm('Bạn có chắc chắn muốn xóa tệp đính kèm này?')) return;
+function confirmDeleteAttachment(attachmentId: number) {
+  attachmentToDeleteId.value = attachmentId;
+  showDeleteAttachmentConfirm.value = true;
+}
+
+async function executeDeleteAttachment() {
+  if (!attachmentToDeleteId.value) return;
+  isActionLoading.value = true;
   try {
-    await vaultService.deleteAttachment(attachmentId);
+    await vaultService.deleteAttachment(attachmentToDeleteId.value);
     if (credential.value) {
-      credential.value.attachments = credential.value.attachments.filter((a) => a.id !== attachmentId);
+      credential.value.attachments = credential.value.attachments.filter((a) => a.id !== attachmentToDeleteId.value);
     }
     toast.success('Đã xóa tệp đính kèm');
+    showDeleteAttachmentConfirm.value = false;
+    attachmentToDeleteId.value = null;
     emit('changed');
   } catch (err: any) {
     toast.error('Không thể xóa tệp');
+  } finally {
+    isActionLoading.value = false;
   }
 }
 

@@ -254,6 +254,18 @@
         </div>
       </div>
     </AppModal>
+
+    <!-- Confirm Delete Photo Dialog -->
+    <AppConfirmDialog
+      v-model="showDeletePhotoConfirm"
+      title="Xóa ảnh tập luyện"
+      message="Bạn có chắc chắn muốn xóa ảnh này không? Thao tác này không thể hoàn tác."
+      confirm-text="Xóa ảnh"
+      confirm-variant="danger"
+      type="error"
+      :loading="isDeletingPhoto"
+      @confirm="executeDeletePhoto"
+    />
   </div>
 </template>
 
@@ -264,6 +276,7 @@ import type { HealthWorkoutPhoto } from '../../types/health-photo.types';
 import AppButton from '../common/AppButton.vue';
 import AppInput from '../common/AppInput.vue';
 import AppModal from '../common/AppModal.vue';
+import AppConfirmDialog from '../common/AppConfirmDialog.vue';
 import { Camera, Plus, Trash2, Maximize2, Images, UploadCloud, Scale } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -398,16 +411,30 @@ function openPreview(photo: HealthWorkoutPhoto) {
   showPreviewModal.value = true;
 }
 
-async function confirmDeletePhoto(id: number) {
-  if (!confirm('Bạn có chắc chắn muốn xóa ảnh này?')) return;
+const showDeletePhotoConfirm = ref(false);
+const photoToDeleteId = ref<number | null>(null);
+const isDeletingPhoto = ref(false);
+
+function confirmDeletePhoto(id: number) {
+  photoToDeleteId.value = id;
+  showDeletePhotoConfirm.value = true;
+}
+
+async function executeDeletePhoto() {
+  if (!photoToDeleteId.value) return;
+  isDeletingPhoto.value = true;
   try {
-    await healthPhotoService.deletePhoto(id);
+    await healthPhotoService.deletePhoto(photoToDeleteId.value);
+    showDeletePhotoConfirm.value = false;
+    photoToDeleteId.value = null;
     await loadTodayPhotos();
     if (viewMode.value === 'gallery') {
       await openGalleryMode();
     }
   } catch (err) {
     console.error('Failed to delete photo', err);
+  } finally {
+    isDeletingPhoto.value = false;
   }
 }
 

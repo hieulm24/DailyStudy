@@ -374,7 +374,7 @@
                   type="button"
                   class="hover:text-rose-600"
                   title="Xóa"
-                  @click="deleteSnippet(s.id)"
+                  @click="confirmDeleteSnippet(s.id)"
                 >
                   <Trash2 class="w-3.5 h-3.5" />
                 </button>
@@ -492,7 +492,7 @@
             v-if="hasGeminiKey"
             type="button"
             class="text-xs text-rose-600 hover:text-rose-800 font-semibold underline"
-            @click="clearApiKey"
+            @click="showClearKeyConfirm = true"
           >
             Xóa API Key
           </button>
@@ -509,6 +509,29 @@
         </div>
       </div>
     </AppModal>
+
+    <!-- Confirm Delete Snippet Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteSnippetConfirm"
+      title="Xóa đoạn code snippet"
+      message="Bạn có chắc chắn muốn xóa snippet này khỏi kho lưu trữ không?"
+      confirm-text="Xóa snippet"
+      confirm-variant="danger"
+      type="error"
+      :loading="isDeletingSnippet"
+      @confirm="executeDeleteSnippet"
+    />
+
+    <!-- Confirm Clear API Key Dialog -->
+    <AppConfirmDialog
+      v-model="showClearKeyConfirm"
+      title="Xóa Gemini API Key"
+      message="Bạn có chắc chắn muốn gỡ API Key khỏi trình duyệt không? Hệ thống sẽ chuyển về chế độ Offline AI."
+      confirm-text="Xóa API Key"
+      confirm-variant="danger"
+      type="warning"
+      @confirm="executeClearApiKey"
+    />
   </div>
 </template>
 
@@ -520,6 +543,7 @@ import type { ItCodeSnippet, ItPlaygroundExecutionResponse } from '../../types';
 import AppButton from '../../components/common/AppButton.vue';
 import AppInput from '../../components/common/AppInput.vue';
 import AppModal from '../../components/common/AppModal.vue';
+import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import {
   Terminal,
   Play,
@@ -773,13 +797,28 @@ function loadSnippetIntoEditor(s: ItCodeSnippet) {
   toastStore.success(`Đã nạp "${s.title}" vào trình soạn thảo!`);
 }
 
-async function deleteSnippet(id: number) {
+const showDeleteSnippetConfirm = ref(false);
+const snippetToDeleteId = ref<number | null>(null);
+const isDeletingSnippet = ref(false);
+
+function confirmDeleteSnippet(id: number) {
+  snippetToDeleteId.value = id;
+  showDeleteSnippetConfirm.value = true;
+}
+
+async function executeDeleteSnippet() {
+  if (!snippetToDeleteId.value) return;
+  isDeletingSnippet.value = true;
   try {
-    await itStudioService.deleteSnippet(id);
-    snippets.value = snippets.value.filter((s) => s.id !== id);
+    await itStudioService.deleteSnippet(snippetToDeleteId.value);
+    snippets.value = snippets.value.filter((s) => s.id !== snippetToDeleteId.value);
     toastStore.success('Đã xóa snippet');
+    showDeleteSnippetConfirm.value = false;
+    snippetToDeleteId.value = null;
   } catch (err) {
     toastStore.error('Không thể xóa snippet');
+  } finally {
+    isDeletingSnippet.value = false;
   }
 }
 
@@ -801,6 +840,7 @@ function formatDate(dateStr?: string) {
 const showApiKeyModal = ref(false);
 const geminiKeyInput = ref(localStorage.getItem('gemini_api_key') || '');
 const hasGeminiKey = computed(() => !!localStorage.getItem('gemini_api_key'));
+const showClearKeyConfirm = ref(false);
 
 function openApiKeyModal() {
   geminiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
@@ -818,10 +858,11 @@ function saveApiKey() {
   showApiKeyModal.value = false;
 }
 
-function clearApiKey() {
+function executeClearApiKey() {
   localStorage.removeItem('gemini_api_key');
   geminiKeyInput.value = '';
   toastStore.info('Đã xóa API Key. Hệ thống chuyển về chế độ Offline.');
+  showClearKeyConfirm.value = false;
   showApiKeyModal.value = false;
 }
 </script>

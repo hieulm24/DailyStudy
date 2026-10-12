@@ -224,6 +224,26 @@ public class FinancialDashboardService {
         List<BalanceTrendPoint> points = new ArrayList<>();
         YearMonth current = YearMonth.from(baseDate);
 
+        // Sum initial balances of all accounts
+        BigDecimal totalInitial = accountRepository.findAll().stream()
+                .map(a -> a.getInitialBalance() != null ? a.getInitialBalance() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Start of the 6-month window
+        YearMonth startWindowMonth = current.minusMonths(5);
+        LocalDateTime windowStartTime = startWindowMonth.atDay(1).atStartOfDay();
+
+        // Calculate cumulative balance before the 6-month window starts
+        BigDecimal preWindowIncome = transactionRepository.sumIncomeBetween(
+                LocalDateTime.of(2000, 1, 1, 0, 0), windowStartTime.minusSeconds(1));
+        if (preWindowIncome == null) preWindowIncome = BigDecimal.ZERO;
+
+        BigDecimal preWindowExpense = transactionRepository.sumExpenseBetween(
+                LocalDateTime.of(2000, 1, 1, 0, 0), windowStartTime.minusSeconds(1));
+        if (preWindowExpense == null) preWindowExpense = BigDecimal.ZERO;
+
+        BigDecimal runningBalance = totalInitial.add(preWindowIncome).subtract(preWindowExpense);
+
         // 6 months trend
         for (int i = 5; i >= 0; i--) {
             YearMonth ym = current.minusMonths(i);
@@ -236,11 +256,13 @@ public class FinancialDashboardService {
             BigDecimal exp = transactionRepository.sumExpenseBetween(start, end);
             if (exp == null) exp = BigDecimal.ZERO;
 
+            runningBalance = runningBalance.add(inc).subtract(exp);
+
             points.add(BalanceTrendPoint.builder()
                     .date(ym.format(DateTimeFormatter.ofPattern("yyyy-MM")))
                     .income(inc)
                     .expense(exp)
-                    .balance(inc.subtract(exp))
+                    .balance(runningBalance)
                     .build());
         }
 

@@ -754,6 +754,30 @@
         </div>
       </form>
     </AppModal>
+
+    <!-- Confirm Delete Session Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteSessionConfirm"
+      title="Xóa phiên thảo luận"
+      message="Bạn có chắc chắn muốn xóa cuộc trò chuyện này không? Toàn bộ tin nhắn trong phiên sẽ bị xóa."
+      confirm-text="Xóa phiên chat"
+      confirm-variant="danger"
+      type="error"
+      :loading="isDeletingSession"
+      @confirm="executeDeleteSession"
+    />
+
+    <!-- Confirm Delete Note Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteNoteConfirm"
+      title="Xóa bài ghi chú"
+      message="Bạn có chắc chắn muốn xóa bài ghi chú này không? Thao tác này không thể hoàn tác."
+      confirm-text="Xóa ghi chú"
+      confirm-variant="danger"
+      type="error"
+      :loading="isDeletingNote"
+      @confirm="executeDeleteNote"
+    />
   </div>
 </template>
 
@@ -765,6 +789,7 @@ import type { ItNote, ItChatSession, ItPlaygroundExecutionResponse } from '../..
 import AppInput from '../../components/common/AppInput.vue';
 import AppButton from '../../components/common/AppButton.vue';
 import AppModal from '../../components/common/AppModal.vue';
+import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import {
   Bot,
   Terminal,
@@ -931,16 +956,31 @@ async function handleSendMessage() {
   }
 }
 
-async function confirmDeleteSession(sessionId: number) {
+const showDeleteSessionConfirm = ref(false);
+const sessionToDeleteId = ref<number | null>(null);
+const isDeletingSession = ref(false);
+
+function confirmDeleteSession(sessionId: number) {
+  sessionToDeleteId.value = sessionId;
+  showDeleteSessionConfirm.value = true;
+}
+
+async function executeDeleteSession() {
+  if (!sessionToDeleteId.value) return;
+  isDeletingSession.value = true;
   try {
-    await itStudioService.deleteSession(sessionId);
+    await itStudioService.deleteSession(sessionToDeleteId.value);
     toastStore.success('Đã xóa phiên thảo luận');
-    if (currentSession.value?.id === sessionId) {
+    if (currentSession.value?.id === sessionToDeleteId.value) {
       currentSession.value = null;
     }
+    showDeleteSessionConfirm.value = false;
+    sessionToDeleteId.value = null;
     await loadChatSessions();
   } catch (err) {
     toastStore.error('Không thể xóa phiên chat');
+  } finally {
+    isDeletingSession.value = false;
   }
 }
 
@@ -1174,13 +1214,28 @@ async function toggleNoteFavorite(note: ItNote) {
   }
 }
 
-async function confirmDeleteNote(id: number) {
+const showDeleteNoteConfirm = ref(false);
+const noteToDeleteId = ref<number | null>(null);
+const isDeletingNote = ref(false);
+
+function confirmDeleteNote(id: number) {
+  noteToDeleteId.value = id;
+  showDeleteNoteConfirm.value = true;
+}
+
+async function executeDeleteNote() {
+  if (!noteToDeleteId.value) return;
+  isDeletingNote.value = true;
   try {
-    await itStudioService.deleteNote(id);
+    await itStudioService.deleteNote(noteToDeleteId.value);
     toastStore.success('Đã xóa ghi chú');
+    showDeleteNoteConfirm.value = false;
+    noteToDeleteId.value = null;
     await loadNotes();
   } catch (err) {
     toastStore.error('Không thể xóa ghi chú');
+  } finally {
+    isDeletingNote.value = false;
   }
 }
 

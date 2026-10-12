@@ -398,19 +398,14 @@
     >
       <form @submit.prevent="submitContribution" class="space-y-4 sm:space-y-5 py-1 text-xs sm:text-sm">
         <div>
-          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
-            {{ contributionType === 'DEPOSIT' ? 'Trích tiền từ tài khoản / Ví *' : 'Rút tiền chuyển về tài khoản *' }}
-          </label>
-          <select
+          <AccountSelect
             v-model="contributionForm.accountId"
-            required
-            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-colors shadow-2xs"
-          >
-            <option :value="undefined" disabled>-- Chọn tài khoản --</option>
-            <option v-for="a in availableAccounts" :key="a.id" :value="a.id">
-              {{ a.name }} (Số dư khả dụng: {{ formatCurrency(a.availableBalance) }})
-            </option>
-          </select>
+            :accounts="availableAccounts"
+            :label="contributionType === 'DEPOSIT' ? 'Trích tiền từ tài khoản / Ví' : 'Rút tiền chuyển về tài khoản'"
+            placeholder="-- Chọn tài khoản / ví nguồn --"
+            :required="true"
+            balance-field="availableBalance"
+          />
           <div
             v-if="selectedContributeAccount"
             :class="[
@@ -629,6 +624,7 @@ import {
 import AppModal from '../../../components/common/AppModal.vue';
 import AppConfirmDialog from '../../../components/common/AppConfirmDialog.vue';
 import CurrencyInput from '../../../components/common/CurrencyInput.vue';
+import AccountSelect from './AccountSelect.vue';
 import { useToastStore } from '../../../stores/toast.store';
 import { financialService } from '../../../services/financial.service';
 import type {

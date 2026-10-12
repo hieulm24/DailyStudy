@@ -368,43 +368,43 @@
         </AppButton>
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         <div
           v-for="q in quotes"
           :key="q.id"
-          class="bg-white p-5 rounded-xl border border-slate-200/90 shadow-2xs hover:shadow-md hover:border-indigo-200 transition-all flex flex-col justify-between space-y-3 relative group"
+          class="bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/90 shadow-2xs hover:shadow-xs hover:border-indigo-200 transition-all flex flex-col justify-between space-y-2 relative group"
         >
-          <div class="space-y-2.5">
+          <div class="space-y-2">
             <!-- Quote Header with Book Info -->
-            <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
-              <div class="space-y-0.5">
+            <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-1.5">
+              <div class="space-y-0.5 min-w-0">
                 <button
                   type="button"
-                  class="text-xs font-bold text-brand-700 hover:text-brand-900 hover:underline inline-flex items-center gap-1.5 text-left cursor-pointer"
+                  class="text-xs font-bold text-brand-700 hover:text-brand-900 hover:underline inline-flex items-center gap-1.5 text-left truncate cursor-pointer"
                   @click="goToBookDetail(q.bookId)"
                 >
                   <BookOpen class="w-3.5 h-3.5 text-brand-600 shrink-0" />
-                  <span>{{ q.bookTitle }}</span>
+                  <span class="truncate">{{ q.bookTitle }}</span>
                   <ArrowRight class="w-3 h-3 text-brand-400 shrink-0" />
                 </button>
-                <p v-if="q.bookAuthor" class="text-[11px] text-slate-500 font-medium">Tác giả: {{ q.bookAuthor }}</p>
+                <p v-if="q.bookAuthor" class="text-[11px] text-slate-500 font-medium truncate">Tác giả: {{ q.bookAuthor }}</p>
               </div>
 
               <!-- Favorite Button -->
               <button
                 type="button"
                 title="Đánh dấu tâm đắc"
-                class="p-1.5 rounded-md hover:bg-slate-100 transition-colors"
+                class="p-1 rounded-md hover:bg-slate-100 transition-colors shrink-0 cursor-pointer"
                 @click="toggleFavorite(q)"
               >
-                <Star :class="['w-4 h-4', q.isFavorite ? 'fill-amber-400 text-amber-400' : 'text-slate-300 hover:text-amber-400']" />
+                <Star :class="['w-3.5 h-3.5', q.isFavorite ? 'fill-amber-400 text-amber-400' : 'text-slate-300 hover:text-amber-400']" />
               </button>
             </div>
 
             <!-- Quote Body -->
-            <div class="relative pl-3 border-l-3 border-indigo-400">
-              <p class="text-sm font-semibold text-slate-900 leading-relaxed italic">
-                “{{ q.quoteText }}”
+            <div class="relative pl-3 border-l-2 border-indigo-500 py-0.5">
+              <p class="text-sm font-medium text-slate-800 leading-relaxed italic">
+                “{{ q.quoteText?.normalize('NFC') || q.quoteText }}”
               </p>
               <div v-if="q.pageNumber || q.chapter" class="mt-1 text-[11px] text-slate-400 font-medium">
                 <span v-if="q.chapter">Chương: {{ q.chapter }}</span>
@@ -413,31 +413,36 @@
               </div>
             </div>
 
-            <!-- Note / Personal reflection -->
-            <div v-if="q.note" class="bg-amber-50/60 border border-amber-100 p-2.5 rounded-lg text-xs text-amber-900 space-y-0.5">
-              <div class="font-bold text-[11px] text-amber-800 uppercase tracking-wider flex items-center gap-1">
-                <Lightbulb class="w-3.5 h-3.5 text-amber-600" />
-                <span>Bài học đúc kết:</span>
-              </div>
-              <p class="leading-relaxed">{{ q.note }}</p>
+            <!-- Note / Personal reflection (Compact inline pill) -->
+            <div
+              v-if="q.note"
+              class="bg-amber-50/70 border border-amber-200/50 px-2.5 py-1 rounded-md text-xs leading-relaxed text-amber-950 flex items-start gap-1.5"
+            >
+              <Lightbulb class="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+              <p class="min-w-0">
+                <span class="font-bold text-amber-900">Bài học: </span>
+                <span>{{ q.note?.normalize('NFC') || q.note }}</span>
+              </p>
             </div>
           </div>
 
           <!-- Quote Actions -->
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-[11px] text-slate-400">
+          <div class="flex items-center justify-between pt-1.5 border-t border-slate-100 text-[11px] text-slate-400">
             <span>{{ formatDate(q.createdAt) }}</span>
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="flex items-center gap-1">
               <button
                 type="button"
-                class="p-1 hover:text-slate-700 hover:bg-slate-100 rounded"
+                class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors cursor-pointer"
+                title="Sửa trích dẫn"
                 @click="openEditQuoteModal(q)"
               >
                 <Edit2 class="w-3.5 h-3.5" />
               </button>
               <button
                 type="button"
-                class="p-1 hover:text-rose-600 hover:bg-rose-50 rounded"
-                @click="deleteQuote(q.id)"
+                class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors cursor-pointer"
+                title="Xóa trích dẫn"
+                @click="confirmDeleteQuote(q.id)"
               >
                 <Trash2 class="w-3.5 h-3.5" />
               </button>
@@ -712,6 +717,30 @@
         </div>
       </form>
     </AppModal>
+
+    <!-- Confirm Delete Book Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteBookConfirm"
+      title="Xóa cuốn sách"
+      :message="`Bạn có chắc chắn muốn xóa cuốn sách '${bookToDelete?.title}' và toàn bộ trích dẫn của nó không?`"
+      confirm-text="Xóa sách"
+      confirm-variant="danger"
+      type="error"
+      :loading="isDeletingBook"
+      @confirm="executeDeleteBook"
+    />
+
+    <!-- Confirm Delete Quote Dialog -->
+    <AppConfirmDialog
+      v-model="showDeleteQuoteConfirm"
+      title="Xóa câu trích dẫn"
+      message="Bạn có chắc chắn muốn xóa câu trích dẫn này không?"
+      confirm-text="Xóa trích dẫn"
+      confirm-variant="danger"
+      type="warning"
+      :loading="isDeletingQuote"
+      @confirm="executeDeleteQuote"
+    />
   </div>
 </template>
 
@@ -724,6 +753,7 @@ import AppButton from '../../components/common/AppButton.vue';
 import AppInput from '../../components/common/AppInput.vue';
 import AppTextarea from '../../components/common/AppTextarea.vue';
 import AppModal from '../../components/common/AppModal.vue';
+import AppConfirmDialog from '../../components/common/AppConfirmDialog.vue';
 import {
   BookMarked,
   BookOpen,
@@ -969,13 +999,27 @@ async function saveBook() {
   }
 }
 
-async function confirmDeleteBook(book: Book) {
-  if (!confirm(`Bạn có chắc chắn muốn xóa cuốn sách "${book.title}" và toàn bộ trích dẫn của nó?`)) return;
+const showDeleteBookConfirm = ref(false);
+const bookToDelete = ref<Book | null>(null);
+const isDeletingBook = ref(false);
+
+function confirmDeleteBook(book: Book) {
+  bookToDelete.value = book;
+  showDeleteBookConfirm.value = true;
+}
+
+async function executeDeleteBook() {
+  if (!bookToDelete.value) return;
+  isDeletingBook.value = true;
   try {
-    await bookService.deleteBook(book.id);
+    await bookService.deleteBook(bookToDelete.value.id);
+    showDeleteBookConfirm.value = false;
+    bookToDelete.value = null;
     await Promise.all([loadBooks(), loadStats(), loadQuotes()]);
   } catch (err) {
     console.error('Failed to delete book', err);
+  } finally {
+    isDeletingBook.value = false;
   }
 }
 
@@ -1036,21 +1080,23 @@ function openEditQuoteModal(quote: BookQuote) {
 async function saveQuote() {
   if (!quoteForm.quoteText.trim()) return;
   savingQuote.value = true;
+  const normalizedText = quoteForm.quoteText.trim().normalize('NFC');
+  const normalizedNote = quoteForm.note?.trim() ? quoteForm.note.trim().normalize('NFC') : undefined;
   try {
     if (isEditingQuote.value && editingQuoteId.value) {
       await bookService.updateQuote(editingQuoteId.value, {
-        quoteText: quoteForm.quoteText,
+        quoteText: normalizedText,
         pageNumber: quoteForm.pageNumber || undefined,
         chapter: quoteForm.chapter || undefined,
-        note: quoteForm.note || undefined,
+        note: normalizedNote,
         isFavorite: quoteForm.isFavorite,
       });
     } else if (quoteForm.bookId) {
       await bookService.addQuote(quoteForm.bookId, {
-        quoteText: quoteForm.quoteText,
+        quoteText: normalizedText,
         pageNumber: quoteForm.pageNumber || undefined,
         chapter: quoteForm.chapter || undefined,
-        note: quoteForm.note || undefined,
+        note: normalizedNote,
         isFavorite: quoteForm.isFavorite,
       });
     }
@@ -1073,13 +1119,27 @@ async function toggleFavorite(quote: BookQuote) {
   }
 }
 
-async function deleteQuote(id: number) {
-  if (!confirm('Bạn có chắc chắn muốn xóa câu trích dẫn này?')) return;
+const showDeleteQuoteConfirm = ref(false);
+const quoteToDeleteId = ref<number | null>(null);
+const isDeletingQuote = ref(false);
+
+function confirmDeleteQuote(id: number) {
+  quoteToDeleteId.value = id;
+  showDeleteQuoteConfirm.value = true;
+}
+
+async function executeDeleteQuote() {
+  if (!quoteToDeleteId.value) return;
+  isDeletingQuote.value = true;
   try {
-    await bookService.deleteQuote(id);
+    await bookService.deleteQuote(quoteToDeleteId.value);
+    showDeleteQuoteConfirm.value = false;
+    quoteToDeleteId.value = null;
     await Promise.all([loadQuotes(), loadStats(), loadBooks()]);
   } catch (err) {
     console.error('Failed to delete quote', err);
+  } finally {
+    isDeletingQuote.value = false;
   }
 }
 
