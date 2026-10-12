@@ -329,6 +329,23 @@
               {{ acc.name }} (Số dư: {{ formatCurrency(acc.currentBalance) }})
             </option>
           </select>
+          <div
+            v-if="selectedSourceAccount"
+            :class="[
+              'mt-1.5 p-2 rounded-md border text-xs flex items-center justify-between transition-colors',
+              (selectedSourceAccount.currentBalance || 0) <= 0 && selectedSourceAccount.accountType !== 'CREDIT'
+                ? 'bg-rose-50 border-rose-200 text-rose-700'
+                : 'bg-slate-50 border-slate-200/80 text-slate-700'
+            ]"
+          >
+            <div class="flex items-center gap-1.5">
+              <Wallet class="w-3.5 h-3.5" :class="(selectedSourceAccount.currentBalance || 0) <= 0 && selectedSourceAccount.accountType !== 'CREDIT' ? 'text-rose-500' : 'text-slate-500'" />
+              <span>Số dư hiện tại của ví:</span>
+            </div>
+            <span class="font-bold">
+              {{ formatCurrency(selectedSourceAccount.currentBalance) }}
+            </span>
+          </div>
         </div>
 
         <!-- Tài khoản đích (Chỉ hiện khi TRANSFER) -->
@@ -456,6 +473,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   ArrowRightLeft,
+  Wallet,
 } from 'lucide-vue-next';
 import AppModal from '../../../components/common/AppModal.vue';
 import AppConfirmDialog from '../../../components/common/AppConfirmDialog.vue';
@@ -576,9 +594,16 @@ function handlePageSizeChange(newSize: number) {
   loadTransactions();
 }
 
+const editingTransaction = ref<FinancialTransaction | null>(null);
+
+const selectedSourceAccount = computed(() => {
+  return accounts.value.find((a) => a.id === formData.value.accountId);
+});
+
 function openAddModal() {
   isEditing.value = false;
   editingId.value = null;
+  editingTransaction.value = null;
   const now = new Date();
   const localIso = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 
@@ -598,6 +623,7 @@ function openAddModal() {
 function openEditModal(tx: FinancialTransaction) {
   isEditing.value = true;
   editingId.value = tx.id;
+  editingTransaction.value = tx;
 
   let formattedDate = tx.transactionDate;
   try {
@@ -632,8 +658,49 @@ function showError(msg: string, title = 'Thông báo lỗi') {
 }
 
 async function saveTransaction() {
-  if (!formData.value.amount || formData.value.amount <= 0) return;
-  if (!formData.value.accountId) return;
+  if (!formData.value.accountId) {
+    showError('Vui lòng chọn tài khoản / ví thanh toán');
+    return;
+  }
+  if (!formData.value.amount || formData.value.amount <= 0) {
+    showError('Vui lòng nhập số tiền giao dịch lớn hơn 0');
+    return;
+  }
+  if (formData.value.type === 'TRANSFER') {
+    if (!formData.value.toAccountId) {
+      showError('Vui lòng chọn tài khoản nhận tiền');
+      return;
+    }
+    if (formData.value.accountId === formData.value.toAccountId) {
+      showError('Tài khoản nhận tiền phải khác tài khoản chuyển đi');
+      return;
+    }
+  }
+
+  // Validate số dư ví chi tiền / chuyển đi
+  if (formData.value.type === 'EXPENSE' || formData.value.type === 'TRANSFER') {
+    const selectedAcc = accounts.value.find((a) => a.id === formData.value.accountId);
+    if (selectedAcc && selectedAcc.accountType !== 'CREDIT') {
+      const currentBal = selectedAcc.currentBalance ?? 0;
+      let effectiveBal = currentBal;
+      if (
+        isEditing.value &&
+        editingTransaction.value &&
+        editingTransaction.value.accountId === selectedAcc.id &&
+        (editingTransaction.value.type === 'EXPENSE' || editingTransaction.value.type === 'TRANSFER')
+      ) {
+        effectiveBal += editingTransaction.value.amount || 0;
+      }
+
+      if (formData.value.amount > effectiveBal) {
+        const action = formData.value.type === 'TRANSFER' ? 'chuyển tiền' : 'chi tiêu';
+        showError(
+          `Số dư ví "${selectedAcc.name}" không đủ để ${action}! (Hiện có: ${formatCurrency(effectiveBal)}, Cần: ${formatCurrency(formData.value.amount)})`
+        );
+        return;
+      }
+    }
+  }
 
   submitting.value = true;
   try {

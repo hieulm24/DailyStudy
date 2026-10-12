@@ -719,17 +719,32 @@ function showError(msg: string, title = 'Thông báo lỗi') {
 }
 
 async function saveAccount() {
-  if (!formData.value.name.trim()) return;
+  if (!formData.value.name.trim()) {
+    showError('Vui lòng nhập tên tài khoản / ví');
+    return;
+  }
+
+  if (isEditing.value && editingId.value && selectedAccountForEdit.value) {
+    // Calculate target new balance from adjustment and update initialBalance with delta
+    const targetBalance = finalProjectedBalance.value;
+    if (formData.value.accountType !== 'CREDIT' && targetBalance < 0) {
+      showError('Số dư tài khoản sau điều chỉnh không thể nhỏ hơn 0 ₫!');
+      return;
+    }
+    const currentBal = selectedAccountForEdit.value.currentBalance || 0;
+    const initialBal = selectedAccountForEdit.value.initialBalance || 0;
+    const delta = targetBalance - currentBal;
+    formData.value.initialBalance = initialBal + delta;
+  } else {
+    if (formData.value.accountType !== 'CREDIT' && (formData.value.initialBalance || 0) < 0) {
+      showError('Số dư ban đầu không được âm đối với loại tài khoản này!');
+      return;
+    }
+  }
+
   submitting.value = true;
   try {
     if (isEditing.value && editingId.value && selectedAccountForEdit.value) {
-      // Calculate target new balance from adjustment and update initialBalance with delta
-      const targetBalance = finalProjectedBalance.value;
-      const currentBal = selectedAccountForEdit.value.currentBalance || 0;
-      const initialBal = selectedAccountForEdit.value.initialBalance || 0;
-      const delta = targetBalance - currentBal;
-      formData.value.initialBalance = initialBal + delta;
-
       await financialService.updateAccount(editingId.value, formData.value);
       toastStore.success('Cập nhật tài khoản & số dư thành công');
     } else {

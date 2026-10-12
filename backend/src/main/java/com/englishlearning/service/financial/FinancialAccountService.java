@@ -47,6 +47,11 @@ public class FinancialAccountService {
             throw new BadRequestException("Tài khoản có tên '" + request.getName().trim() + "' đã tồn tại");
         }
 
+        if (request.getInitialBalance() != null && request.getInitialBalance().compareTo(BigDecimal.ZERO) < 0
+                && !"CREDIT".equalsIgnoreCase(request.getAccountType())) {
+            throw new BadRequestException("Số dư ban đầu không được âm đối với loại tài khoản này");
+        }
+
         FinancialAccount account = FinancialAccount.builder()
                 .name(request.getName().trim())
                 .accountType(request.getAccountType().toUpperCase())
@@ -65,6 +70,11 @@ public class FinancialAccountService {
 
         if (accountRepository.existsByNameIgnoreCaseAndIdNot(request.getName().trim(), id)) {
             throw new BadRequestException("Tài khoản có tên '" + request.getName().trim() + "' đã tồn tại");
+        }
+
+        if (request.getInitialBalance() != null && request.getInitialBalance().compareTo(BigDecimal.ZERO) < 0
+                && !"CREDIT".equalsIgnoreCase(request.getAccountType())) {
+            throw new BadRequestException("Số dư ban đầu không được âm đối với loại tài khoản này");
         }
 
         account.setName(request.getName().trim());

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,7 @@ public class FinancialTransactionService {
     private final FinancialTransactionRepository transactionRepository;
     private final FinancialAccountRepository accountRepository;
     private final FinancialCategoryRepository categoryRepository;
+    private final FinancialAccountService accountService;
 
     @Transactional(readOnly = true)
     public PageResponse<TransactionResponse> getTransactions(TransactionFilterRequest filter) {
@@ -114,15 +116,30 @@ public class FinancialTransactionService {
         }
 
         FinancialAccount toAccount = null;
-        if ("TRANSFER".equalsIgnoreCase(request.getType())) {
+        String type = request.getType().toUpperCase();
+        if ("TRANSFER".equalsIgnoreCase(type)) {
             toAccount = accountRepository.findById(request.getToAccountId())
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản nhận với ID: " + request.getToAccountId()));
+        }
+
+        // Kiểm tra số dư ví chi tiền / chuyển đi (chặn số dư âm đối với các ví thông thường)
+        if ("EXPENSE".equals(type) || "TRANSFER".equals(type)) {
+            if (!"CREDIT".equalsIgnoreCase(account.getAccountType())) {
+                BigDecimal currentBal = accountService.mapToResponse(account).getCurrentBalance();
+                if (currentBal == null) currentBal = BigDecimal.ZERO;
+                if (request.getAmount().compareTo(currentBal) > 0) {
+                    String action = "TRANSFER".equals(type) ? "chuyển tiền" : "chi tiêu";
+                    throw new BadRequestException(String.format(
+                            "Số dư ví '%s' không đủ để %s! (Hiện có: %s, Cần: %s)",
+                            account.getName(), action, formatVnMoney(currentBal), formatVnMoney(request.getAmount())));
+                }
+            }
         }
 
         FinancialTransaction transaction = FinancialTransaction.builder()
                 .account(account)
                 .category(category)
-                .type(request.getType().toUpperCase())
+                .type(type)
                 .amount(request.getAmount())
                 .transactionDate(request.getTransactionDate() != null ? request.getTransactionDate() : LocalDateTime.now())
                 .description(request.getDescription())
@@ -151,14 +168,37 @@ public class FinancialTransactionService {
         }
 
         FinancialAccount toAccount = null;
-        if ("TRANSFER".equalsIgnoreCase(request.getType())) {
+        String type = request.getType().toUpperCase();
+        if ("TRANSFER".equalsIgnoreCase(type)) {
             toAccount = accountRepository.findById(request.getToAccountId())
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản nhận với ID: " + request.getToAccountId()));
         }
 
+        // Kiểm tra số dư ví khi cập nhật giao dịch
+        if ("EXPENSE".equals(type) || "TRANSFER".equals(type)) {
+            if (!"CREDIT".equalsIgnoreCase(account.getAccountType())) {
+                BigDecimal currentBal = accountService.mapToResponse(account).getCurrentBalance();
+                if (currentBal == null) currentBal = BigDecimal.ZERO;
+
+                // Nếu giao dịch cũ cũng thuộc tài khoản này và cùng là loại trừ tiền thì hoàn lại số tiền cũ trước khi so sánh
+                BigDecimal effectiveBal = currentBal;
+                if (transaction.getAccount() != null && transaction.getAccount().getId().equals(account.getId())
+                        && ("EXPENSE".equalsIgnoreCase(transaction.getType()) || "TRANSFER".equalsIgnoreCase(transaction.getType()))) {
+                    effectiveBal = effectiveBal.add(transaction.getAmount());
+                }
+
+                if (request.getAmount().compareTo(effectiveBal) > 0) {
+                    String action = "TRANSFER".equals(type) ? "chuyển tiền" : "chi tiêu";
+                    throw new BadRequestException(String.format(
+                            "Số dư ví '%s' không đủ để %s! (Hiện có: %s, Cần: %s)",
+                            account.getName(), action, formatVnMoney(effectiveBal), formatVnMoney(request.getAmount())));
+                }
+            }
+        }
+
         transaction.setAccount(account);
         transaction.setCategory(category);
-        transaction.setType(request.getType().toUpperCase());
+        transaction.setType(type);
         transaction.setAmount(request.getAmount());
         transaction.setTransactionDate(request.getTransactionDate() != null ? request.getTransactionDate() : LocalDateTime.now());
         transaction.setDescription(request.getDescription());
@@ -217,5 +257,11 @@ public class FinancialTransactionService {
                 .createdAt(t.getCreatedAt())
                 .updatedAt(t.getUpdatedAt())
                 .build();
+    }
+
+    private String formatVnMoney(BigDecimal amount) {
+        if (amount == null) return "0 ₫";
+        DecimalFormat df = new DecimalFormat("#,###");
+        return df.format(amount) + " ₫";
     }
 }

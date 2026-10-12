@@ -82,6 +82,66 @@ public class FinancialBudgetService {
             }
         }
 
+        List<Object[]> catAndAccBreakdown = transactionRepository.getCategoryAndAccountExpenseBreakdown(startOfMonth, endOfMonth);
+        Map<String, BigDecimal> actualByCatAndAcc = new HashMap<>();
+        for (Object[] row : catAndAccBreakdown) {
+            Long catId = (Long) row[0];
+            Long accId = (Long) row[1];
+            BigDecimal spent = (BigDecimal) row[2];
+            if (catId != null && spent != null) {
+                actualByCatAndAcc.put(catId + "_" + (accId != null ? accId : 0), spent);
+            }
+        }
+
+        // Phân bổ chi tiêu thực tế cho từng khoản dự chi:
+        // Gom các khoản dự chi theo nhóm (danh mục, ví) và phân bổ thực chi lần lượt (FIFO)
+        // để số tiền thực chi khớp chính xác với giao dịch thực tế, không bị chia vụn theo tỷ lệ gây khó hiểu.
+        Map<String, List<FinancialBudget>> budgetsByGroup = new LinkedHashMap<>();
+        for (FinancialBudget b : budgets) {
+            String key = b.getCategoryId() + "_" + (b.getAccountId() != null ? b.getAccountId() : 0);
+            budgetsByGroup.computeIfAbsent(key, k -> new ArrayList<>()).add(b);
+        }
+
+        Map<String, BigDecimal> remainingSpentByGroup = new HashMap<>();
+        for (String key : budgetsByGroup.keySet()) {
+            BigDecimal totalSpent;
+            if (key.endsWith("_0")) {
+                Long catId = Long.parseLong(key.split("_")[0]);
+                totalSpent = actualExpenseMap.getOrDefault(catId, BigDecimal.ZERO);
+            } else {
+                totalSpent = actualByCatAndAcc.getOrDefault(key, BigDecimal.ZERO);
+            }
+            remainingSpentByGroup.put(key, totalSpent != null ? totalSpent : BigDecimal.ZERO);
+        }
+
+        Map<Long, BigDecimal> actualSpentPerBudgetId = new HashMap<>();
+        for (Map.Entry<String, List<FinancialBudget>> entry : budgetsByGroup.entrySet()) {
+            String key = entry.getKey();
+            List<FinancialBudget> groupList = entry.getValue();
+            BigDecimal remainingSpent = remainingSpentByGroup.getOrDefault(key, BigDecimal.ZERO);
+
+            for (int i = 0; i < groupList.size(); i++) {
+                FinancialBudget b = groupList.get(i);
+                BigDecimal planned = (b.getPlannedAmount() != null) ? b.getPlannedAmount() : BigDecimal.ZERO;
+                boolean isLast = (i == groupList.size() - 1);
+
+                BigDecimal allocated;
+                if (isLast) {
+                    allocated = remainingSpent;
+                    remainingSpent = BigDecimal.ZERO;
+                } else {
+                    if (remainingSpent.compareTo(planned) <= 0) {
+                        allocated = remainingSpent;
+                        remainingSpent = BigDecimal.ZERO;
+                    } else {
+                        allocated = planned;
+                        remainingSpent = remainingSpent.subtract(planned);
+                    }
+                }
+                actualSpentPerBudgetId.put(b.getId(), allocated);
+            }
+        }
+
         // 4. Build items response
         BigDecimal totalPlannedExpense = BigDecimal.ZERO;
         Map<Long, BigDecimal> plannedExpensePerAccount = new HashMap<>();
@@ -95,7 +155,8 @@ public class FinancialBudgetService {
                 plannedExpensePerAccount.merge(b.getAccountId(), planned, BigDecimal::add);
             }
 
-            BigDecimal actual = actualExpenseMap.getOrDefault(b.getCategoryId(), BigDecimal.ZERO);
+            BigDecimal actual = actualSpentPerBudgetId.getOrDefault(b.getId(), BigDecimal.ZERO);
+
             BigDecimal remaining = planned.subtract(actual);
 
             double percentage = 0.0;
@@ -171,13 +232,30 @@ public class FinancialBudgetService {
                     ? expectedIncome
                     : BigDecimal.ZERO;
 
-            BigDecimal projectedBal = currentBal.add(plannedIncome).subtract(plannedExpense);
-            boolean isDeficit = projectedBal.compareTo(BigDecimal.ZERO) < 0;
+            // Actual spent and actual income from this account in the current month
+            BigDecimal actualSpentForAcc = transactionRepository.sumExpenseForAccountBetween(acc.getId(), startOfMonth, endOfMonth);
+            if (actualSpentForAcc == null) {
+                actualSpentForAcc = BigDecimal.ZERO;
+            }
 
-            // Actual spent from this account in the month
-            BigDecimal actualSpent = transactionRepository.sumExpenseBetween(startOfMonth, endOfMonth);
-            // specific to account:
-            BigDecimal actualSpentForAcc = transactionRepository.sumExpenseForAccount(acc.getId());
+            BigDecimal actualIncomeForAcc = transactionRepository.sumIncomeForAccountBetween(acc.getId(), startOfMonth, endOfMonth);
+            if (actualIncomeForAcc == null) {
+                actualIncomeForAcc = BigDecimal.ZERO;
+            }
+
+            // Remaining planned expense: only what hasn't been spent yet from this wallet
+            BigDecimal remainingPlannedExpense = plannedExpense.compareTo(actualSpentForAcc) > 0
+                    ? plannedExpense.subtract(actualSpentForAcc)
+                    : BigDecimal.ZERO;
+
+            // Remaining planned income: only what hasn't been received yet into this wallet
+            BigDecimal remainingPlannedIncome = plannedIncome.compareTo(actualIncomeForAcc) > 0
+                    ? plannedIncome.subtract(actualIncomeForAcc)
+                    : BigDecimal.ZERO;
+
+            // Projected balance at end of month = currentBalance + remainingPlannedIncome - remainingPlannedExpense
+            BigDecimal projectedBal = currentBal.add(remainingPlannedIncome).subtract(remainingPlannedExpense);
+            boolean isDeficit = projectedBal.compareTo(BigDecimal.ZERO) < 0;
 
             accountForecasts.add(AccountBudgetForecast.builder()
                     .accountId(acc.getId())
@@ -186,15 +264,24 @@ public class FinancialBudgetService {
                     .currentBalance(currentBal)
                     .plannedExpense(plannedExpense)
                     .plannedIncome(plannedIncome)
+                    .actualSpent(actualSpentForAcc)
+                    .remainingPlannedExpense(remainingPlannedExpense)
+                    .actualIncome(actualIncomeForAcc)
+                    .remainingPlannedIncome(remainingPlannedIncome)
                     .projectedBalance(projectedBal)
                     .isDeficit(isDeficit)
-                    .actualSpent(actualSpentForAcc != null ? actualSpentForAcc : BigDecimal.ZERO)
                     .build());
         }
 
-        BigDecimal projectedTotalWalletBalance = totalCurrentWalletBalance.subtract(totalPlannedExpense);
-        if (expectedIncome != null && expectedIncome.compareTo(BigDecimal.ZERO) > 0) {
-            projectedTotalWalletBalance = projectedTotalWalletBalance.add(expectedIncome);
+        BigDecimal projectedTotalWalletBalance = accountForecasts.stream()
+                .map(AccountBudgetForecast::getProjectedBalance)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (expectedIncomeAccountId == null && expectedIncome != null && expectedIncome.compareTo(BigDecimal.ZERO) > 0) {
+            BigDecimal remainingUnassignedIncome = expectedIncome.compareTo(totalActualIncome) > 0
+                    ? expectedIncome.subtract(totalActualIncome)
+                    : BigDecimal.ZERO;
+            projectedTotalWalletBalance = projectedTotalWalletBalance.add(remainingUnassignedIncome);
         }
 
         // 7. Goal Feasibility Assessment (Đối soát với Mục tiêu tài chính)
@@ -326,25 +413,56 @@ public class FinancialBudgetService {
 
     @Transactional
     public FinancialBudget saveBudgetItem(SaveBudgetItemRequest request) {
+        if (request.getAccountId() == null) {
+            throw new IllegalArgumentException("Vui lòng chọn ví thanh toán cho khoản dự chi");
+        }
+        
+        AccountResponse accountResp = accountService.getAccountById(request.getAccountId());
+        BigDecimal currentBalance = accountResp.getCurrentBalance() != null ? accountResp.getCurrentBalance() : BigDecimal.ZERO;
+
+        // Tính tổng dự chi đã lên kế hoạch cho ví này trong tháng (loại trừ item hiện tại nếu đang chỉnh sửa)
+        List<FinancialBudget> monthBudgets = budgetRepository.findByMonthAndYear(request.getMonth(), request.getYear());
+        BigDecimal otherPlannedForAccount = monthBudgets.stream()
+                .filter(b -> request.getAccountId().equals(b.getAccountId()))
+                .filter(b -> request.getId() == null || !request.getId().equals(b.getId()))
+                .map(b -> b.getPlannedAmount() != null ? b.getPlannedAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal plannedAmount = request.getPlannedAmount() != null ? request.getPlannedAmount() : BigDecimal.ZERO;
+        BigDecimal newTotalPlanned = otherPlannedForAccount.add(plannedAmount);
+
+        if (newTotalPlanned.compareTo(currentBalance) > 0) {
+            DecimalFormat df = new DecimalFormat("#,###");
+            String curBalStr = df.format(currentBalance) + " ₫";
+            String newTotalStr = df.format(newTotalPlanned) + " ₫";
+
+            if (currentBalance.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException(String.format(
+                        "Ví '%s' hiện không có tiền (Số dư: %s), không thể lập khoản dự chi!",
+                        accountResp.getName(), curBalStr));
+            } else {
+                throw new IllegalArgumentException(String.format(
+                        "Số dư ví '%s' không đủ! Hiện có %s, nhưng tổng dự kiến chi từ ví này sẽ là %s.",
+                        accountResp.getName(), curBalStr, newTotalStr));
+            }
+        }
+
         FinancialCategory category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy danh mục với ID: " + request.getCategoryId()));
 
-        FinancialBudget budget = budgetRepository.findByMonthAndYearAndCategoryId(
-                request.getMonth(), request.getYear(), request.getCategoryId())
-                .orElse(null);
-
-        if (budget == null) {
-            if (request.getId() != null) {
-                budget = budgetRepository.findById(request.getId())
-                        .orElse(null);
-            }
-            if (budget == null) {
-                budget = FinancialBudget.builder()
-                        .month(request.getMonth())
-                        .year(request.getYear())
-                        .categoryId(request.getCategoryId())
-                        .build();
-            }
+        FinancialBudget budget;
+        if (request.getId() != null) {
+            // Trường hợp cập nhật khoản dự chi hiện có theo ID
+            budget = budgetRepository.findById(request.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy khoản dự chi với ID: " + request.getId()));
+            budget.setCategoryId(request.getCategoryId());
+        } else {
+            // Trường hợp thêm mới khoản dự chi: Tạo mới độc lập (cho phép tạo nhiều khoản cùng 1 danh mục)
+            budget = FinancialBudget.builder()
+                    .month(request.getMonth())
+                    .year(request.getYear())
+                    .categoryId(request.getCategoryId())
+                    .build();
         }
 
         budget.setAccountId(request.getAccountId());

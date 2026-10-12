@@ -32,6 +32,12 @@ public interface FinancialTransactionRepository extends JpaRepository<FinancialT
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM FinancialTransaction t WHERE t.account.id = :accountId AND t.type = 'EXPENSE'")
     BigDecimal sumExpenseForAccount(@Param("accountId") Long accountId);
 
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM FinancialTransaction t WHERE t.account.id = :accountId AND t.type = 'EXPENSE' AND t.transactionDate >= :startDate AND t.transactionDate <= :endDate")
+    BigDecimal sumExpenseForAccountBetween(@Param("accountId") Long accountId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM FinancialTransaction t WHERE t.account.id = :accountId AND t.type = 'INCOME' AND t.transactionDate >= :startDate AND t.transactionDate <= :endDate")
+    BigDecimal sumIncomeForAccountBetween(@Param("accountId") Long accountId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM FinancialTransaction t WHERE t.account.id = :accountId AND t.type = 'TRANSFER'")
     BigDecimal sumOutgoingTransferForAccount(@Param("accountId") Long accountId);
 
@@ -44,6 +50,12 @@ public interface FinancialTransactionRepository extends JpaRepository<FinancialT
            "GROUP BY t.category.id, t.category.name, t.category.icon, t.category.color " +
            "ORDER BY SUM(t.amount) DESC")
     List<Object[]> getCategoryExpenseBreakdown(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT t.category.id, t.account.id, COALESCE(SUM(t.amount), 0) " +
+           "FROM FinancialTransaction t " +
+           "WHERE t.type = 'EXPENSE' AND t.transactionDate >= :startDate AND t.transactionDate <= :endDate " +
+           "GROUP BY t.category.id, t.account.id")
+    List<Object[]> getCategoryAndAccountExpenseBreakdown(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT t.category.id, t.category.name, t.category.icon, t.category.color, COALESCE(SUM(t.amount), 0), COUNT(t.id) " +
            "FROM FinancialTransaction t " +

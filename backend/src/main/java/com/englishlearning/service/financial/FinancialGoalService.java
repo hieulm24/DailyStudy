@@ -2,6 +2,7 @@ package com.englishlearning.service.financial;
 
 import com.englishlearning.common.BadRequestException;
 import com.englishlearning.common.ResourceNotFoundException;
+import com.englishlearning.dto.financial.AccountDtos.AccountResponse;
 import com.englishlearning.dto.financial.GoalDtos.*;
 import com.englishlearning.entity.financial.FinancialAccount;
 import com.englishlearning.entity.financial.FinancialGoal;
@@ -28,6 +29,7 @@ public class FinancialGoalService {
     private final FinancialGoalRepository goalRepository;
     private final FinancialGoalContributionRepository contributionRepository;
     private final FinancialAccountRepository accountRepository;
+    private final FinancialAccountService accountService;
 
     @Transactional(readOnly = true)
     public List<GoalResponse> getAllGoals(String status) {
@@ -154,7 +156,26 @@ public class FinancialGoalService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản với ID: " + request.getAccountId()));
 
         String type = request.getType().toUpperCase();
-        if ("WITHDRAW".equals(type)) {
+        if ("DEPOSIT".equals(type)) {
+            // 1. Kiểm tra mục tiêu đã đạt 100% chưa
+            BigDecimal currentNet = contributionRepository.sumNetContributionsForGoal(goal.getId());
+            if (currentNet == null) currentNet = BigDecimal.ZERO;
+            BigDecimal remaining = goal.getTargetAmount().subtract(currentNet);
+            if (remaining.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new BadRequestException("Mục tiêu '" + goal.getName() + "' đã hoàn thành 100%, không cần đóng góp thêm!");
+            }
+
+            // 2. Kiểm tra số dư khả dụng của ví nguồn (chặn số dư âm)
+            if (!"CREDIT".equalsIgnoreCase(account.getAccountType())) {
+                AccountResponse accResp = accountService.getAccountById(account.getId());
+                BigDecimal avail = accResp.getAvailableBalance() != null ? accResp.getAvailableBalance() : BigDecimal.ZERO;
+                if (request.getAmount().compareTo(avail) > 0) {
+                    throw new BadRequestException(String.format(
+                            "Số dư khả dụng của ví '%s' không đủ để tích lũy vào mục tiêu! (Khả dụng: %s, Cần: %s)",
+                            account.getName(), formatVnMoney(avail), formatVnMoney(request.getAmount())));
+                }
+            }
+        } else if ("WITHDRAW".equals(type)) {
             BigDecimal currentNet = contributionRepository.sumNetContributionsForGoal(goal.getId());
             if (currentNet == null || currentNet.compareTo(request.getAmount()) < 0) {
                 throw new BadRequestException("Số tiền rút (" + formatVnMoney(request.getAmount()) + ") vượt quá số tiền đã tích lũy của mục tiêu (" + formatVnMoney(currentNet) + ")");
@@ -195,9 +216,38 @@ public class FinancialGoalService {
         FinancialAccount account = accountRepository.findById(request.getAccountId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài khoản với ID: " + request.getAccountId()));
 
+        String type = request.getType().toUpperCase();
+        if ("DEPOSIT".equals(type)) {
+            if (!"CREDIT".equalsIgnoreCase(account.getAccountType())) {
+                AccountResponse accResp = accountService.getAccountById(account.getId());
+                BigDecimal avail = accResp.getAvailableBalance() != null ? accResp.getAvailableBalance() : BigDecimal.ZERO;
+                BigDecimal effectiveAvail = avail;
+                if (contribution.getAccount() != null && contribution.getAccount().getId().equals(account.getId())
+                        && "DEPOSIT".equalsIgnoreCase(contribution.getType())) {
+                    effectiveAvail = effectiveAvail.add(contribution.getAmount());
+                }
+                if (request.getAmount().compareTo(effectiveAvail) > 0) {
+                    throw new BadRequestException(String.format(
+                            "Số dư khả dụng của ví '%s' không đủ để tích lũy vào mục tiêu! (Khả dụng: %s, Cần: %s)",
+                            account.getName(), formatVnMoney(effectiveAvail), formatVnMoney(request.getAmount())));
+                }
+            }
+        } else if ("WITHDRAW".equals(type)) {
+            BigDecimal currentNet = contributionRepository.sumNetContributionsForGoal(goal.getId());
+            if (currentNet == null) currentNet = BigDecimal.ZERO;
+            BigDecimal effectiveNet = currentNet;
+            if (contribution.getGoal() != null && contribution.getGoal().getId().equals(goal.getId())
+                    && "WITHDRAW".equalsIgnoreCase(contribution.getType())) {
+                effectiveNet = effectiveNet.add(contribution.getAmount());
+            }
+            if (effectiveNet.compareTo(request.getAmount()) < 0) {
+                throw new BadRequestException("Số tiền rút (" + formatVnMoney(request.getAmount()) + ") vượt quá số tiền đã tích lũy của mục tiêu (" + formatVnMoney(effectiveNet) + ")");
+            }
+        }
+
         contribution.setGoal(goal);
         contribution.setAccount(account);
-        contribution.setType(request.getType().toUpperCase());
+        contribution.setType(type);
         contribution.setAmount(request.getAmount());
         if (request.getContributionDate() != null) contribution.setContributionDate(request.getContributionDate());
         contribution.setNote(request.getNote());

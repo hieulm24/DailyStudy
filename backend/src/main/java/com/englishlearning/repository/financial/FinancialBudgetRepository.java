@@ -14,7 +14,7 @@ public interface FinancialBudgetRepository extends JpaRepository<FinancialBudget
 
     List<FinancialBudget> findByMonthAndYear(Integer month, Integer year);
 
-    Optional<FinancialBudget> findByMonthAndYearAndCategoryId(Integer month, Integer year, Long categoryId);
+    List<FinancialBudget> findByMonthAndYearAndCategoryId(Integer month, Integer year, Long categoryId);
 
     @Query("SELECT b FROM FinancialBudget b JOIN FETCH b.category c LEFT JOIN FETCH b.account a WHERE b.month = :month AND b.year = :year ORDER BY b.plannedAmount DESC")
     List<FinancialBudget> findByMonthAndYearWithCategory(@Param("month") Integer month, @Param("year") Integer year);

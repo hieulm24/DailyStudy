@@ -54,7 +54,8 @@ public class BudgetDtos {
         @NotNull(message = "Danh mục không được để trống")
         private Long categoryId;
 
-        private Long accountId; // Ví dự kiến chi tiền (optional)
+        @NotNull(message = "Vui lòng chọn ví thanh toán cho khoản dự chi")
+        private Long accountId;
 
         @NotNull(message = "Số tiền dự kiến không được để trống")
         @DecimalMin(value = "0.0", message = "Số tiền dự kiến không được âm")
@@ -116,12 +117,15 @@ public class BudgetDtos {
         private Long accountId;
         private String accountName;
         private String accountType;
-        private BigDecimal currentBalance;      // Số dư thực tế hiện tại
-        private BigDecimal plannedExpense;       // Dự kiến chi từ ví này
-        private BigDecimal plannedIncome;        // Dự kiến thu về ví này
-        private BigDecimal projectedBalance;     // Số dư dự kiến = currentBalance + plannedIncome - plannedExpense
-        private Boolean isDeficit;               // projectedBalance < 0
-        private BigDecimal actualSpent;          // Thực tế đã chi từ ví này
+        private BigDecimal currentBalance;          // Số dư thực tế hiện tại
+        private BigDecimal plannedExpense;           // Dự kiến chi từ ví này (tổng kế hoạch)
+        private BigDecimal plannedIncome;            // Dự kiến thu về ví này (tổng kế hoạch)
+        private BigDecimal actualSpent;              // Thực tế đã chi trong tháng từ ví này
+        private BigDecimal remainingPlannedExpense;  // Dự kiến CÒN PHẢI CHI = max(0, plannedExpense - actualSpent)
+        private BigDecimal actualIncome;             // Thực tế đã thu trong tháng vào ví này
+        private BigDecimal remainingPlannedIncome;   // Dự kiến CÒN SẼ THU = max(0, plannedIncome - actualIncome)
+        private BigDecimal projectedBalance;         // Số dư dự kiến cuối tháng = currentBalance + remainingPlannedIncome - remainingPlannedExpense
+        private Boolean isDeficit;                   // projectedBalance < 0
     }
 
     @Getter

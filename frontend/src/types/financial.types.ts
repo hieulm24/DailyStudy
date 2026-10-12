@@ -219,6 +219,9 @@ export interface AccountBudgetForecast {
   projectedBalance: number;
   isDeficit: boolean;
   actualSpent: number;
+  remainingPlannedExpense?: number;
+  actualIncome?: number;
+  remainingPlannedIncome?: number;
 }
 
 export interface GoalBudgetAssessment {

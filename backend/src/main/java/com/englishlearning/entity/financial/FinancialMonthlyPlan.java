@@ -1,5 +1,7 @@
 package com.englishlearning.entity.financial;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class FinancialMonthlyPlan {
 
     @Id
@@ -35,6 +38,7 @@ public class FinancialMonthlyPlan {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountId", insertable = false, updatable = false)
+    @JsonIgnore
     private FinancialAccount account;
 
     @Column(name = "Note", length = 500)

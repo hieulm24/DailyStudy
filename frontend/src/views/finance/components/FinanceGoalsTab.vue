@@ -411,6 +411,23 @@
               {{ a.name }} (Số dư khả dụng: {{ formatCurrency(a.availableBalance) }})
             </option>
           </select>
+          <div
+            v-if="selectedContributeAccount"
+            :class="[
+              'mt-1.5 p-2 rounded-md border text-xs flex items-center justify-between transition-colors',
+              (selectedContributeAccount.availableBalance || 0) <= 0 && selectedContributeAccount.accountType !== 'CREDIT'
+                ? 'bg-rose-50 border-rose-200 text-rose-700'
+                : 'bg-slate-50 border-slate-200/80 text-slate-700'
+            ]"
+          >
+            <div class="flex items-center gap-1.5">
+              <Wallet class="w-3.5 h-3.5" :class="(selectedContributeAccount.availableBalance || 0) <= 0 && selectedContributeAccount.accountType !== 'CREDIT' ? 'text-rose-500' : 'text-slate-500'" />
+              <span>Số dư khả dụng của ví:</span>
+            </div>
+            <span class="font-bold">
+              {{ formatCurrency(selectedContributeAccount.availableBalance) }}
+            </span>
+          </div>
         </div>
 
         <div>
@@ -607,6 +624,7 @@ import {
   Save,
   Check,
   Info,
+  Wallet,
 } from 'lucide-vue-next';
 import AppModal from '../../../components/common/AppModal.vue';
 import AppConfirmDialog from '../../../components/common/AppConfirmDialog.vue';
@@ -752,7 +770,14 @@ function openEditGoalModal(g: FinancialGoal) {
 }
 
 async function saveGoal() {
-  if (!goalForm.value.name.trim() || !goalForm.value.targetAmount) return;
+  if (!goalForm.value.name.trim()) {
+    showError('Vui lòng nhập tên mục tiêu tài chính');
+    return;
+  }
+  if (!goalForm.value.targetAmount || goalForm.value.targetAmount <= 0) {
+    showError('Vui lòng nhập số tiền mục tiêu lớn hơn 0');
+    return;
+  }
   submitting.value = true;
   try {
     if (isEditingGoal.value && editingGoalId.value) {
@@ -808,6 +833,10 @@ async function executeDeleteGoal() {
 // ==========================================
 // CONTRIBUTIONS METHODS
 // ==========================================
+const selectedContributeAccount = computed(() => {
+  return availableAccounts.value.find((a) => a.id === contributionForm.value.accountId);
+});
+
 function openContributeModal(g: FinancialGoal, type: 'DEPOSIT' | 'WITHDRAW') {
   targetGoalForContribute.value = g;
   contributionType.value = type;
@@ -827,7 +856,45 @@ function openContributeModal(g: FinancialGoal, type: 'DEPOSIT' | 'WITHDRAW') {
 }
 
 async function submitContribution() {
-  if (!contributionForm.value.amount || contributionForm.value.amount <= 0) return;
+  if (!contributionForm.value.accountId) {
+    showError('Vui lòng chọn tài khoản / ví nguồn');
+    return;
+  }
+  if (!contributionForm.value.amount || contributionForm.value.amount <= 0) {
+    showError('Vui lòng nhập số tiền lớn hơn 0');
+    return;
+  }
+
+  // Validate số dư ví khi tích lũy (DEPOSIT)
+  if (contributionForm.value.type === 'DEPOSIT') {
+    const selectedAcc = availableAccounts.value.find((a) => a.id === contributionForm.value.accountId);
+    if (selectedAcc && selectedAcc.accountType !== 'CREDIT') {
+      const avail = selectedAcc.availableBalance ?? selectedAcc.currentBalance ?? 0;
+      if (contributionForm.value.amount > avail) {
+        showError(
+          `Số dư khả dụng của ví "${selectedAcc.name}" không đủ! (Khả dụng: ${formatCurrency(avail)}, Cần tích lũy: ${formatCurrency(contributionForm.value.amount)})`
+        );
+        return;
+      }
+    }
+
+    if (targetGoalForContribute.value && (targetGoalForContribute.value.remainingAmount ?? 0) <= 0) {
+      showError(`Mục tiêu "${targetGoalForContribute.value.name}" đã hoàn thành 100%, không cần đóng góp thêm!`);
+      return;
+    }
+  }
+
+  // Validate rút tiền (WITHDRAW)
+  if (contributionForm.value.type === 'WITHDRAW') {
+    const currentSaved = targetGoalForContribute.value?.currentAmount ?? 0;
+    if (contributionForm.value.amount > currentSaved) {
+      showError(
+        `Số tiền rút (${formatCurrency(contributionForm.value.amount)}) vượt quá số tiền đã tích lũy trong mục tiêu (${formatCurrency(currentSaved)})!`
+      );
+      return;
+    }
+  }
+
   submittingContribution.value = true;
   try {
     await financialService.addGoalContribution(contributionForm.value);

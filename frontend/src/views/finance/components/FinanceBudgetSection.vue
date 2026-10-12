@@ -222,13 +222,21 @@
                   <span>Số dư hiện tại:</span>
                   <span class="font-semibold text-slate-700">{{ formatCurrency(acc.currentBalance) }}</span>
                 </div>
-                <div v-if="acc.plannedIncome > 0" class="flex items-center justify-between text-emerald-600">
-                  <span>Thu nhập đổ về ví:</span>
-                  <span class="font-semibold">+{{ formatCurrency(acc.plannedIncome) }}</span>
+                <div v-if="(acc.actualIncome || 0) > 0" class="flex items-center justify-between text-slate-500">
+                  <span>Đã thu về ví:</span>
+                  <span class="font-semibold text-slate-700">+{{ formatCurrency(acc.actualIncome) }}</span>
+                </div>
+                <div v-if="(acc.remainingPlannedIncome || 0) > 0" class="flex items-center justify-between text-emerald-600">
+                  <span>{{ (acc.actualIncome || 0) > 0 ? 'Dự kiến còn thu:' : 'Thu nhập đổ về ví:' }}</span>
+                  <span class="font-semibold">+{{ formatCurrency(acc.remainingPlannedIncome) }}</span>
+                </div>
+                <div v-if="(acc.actualSpent || 0) > 0" class="flex items-center justify-between text-slate-500">
+                  <span>Đã chi trong tháng:</span>
+                  <span class="font-semibold text-slate-700">-{{ formatCurrency(acc.actualSpent) }}</span>
                 </div>
                 <div v-if="acc.plannedExpense > 0" class="flex items-center justify-between text-rose-600">
-                  <span>Dự kiến chi từ ví:</span>
-                  <span class="font-semibold">-{{ formatCurrency(acc.plannedExpense) }}</span>
+                  <span>{{ (acc.actualSpent || 0) > 0 ? 'Dự kiến còn phải chi:' : 'Dự kiến chi từ ví:' }}</span>
+                  <span class="font-semibold">-{{ formatCurrency(acc.remainingPlannedExpense ?? acc.plannedExpense) }}</span>
                 </div>
               </div>
             </div>
@@ -244,88 +252,6 @@
               >
                 {{ formatCurrency(acc.projectedBalance) }}
               </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- SECTION 2: Đối soát với Mục tiêu tài chính (Goal Feasibility & Savings Check) -->
-      <div v-if="budgetPlan?.goalAssessments && budgetPlan.goalAssessments.length > 0" class="border border-slate-200 rounded-md overflow-hidden bg-white">
-        <div class="p-3.5 bg-slate-50/80 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div class="flex items-center gap-2">
-            <Target class="w-4 h-4 text-amber-600" />
-            <h4 class="text-xs sm:text-sm font-bold text-slate-800">
-              Đối soát Kế hoạch chi tiêu vs Mục tiêu tài chính ({{ budgetPlan.goalAssessments.length }} mục tiêu)
-            </h4>
-          </div>
-
-          <!-- Overall Status Badge -->
-          <div class="flex items-center gap-2 text-xs">
-            <span
-              v-if="budgetPlan.goalsOverallStatus === 'SUFFICIENT'"
-              class="inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200"
-            >
-              <CheckCircle2 class="w-3.5 h-3.5 text-emerald-600" />
-              Đủ tiền tích lũy cho tất cả mục tiêu
-            </span>
-            <span
-              v-else-if="budgetPlan.goalsOverallStatus === 'DEFICIT'"
-              class="inline-flex items-center gap-1 font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full border border-rose-200"
-            >
-              <AlertTriangle class="w-3.5 h-3.5 text-rose-600" />
-              Thiếu hụt tiền so với kế hoạch mục tiêu
-            </span>
-          </div>
-        </div>
-
-        <div class="p-4 space-y-3">
-          <div
-            v-for="g in budgetPlan.goalAssessments"
-            :key="g.goalId"
-            :class="[
-              'p-3.5 rounded-md border flex flex-col md:flex-row md:items-center justify-between gap-3 transition-all',
-              g.isSufficient
-                ? 'border-emerald-200 bg-emerald-50/20'
-                : 'border-rose-200 bg-rose-50/20',
-            ]"
-          >
-            <!-- Goal Name & Target -->
-            <div class="flex items-center gap-3">
-              <div
-                class="w-8 h-8 rounded-md flex items-center justify-center text-white shrink-0 text-xs font-bold"
-                :style="{ backgroundColor: g.goalColor || '#2563eb' }"
-              >
-                <Target class="w-4 h-4" />
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-bold text-slate-800">{{ g.goalName }}</span>
-                  <span
-                    :class="[
-                      'px-2 py-0.5 text-[10px] font-bold rounded-full border',
-                      g.isSufficient
-                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                        : 'bg-rose-100 text-rose-800 border-rose-200',
-                    ]"
-                  >
-                    {{ g.isSufficient ? 'ĐỦ TIẾN ĐỘ' : 'THIẾU HỤT TIỀN' }}
-                  </span>
-                </div>
-                <p class="text-xs text-slate-500 mt-0.5">
-                  Còn thiếu: <strong class="text-slate-700">{{ formatCurrency(g.remainingAmount) }}</strong> •
-                  Cần tiết kiệm tháng này: <strong class="text-amber-700">{{ formatCurrency(g.requiredMonthlySavings) }}</strong>
-                </p>
-              </div>
-            </div>
-
-            <!-- Assessment Details -->
-            <div class="text-left md:text-right shrink-0">
-              <p :class="['text-xs font-bold', g.isSufficient ? 'text-emerald-700' : 'text-rose-600']">
-                {{ g.assessmentNote }}
-              </p>
-              <p v-if="g.estimatedMonthsToComplete" class="text-[11px] text-slate-400 mt-0.5">
-                Khoảng ~<strong>{{ g.estimatedMonthsToComplete }} tháng</strong> nữa sẽ hoàn thành mục tiêu
-              </p>
             </div>
           </div>
         </div>
@@ -608,8 +534,7 @@
           </label>
           <select
             v-model="budgetItemForm.categoryId"
-            :disabled="isEditingItem"
-            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800 disabled:bg-slate-50"
+            class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800"
             required
           >
             <option :value="0" disabled>-- Chọn danh mục chi tiêu --</option>
@@ -629,13 +554,14 @@
         <!-- Chọn ví chi tiền -->
         <div>
           <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
-            Dự kiến chi từ ví nào?
+            Dự kiến chi từ ví nào? <span class="text-rose-500">*</span>
           </label>
           <select
             v-model="budgetItemForm.accountId"
             class="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-white border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors shadow-2xs text-slate-800"
+            required
           >
-            <option :value="null">-- Tất cả ví (Không phân biệt ví) --</option>
+            <option :value="null" disabled>-- Chọn ví thanh toán --</option>
             <option
               v-for="acc in allAccounts"
               :key="acc.id"
@@ -644,8 +570,25 @@
               {{ acc.name }} (Hiện có: {{ formatCurrency(acc.currentBalance) }})
             </option>
           </select>
+          <div
+            v-if="selectedWalletInBudgetForm"
+            :class="[
+              'mt-1.5 p-2 rounded-md border text-xs flex items-center justify-between transition-colors',
+              (selectedWalletInBudgetForm.currentBalance || 0) <= 0
+                ? 'bg-rose-50 border-rose-200 text-rose-700'
+                : 'bg-slate-50 border-slate-200/80 text-slate-700'
+            ]"
+          >
+            <div class="flex items-center gap-1.5">
+              <Wallet class="w-3.5 h-3.5" :class="(selectedWalletInBudgetForm.currentBalance || 0) <= 0 ? 'text-rose-500' : 'text-slate-500'" />
+              <span>Số dư hiện tại của ví:</span>
+            </div>
+            <span class="font-bold">
+              {{ formatCurrency(selectedWalletInBudgetForm.currentBalance) }}
+            </span>
+          </div>
           <p class="text-[11px] text-slate-400 mt-1">
-            Gán ví cụ thể sẽ giúp bạn theo dõi ví đó dự kiến sẽ giảm bao nhiêu tiền và còn lại bao nhiêu.
+            Bắt buộc chọn ví cụ thể để hệ thống tính chính xác số dư dự kiến còn lại của ví sau chi tiêu.
           </p>
         </div>
 
@@ -738,10 +681,8 @@ import {
   Trash2,
   Sparkles,
   AlertTriangle,
-  Target,
   Coins,
   Wallet,
-  CheckCircle2,
 } from 'lucide-vue-next';
 import AppModal from '../../../components/common/AppModal.vue';
 import AppButton from '../../../components/common/AppButton.vue';
@@ -803,6 +744,11 @@ const budgetItemForm = ref<{
   accountId: null,
   plannedAmount: 0,
   note: '',
+});
+
+const selectedWalletInBudgetForm = computed(() => {
+  if (!budgetItemForm.value.accountId) return null;
+  return allAccounts.value.find((a) => a.id === budgetItemForm.value.accountId) || null;
 });
 
 // Delete Confirmation State
@@ -910,12 +856,9 @@ async function executeDeletePlanIncome() {
 function openAddBudgetItemModal() {
   isEditingItem.value = false;
   editingItemId.value = null;
-  // Pick first available category not already budgeted if possible
-  const budgetedCatIds = new Set(budgetPlan.value?.items.map((i) => i.categoryId) || []);
-  const availableCat = expenseCategories.value.find((c) => !budgetedCatIds.has(c.id));
   budgetItemForm.value = {
-    categoryId: availableCat?.id || expenseCategories.value[0]?.id || 0,
-    accountId: null,
+    categoryId: expenseCategories.value[0]?.id || 0,
+    accountId: allAccounts.value[0]?.id || null,
     plannedAmount: 0,
     note: '',
   };
@@ -927,7 +870,7 @@ function openEditBudgetItemModal(item: FinancialBudgetItem) {
   editingItemId.value = item.id;
   budgetItemForm.value = {
     categoryId: item.categoryId,
-    accountId: item.accountId || null,
+    accountId: item.accountId || (allAccounts.value[0]?.id || null),
     plannedAmount: item.plannedAmount,
     note: item.note || '',
   };
@@ -939,8 +882,34 @@ async function submitBudgetItem() {
     showError('Vui lòng chọn danh mục chi tiêu');
     return;
   }
+  if (!budgetItemForm.value.accountId) {
+    showError('Vui lòng chọn ví thanh toán cho khoản dự chi');
+    return;
+  }
   if (!budgetItemForm.value.plannedAmount || budgetItemForm.value.plannedAmount <= 0) {
     showError('Vui lòng nhập số tiền dự kiến chi lớn hơn 0');
+    return;
+  }
+
+  // Chặn cứng: Kiểm tra số dư ví hiện tại
+  const selectedAccount = allAccounts.value.find((a) => a.id === budgetItemForm.value.accountId);
+  const currentBalance = selectedAccount?.currentBalance ?? 0;
+
+  // Tính tổng dự chi của ví này trong tháng (loại trừ khoản đang sửa nếu có)
+  const otherPlannedForAccount = (budgetPlan.value?.items || [])
+    .filter((item) => item.accountId === budgetItemForm.value.accountId && item.id !== editingItemId.value)
+    .reduce((sum, item) => sum + (item.plannedAmount || 0), 0);
+
+  const newTotalPlanned = otherPlannedForAccount + (budgetItemForm.value.plannedAmount || 0);
+
+  if (newTotalPlanned > currentBalance) {
+    if (currentBalance <= 0) {
+      showError(`Ví "${selectedAccount?.name || 'này'}" hiện không có tiền (${formatCurrency(currentBalance)}), không thể lập khoản dự chi!`);
+    } else {
+      showError(
+        `Số dư ví "${selectedAccount?.name}" không đủ! Hiện có ${formatCurrency(currentBalance)}, nhưng tổng dự kiến chi từ ví này sẽ là ${formatCurrency(newTotalPlanned)}.`
+      );
+    }
     return;
   }
 
