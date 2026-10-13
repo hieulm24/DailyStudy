@@ -41,8 +41,14 @@ public interface FinancialTransactionRepository extends JpaRepository<FinancialT
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM FinancialTransaction t WHERE t.account.id = :accountId AND t.type = 'TRANSFER'")
     BigDecimal sumOutgoingTransferForAccount(@Param("accountId") Long accountId);
 
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM FinancialTransaction t WHERE t.account.id = :accountId AND t.type = 'TRANSFER' AND t.transactionDate >= :startDate AND t.transactionDate <= :endDate")
+    BigDecimal sumOutgoingTransferForAccountBetween(@Param("accountId") Long accountId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
     @Query("SELECT COALESCE(SUM(t.amount), 0) FROM FinancialTransaction t WHERE t.toAccount.id = :accountId AND t.type = 'TRANSFER'")
     BigDecimal sumIncomingTransferForAccount(@Param("accountId") Long accountId);
+
+    @Query("SELECT COALESCE(SUM(t.amount), 0) FROM FinancialTransaction t WHERE t.toAccount.id = :accountId AND t.type = 'TRANSFER' AND t.transactionDate >= :startDate AND t.transactionDate <= :endDate")
+    BigDecimal sumIncomingTransferForAccountBetween(@Param("accountId") Long accountId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 
     @Query("SELECT t.category.id, t.category.name, t.category.icon, t.category.color, COALESCE(SUM(t.amount), 0), COUNT(t.id) " +
            "FROM FinancialTransaction t " +

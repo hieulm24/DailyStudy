@@ -38,28 +38,28 @@
         type="button"
         @click="activeCategoryType = 'EXPENSE'"
         :class="[
-          'px-4 py-2 rounded-md font-bold text-xs sm:text-sm flex items-center gap-2 transition-all',
+          'px-4 py-2 rounded-md font-black text-xs sm:text-sm flex items-center gap-2 transition-all border-2',
           activeCategoryType === 'EXPENSE'
-            ? 'bg-rose-50 text-rose-700 border border-rose-200 shadow-2xs'
-            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100',
+            ? 'bg-red-100 text-red-800 border-red-400 shadow-2xs'
+            : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100',
         ]"
       >
-        <ArrowUpRight class="w-4 h-4" />
-        <span>Danh mục chi tiêu ({{ expenseCategories.length }})</span>
+        <ArrowUpRight class="w-4 h-4 stroke-[3] text-red-700" />
+        <span class="font-black">Danh mục chi tiêu ({{ expenseCategories.length }})</span>
       </button>
 
       <button
         type="button"
         @click="activeCategoryType = 'INCOME'"
         :class="[
-          'px-4 py-2 rounded-md font-bold text-xs sm:text-sm flex items-center gap-2 transition-all',
+          'px-4 py-2 rounded-md font-black text-xs sm:text-sm flex items-center gap-2 transition-all border-2',
           activeCategoryType === 'INCOME'
-            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs'
-            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100',
+            ? 'bg-green-100 text-green-800 border-green-400 shadow-2xs'
+            : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100',
         ]"
       >
-        <ArrowDownLeft class="w-4 h-4" />
-        <span>Danh mục thu nhập ({{ incomeCategories.length }})</span>
+        <ArrowDownLeft class="w-4 h-4 stroke-[3] text-green-700" />
+        <span class="font-black">Danh mục thu nhập ({{ incomeCategories.length }})</span>
       </button>
     </div>
 

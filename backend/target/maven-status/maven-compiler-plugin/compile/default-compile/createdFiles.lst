@@ -245,6 +245,7 @@ com\englishlearning\controller\VocabularyController.class
 com\englishlearning\dto\grammar\GrammarExampleDto$GrammarExampleDtoBuilder.class
 com\englishlearning\dto\ai\DictionaryMeaningDTO.class
 com\englishlearning\dto\document\DocumentStatisticsResponse.class
+com\englishlearning\dto\financial\BudgetDtos$AccountSpentBreakdown$AccountSpentBreakdownBuilder.class
 com\englishlearning\entity\GrammarExerciseHistory.class
 com\englishlearning\service\financial\FinancialCategoryService.class
 com\englishlearning\dto\financial\GoalDtos$GoalContributionResponse.class
@@ -279,6 +280,7 @@ com\englishlearning\entity\nutrition\NutritionDailyLog$NutritionDailyLogBuilder.
 com\englishlearning\entity\nutrition\NutritionMicronutrient.class
 com\englishlearning\dto\statistics\ChartDataDto$ChartDataDtoBuilder.class
 com\englishlearning\entity\ReadingLog$ReadingLogBuilder.class
+com\englishlearning\dto\financial\BudgetDtos$AccountSpentBreakdown.class
 com\englishlearning\dto\nutrition\NutritionMicronutrientDto$NutritionMicronutrientDtoBuilder.class
 com\englishlearning\entity\GrammarExerciseHistory$GrammarExerciseHistoryBuilder.class
 com\englishlearning\entity\GrammarExample.class

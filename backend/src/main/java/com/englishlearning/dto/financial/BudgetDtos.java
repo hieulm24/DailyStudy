@@ -54,14 +54,26 @@ public class BudgetDtos {
         @NotNull(message = "Danh mục không được để trống")
         private Long categoryId;
 
-        @NotNull(message = "Vui lòng chọn ví thanh toán cho khoản dự chi")
         private Long accountId;
+        private List<Long> accountIds;
 
         @NotNull(message = "Số tiền dự kiến không được để trống")
         @DecimalMin(value = "0.0", message = "Số tiền dự kiến không được âm")
         private BigDecimal plannedAmount;
 
         private String note;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class AccountSpentBreakdown {
+        private Long accountId;
+        private String accountName;
+        private String accountType;
+        private BigDecimal amount;
     }
 
     @Getter
@@ -98,6 +110,7 @@ public class BudgetDtos {
         private String categoryIcon;
         private String categoryColor;
         private Long accountId;
+        private List<Long> accountIds;
         private String accountName;
         private String accountType;
         private BigDecimal plannedAmount;
@@ -105,6 +118,7 @@ public class BudgetDtos {
         private BigDecimal remainingAmount;
         private Double percentageSpent;
         private Boolean isExceeded;
+        private List<AccountSpentBreakdown> spentBreakdown;
         private String note;
     }
 
@@ -117,15 +131,18 @@ public class BudgetDtos {
         private Long accountId;
         private String accountName;
         private String accountType;
-        private BigDecimal currentBalance;          // Số dư thực tế hiện tại
-        private BigDecimal plannedExpense;           // Dự kiến chi từ ví này (tổng kế hoạch)
-        private BigDecimal plannedIncome;            // Dự kiến thu về ví này (tổng kế hoạch)
-        private BigDecimal actualSpent;              // Thực tế đã chi trong tháng từ ví này
-        private BigDecimal remainingPlannedExpense;  // Dự kiến CÒN PHẢI CHI = max(0, plannedExpense - actualSpent)
-        private BigDecimal actualIncome;             // Thực tế đã thu trong tháng vào ví này
-        private BigDecimal remainingPlannedIncome;   // Dự kiến CÒN SẼ THU = max(0, plannedIncome - actualIncome)
-        private BigDecimal projectedBalance;         // Số dư dự kiến cuối tháng = currentBalance + remainingPlannedIncome - remainingPlannedExpense
-        private Boolean isDeficit;                   // projectedBalance < 0
+        private BigDecimal currentBalance; // Số dư thực tế hiện tại
+        private BigDecimal plannedExpense; // Dự kiến chi từ ví này (tổng kế hoạch)
+        private BigDecimal plannedIncome; // Dự kiến thu về ví này (tổng kế hoạch)
+        private BigDecimal actualSpent; // Thực tế đã chi trong tháng từ ví này
+        private BigDecimal remainingPlannedExpense; // Dự kiến CÒN PHẢI CHI = max(0, plannedExpense - actualSpent)
+        private BigDecimal actualIncome; // Thực tế đã thu trong tháng vào ví này
+        private BigDecimal remainingPlannedIncome; // Dự kiến CÒN SẼ THU = max(0, plannedIncome - actualIncome)
+        private BigDecimal incomingTransfers; // Tiền nhận chuyển từ ví khác vào ví này trong tháng
+        private BigDecimal outgoingTransfers; // Tiền chuyển từ ví này sang ví khác trong tháng
+        private BigDecimal projectedBalance; // Số dư dự kiến cuối tháng = currentBalance + remainingPlannedIncome -
+                                             // remainingPlannedExpense
+        private Boolean isDeficit; // projectedBalance < 0
     }
 
     @Getter
@@ -143,11 +160,11 @@ public class BudgetDtos {
         private BigDecimal remainingAmount;
         private LocalDate targetDate;
         private Integer monthsRemaining;
-        private BigDecimal requiredMonthlySavings;    // Cần tiết kiệm mỗi tháng để đạt mục tiêu
-        private BigDecimal projectedMonthlySurplus;    // Dự kiến dư tháng này (sau thu chi)
-        private Boolean isSufficient;                  // Có đủ khả năng tích lũy (surplus >= required)
-        private BigDecimal surplusOrDeficit;           // Chênh lệch (+ dư thêm, - thiếu hụt)
-        private Double estimatedMonthsToComplete;      // Số tháng ước tính hoàn thành với mức dư này
+        private BigDecimal requiredMonthlySavings; // Cần tiết kiệm mỗi tháng để đạt mục tiêu
+        private BigDecimal projectedMonthlySurplus; // Dự kiến dư tháng này (sau thu chi)
+        private Boolean isSufficient; // Có đủ khả năng tích lũy (surplus >= required)
+        private BigDecimal surplusOrDeficit; // Chênh lệch (+ dư thêm, - thiếu hụt)
+        private Double estimatedMonthsToComplete; // Số tháng ước tính hoàn thành với mức dư này
         private String assessmentNote;
     }
 

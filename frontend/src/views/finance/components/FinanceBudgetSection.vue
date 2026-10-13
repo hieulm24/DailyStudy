@@ -1,22 +1,33 @@
 <template>
-  <div class="bg-white rounded-md border border-slate-200 shadow-xs overflow-hidden">
+  <div
+    class="bg-white rounded-md border border-slate-200 shadow-xs overflow-hidden"
+  >
     <!-- Header Banner -->
-    <div class="p-5 sm:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-emerald-50/40 via-white to-brand-50/30">
+    <div
+      class="p-5 sm:p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-emerald-50/40 via-white to-brand-50/30"
+    >
       <div class="flex items-start sm:items-center gap-3.5">
-        <div class="w-11 h-11 rounded-md bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+        <div
+          class="w-11 h-11 rounded-md bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs"
+        >
           <Calculator class="w-6 h-6" />
         </div>
         <div>
           <div class="flex items-center gap-2 flex-wrap">
-            <h3 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+            <h3
+              class="text-base sm:text-lg font-bold text-slate-900 tracking-tight"
+            >
               Kế hoạch chi tiêu, Dự báo số dư ví & Đối soát mục tiêu
             </h3>
-            <span class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800">
+            <span
+              class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-800"
+            >
               Tháng {{ month }}/{{ year }}
             </span>
           </div>
           <p class="text-xs text-slate-500 mt-0.5">
-            Dự kiến nguồn thu, phân bổ chi tiêu cho từng ví, đối soát tự động xem có đủ tiền tích lũy cho mục tiêu hay không
+            Dự kiến nguồn thu, phân bổ chi tiêu cho từng ví, đối soát tự động
+            xem có đủ tiền tích lũy cho mục tiêu hay không
           </p>
         </div>
       </div>
@@ -29,7 +40,11 @@
           class="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-md transition-colors shadow-xs"
         >
           <Pencil class="w-3.5 h-3.5 text-slate-500" />
-          <span>{{ budgetPlan?.expectedIncome ? 'Sửa thu nhập dự kiến' : 'Đặt thu nhập dự kiến' }}</span>
+          <span>{{
+            budgetPlan?.expectedIncome
+              ? "Sửa thu nhập dự kiến"
+              : "Đặt thu nhập dự kiến"
+          }}</span>
         </button>
 
         <button
@@ -44,18 +59,32 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="loading" class="py-12 flex flex-col items-center justify-center text-center">
-      <div class="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-      <span class="mt-3 text-xs text-slate-500 font-medium">Đang tính toán dòng tiền & kế hoạch...</span>
+    <div
+      v-if="loading"
+      class="py-12 flex flex-col items-center justify-center text-center"
+    >
+      <div
+        class="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"
+      ></div>
+      <span class="mt-3 text-xs text-slate-500 font-medium"
+        >Đang tính toán dòng tiền & kế hoạch...</span
+      >
     </div>
 
     <div v-else class="p-5 sm:p-6 space-y-6">
       <!-- 4 Highlight Summary Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- 1. Thu nhập (Dự kiến hoặc Đồng bộ từ thực tế) -->
-        <div class="p-4 rounded-md border border-slate-200/80 bg-slate-50/50 flex flex-col justify-between hover:bg-white hover:border-slate-300 transition-all">
-          <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
-            <span v-if="budgetPlan?.isIncomeFromActual" class="text-emerald-700 font-bold flex items-center gap-1">
+        <div
+          class="p-4 rounded-md border border-slate-200/80 bg-slate-50/50 flex flex-col justify-between hover:bg-white hover:border-slate-300 transition-all"
+        >
+          <div
+            class="flex items-center justify-between text-xs font-semibold text-slate-500"
+          >
+            <span
+              v-if="budgetPlan?.isIncomeFromActual"
+              class="text-emerald-700 font-bold flex items-center gap-1"
+            >
               Thu thực tế (Tự đồng bộ)
             </span>
             <span v-else>Thu nhập dự kiến (A)</span>
@@ -64,9 +93,15 @@
                 type="button"
                 @click="openPlanIncomeModal"
                 class="text-brand-600 hover:text-brand-700 hover:underline text-[11px]"
-                :title="budgetPlan?.isIncomeFromActual ? 'Đặt kế hoạch dự kiến riêng cho tháng này/sau' : 'Đổi thu nhập dự kiến'"
+                :title="
+                  budgetPlan?.isIncomeFromActual
+                    ? 'Đặt kế hoạch dự kiến riêng cho tháng này/sau'
+                    : 'Đổi thu nhập dự kiến'
+                "
               >
-                {{ budgetPlan?.isIncomeFromActual ? 'Đặt dự kiến' : 'Chỉnh sửa' }}
+                {{
+                  budgetPlan?.isIncomeFromActual ? "Đặt dự kiến" : "Chỉnh sửa"
+                }}
               </button>
               <button
                 v-if="(budgetPlan?.expectedIncome || 0) > 0"
@@ -81,22 +116,42 @@
           </div>
           <div class="mt-2.5">
             <span class="text-xl font-bold text-emerald-600 tracking-tight">
-              {{ formatCurrency(budgetPlan?.effectiveIncome != null ? budgetPlan?.effectiveIncome : budgetPlan?.expectedIncome) }}
+              +{{
+                formatCurrency(
+                  budgetPlan?.effectiveIncome != null
+                    ? budgetPlan?.effectiveIncome
+                    : budgetPlan?.expectedIncome,
+                )
+              }}
             </span>
             <p class="text-[11px] text-slate-500 mt-0.5 truncate">
-              <span v-if="budgetPlan?.isIncomeFromActual" class="text-emerald-700 font-medium">
+              <span
+                v-if="budgetPlan?.isIncomeFromActual"
+                class="text-emerald-700 font-medium"
+              >
                 Đồng bộ từ các giao dịch thu tháng {{ month }}
               </span>
-              <span v-else-if="budgetPlan?.expectedIncomeAccountName" class="inline-flex items-center gap-1 text-slate-600">
+              <span
+                v-else-if="budgetPlan?.expectedIncomeAccountName"
+                class="inline-flex items-center gap-1 text-slate-600"
+              >
                 <Wallet class="w-3 h-3 text-emerald-600" />
                 Về: {{ budgetPlan?.expectedIncomeAccountName }}
-                <span v-if="(budgetPlan?.totalActualIncome || 0) > 0" class="text-slate-400">
+                <span
+                  v-if="(budgetPlan?.totalActualIncome || 0) > 0"
+                  class="text-slate-400"
+                >
                   (Đã thu: +{{ formatCurrency(budgetPlan?.totalActualIncome) }})
                 </span>
               </span>
               <span v-else class="text-slate-400">
-                {{ budgetPlan?.planNote || `Mục tiêu nguồn thu tháng ${month}` }}
-                <span v-if="(budgetPlan?.totalActualIncome || 0) > 0" class="text-emerald-600 font-semibold ml-1">
+                {{
+                  budgetPlan?.planNote || `Mục tiêu nguồn thu tháng ${month}`
+                }}
+                <span
+                  v-if="(budgetPlan?.totalActualIncome || 0) > 0"
+                  class="text-emerald-600 font-semibold ml-1"
+                >
                   (Đã thu: +{{ formatCurrency(budgetPlan?.totalActualIncome) }})
                 </span>
               </span>
@@ -104,18 +159,24 @@
           </div>
         </div>
 
-        <!-- 2. Tổng dự chi -->
-        <div class="p-4 rounded-md border border-slate-200/80 bg-slate-50/50 flex flex-col justify-between hover:bg-white hover:border-slate-300 transition-all">
-          <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+        <!-- 2. Tổng dự chi (Tiền đi: ĐỎ + DẤU TRỪ) -->
+        <div
+          class="p-4 rounded-md border border-red-100 bg-red-50/30 flex flex-col justify-between hover:bg-red-50/60 hover:border-red-200 transition-all"
+        >
+          <div
+            class="flex items-center justify-between text-xs font-semibold text-red-700"
+          >
             <span>Tổng dự kiến chi (B)</span>
-            <span class="text-[11px] font-bold text-slate-400">{{ budgetPlan?.items?.length || 0 }} khoản</span>
+            <span class="text-[11px] font-bold text-red-500"
+              >{{ budgetPlan?.items?.length || 0 }} khoản</span
+            >
           </div>
           <div class="mt-2.5">
-            <span class="text-xl font-bold text-slate-800 tracking-tight">
-              {{ formatCurrency(budgetPlan?.totalPlannedExpense) }}
+            <span class="text-xl font-black text-red-600 tracking-tight">
+              -{{ formatCurrency(budgetPlan?.totalPlannedExpense) }}
             </span>
-            <p class="text-[11px] text-slate-400 mt-0.5">
-              Phân bổ chi tiêu trong tháng
+            <p class="text-[11px] font-semibold text-red-600 mt-0.5">
+              Đã chi: -{{ formatCurrency(budgetPlan?.totalActualExpense || 0) }}
             </p>
           </div>
         </div>
@@ -130,56 +191,104 @@
           ]"
         >
           <div class="flex items-center justify-between text-xs font-bold">
-            <span :class="(budgetPlan?.expectedSurplus || 0) >= 0 ? 'text-emerald-800' : 'text-rose-800'">
-              {{ budgetPlan?.isIncomeFromActual ? 'DỰ KIẾN DƯ (THỰC THU - DỰ CHI)' : 'DỰ KIẾN SẼ DƯ (A - B)' }}
+            <span
+              :class="
+                (budgetPlan?.expectedSurplus || 0) >= 0
+                  ? 'text-emerald-800'
+                  : 'text-rose-800'
+              "
+            >
+              {{
+                budgetPlan?.isIncomeFromActual
+                  ? "DỰ KIẾN DƯ (THỰC THU - DỰ CHI)"
+                  : "DỰ KIẾN SẼ DƯ (A - B)"
+              }}
             </span>
-            <Sparkles v-if="(budgetPlan?.expectedSurplus || 0) >= 0" class="w-4 h-4 text-emerald-600" />
+            <Sparkles
+              v-if="(budgetPlan?.expectedSurplus || 0) >= 0"
+              class="w-4 h-4 text-emerald-600"
+            />
             <AlertTriangle v-else class="w-4 h-4 text-rose-600" />
           </div>
           <div class="mt-2.5">
             <span
               :class="[
                 'text-xl font-extrabold tracking-tight',
-                (budgetPlan?.expectedSurplus || 0) >= 0 ? 'text-emerald-700' : 'text-rose-600',
+                (budgetPlan?.expectedSurplus || 0) >= 0
+                  ? 'text-emerald-700'
+                  : 'text-rose-600',
               ]"
             >
-              {{ (budgetPlan?.expectedSurplus || 0) >= 0 ? '+' : '' }}{{ formatCurrency(budgetPlan?.expectedSurplus) }}
+              {{ (budgetPlan?.expectedSurplus || 0) >= 0 ? "+" : ""
+              }}{{ formatCurrency(budgetPlan?.expectedSurplus) }}
             </span>
             <p
               :class="[
                 'text-[11px] font-medium mt-0.5',
-                (budgetPlan?.expectedSurplus || 0) >= 0 ? 'text-emerald-700/80' : 'text-rose-700/80',
+                (budgetPlan?.expectedSurplus || 0) >= 0
+                  ? 'text-emerald-700/80'
+                  : 'text-rose-700/80',
               ]"
             >
-              {{ (budgetPlan?.expectedSurplus || 0) >= 0 ? 'Khả năng tích lũy cuối tháng' : 'Cảnh báo chi vượt nguồn thu!' }}
+              {{
+                (budgetPlan?.expectedSurplus || 0) >= 0
+                  ? "Khả năng tích lũy cuối tháng"
+                  : "Cảnh báo chi vượt nguồn thu!"
+              }}
             </p>
           </div>
         </div>
 
         <!-- 4. Dự báo tổng tài sản ví sau chi tiêu -->
-        <div class="p-4 rounded-md border border-slate-200/80 bg-slate-50/50 flex flex-col justify-between hover:bg-white hover:border-slate-300 transition-all">
-          <div class="flex items-center justify-between text-xs font-semibold text-slate-500">
+        <div
+          class="p-4 rounded-md border border-slate-200/80 bg-slate-50/50 flex flex-col justify-between hover:bg-white hover:border-slate-300 transition-all"
+        >
+          <div
+            class="flex items-center justify-between text-xs font-semibold text-slate-500"
+          >
             <span>Dự báo tổng ví sau chi</span>
-            <span class="text-[11px] font-bold text-indigo-600">Dòng tiền ví</span>
+            <span class="text-[11px] font-bold text-indigo-600"
+              >Dòng tiền ví</span
+            >
           </div>
           <div class="mt-2.5">
-            <span class="text-xl font-bold text-indigo-700 tracking-tight">
-              {{ formatCurrency(budgetPlan?.projectedTotalWalletBalance) }}
+            <span
+              :class="[
+                'text-xl font-bold tracking-tight',
+                (budgetPlan?.projectedTotalWalletBalance || 0) >= 0
+                  ? 'text-emerald-700'
+                  : 'text-rose-600',
+              ]"
+            >
+              {{ (budgetPlan?.projectedTotalWalletBalance || 0) >= 0 ? '+' : '' }}{{ formatCurrency(budgetPlan?.projectedTotalWalletBalance) }}
             </span>
             <p class="text-[11px] text-slate-400 mt-0.5 truncate">
-              Hiện tại: <span class="font-semibold text-slate-600">{{ formatCurrency(budgetPlan?.totalCurrentWalletBalance) }}</span>
+              Hiện tại:
+              <span class="font-semibold text-slate-600">{{
+                formatCurrency(budgetPlan?.totalCurrentWalletBalance)
+              }}</span>
             </p>
           </div>
         </div>
       </div>
 
       <!-- SECTION 1: Dự báo biến động số dư từng Ví (Account Cashflow Projections) -->
-      <div v-if="budgetPlan?.accountForecasts && budgetPlan.accountForecasts.length > 0" class="border border-slate-200 rounded-md overflow-hidden bg-white">
-        <div class="p-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+      <div
+        v-if="
+          budgetPlan?.accountForecasts && budgetPlan.accountForecasts.length > 0
+        "
+        class="border border-slate-200 rounded-md overflow-hidden bg-white"
+      >
+        <div
+          class="p-3.5 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between"
+        >
           <div class="flex items-center gap-2">
             <Wallet class="w-4 h-4 text-brand-600" />
             <h4 class="text-xs sm:text-sm font-bold text-slate-800">
-              Dự báo biến động số dư từng ví & tiền mặt ({{ budgetPlan.accountForecasts.length }} nguồn tiền)
+              Dự báo biến động số dư từng ví & tiền mặt ({{
+                budgetPlan.accountForecasts.length
+              }}
+              nguồn tiền)
             </h4>
           </div>
           <span class="text-xs text-slate-500 hidden sm:inline">
@@ -201,11 +310,25 @@
             <div>
               <div class="flex items-center justify-between mb-2">
                 <div class="flex items-center gap-1.5 min-w-0">
-                  <Banknote v-if="acc.accountType === 'CASH'" class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <Landmark v-else-if="acc.accountType === 'BANK'" class="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                  <Smartphone v-else-if="acc.accountType === 'EWALLET'" class="w-3.5 h-3.5 text-pink-600 shrink-0" />
-                  <CreditCard v-else class="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                  <span class="text-xs font-bold text-slate-800 truncate">{{ acc.accountName }}</span>
+                  <Banknote
+                    v-if="acc.accountType === 'CASH'"
+                    class="w-3.5 h-3.5 text-emerald-600 shrink-0"
+                  />
+                  <Landmark
+                    v-else-if="acc.accountType === 'BANK'"
+                    class="w-3.5 h-3.5 text-blue-600 shrink-0"
+                  />
+                  <Smartphone
+                    v-else-if="acc.accountType === 'EWALLET'"
+                    class="w-3.5 h-3.5 text-pink-600 shrink-0"
+                  />
+                  <CreditCard
+                    v-else
+                    class="w-3.5 h-3.5 text-purple-600 shrink-0"
+                  />
+                  <span class="text-xs font-bold text-slate-800 truncate">{{
+                    acc.accountName
+                  }}</span>
                 </div>
                 <span
                   v-if="acc.isDeficit"
@@ -215,45 +338,101 @@
                 </span>
                 <span
                   v-else-if="acc.plannedExpense > 0"
-                  class="text-[11px] font-medium text-slate-400"
+                  class="text-[11px] font-semibold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-100"
                 >
                   Dự chi: -{{ formatCurrency(acc.plannedExpense) }}
                 </span>
-                <span v-else class="text-[11px] text-slate-400">Không dự chi</span>
+                <span v-else class="text-[11px] text-slate-400"
+                  >Không dự chi</span
+                >
               </div>
 
               <!-- Metrics -->
-              <div class="space-y-1 text-xs">
+              <div class="space-y-1.5 text-xs">
                 <div class="flex items-center justify-between text-slate-500">
                   <span>Số dư hiện tại:</span>
-                  <span class="font-semibold text-slate-700">{{ formatCurrency(acc.currentBalance) }}</span>
+                  <span class="font-bold text-slate-800">{{
+                    formatCurrency(acc.currentBalance)
+                  }}</span>
                 </div>
-                <div v-if="(acc.actualIncome || 0) > 0" class="flex items-center justify-between text-slate-500">
-                  <span>Đã thu về ví:</span>
-                  <span class="font-semibold text-slate-700">+{{ formatCurrency(acc.actualIncome) }}</span>
+                <div
+                  v-if="(acc.actualIncome || 0) > 0"
+                  class="flex items-center justify-between text-slate-500"
+                >
+                  <span class="text-green-700 font-semibold">Thu nhập về ví:</span>
+                  <span class="font-black text-green-600"
+                    >+{{ formatCurrency(acc.actualIncome) }}</span
+                  >
                 </div>
-                <div v-if="(acc.remainingPlannedIncome || 0) > 0" class="flex items-center justify-between text-emerald-600">
-                  <span>{{ (acc.actualIncome || 0) > 0 ? 'Dự kiến còn thu:' : 'Thu nhập đổ về ví:' }}</span>
-                  <span class="font-semibold">+{{ formatCurrency(acc.remainingPlannedIncome) }}</span>
+                <div
+                  v-if="(acc.incomingTransfers || 0) > 0"
+                  class="flex items-center justify-between text-slate-500"
+                >
+                  <span class="text-emerald-700 font-semibold">Nhận từ ví khác:</span>
+                  <span class="font-black text-emerald-600"
+                    >+{{ formatCurrency(acc.incomingTransfers) }}</span
+                  >
                 </div>
-                <div v-if="(acc.actualSpent || 0) > 0" class="flex items-center justify-between text-slate-500">
-                  <span>Đã chi trong tháng:</span>
-                  <span class="font-semibold text-slate-700">-{{ formatCurrency(acc.actualSpent) }}</span>
+                <div
+                  v-if="(acc.outgoingTransfers || 0) > 0"
+                  class="flex items-center justify-between text-slate-500"
+                >
+                  <span class="text-indigo-700 font-semibold">Chuyển sang ví khác:</span>
+                  <span class="font-black text-indigo-600"
+                    >-{{ formatCurrency(acc.outgoingTransfers) }}</span
+                  >
                 </div>
-                <div v-if="acc.plannedExpense > 0" class="flex items-center justify-between text-rose-600">
-                  <span>{{ (acc.actualSpent || 0) > 0 ? 'Dự kiến còn phải chi:' : 'Dự kiến chi từ ví:' }}</span>
-                  <span class="font-semibold">-{{ formatCurrency(acc.remainingPlannedExpense ?? acc.plannedExpense) }}</span>
+                <div
+                  v-if="(acc.remainingPlannedIncome || 0) > 0"
+                  class="flex items-center justify-between text-green-600"
+                >
+                  <span class="font-medium">{{
+                    (acc.actualIncome || 0) > 0
+                      ? "Dự kiến còn thu:"
+                      : "Thu nhập đổ về ví:"
+                  }}</span>
+                  <span class="font-black text-green-600"
+                    >+{{ formatCurrency(acc.remainingPlannedIncome) }}</span
+                  >
+                </div>
+                <div
+                  v-if="(acc.actualSpent || 0) > 0"
+                  class="flex items-center justify-between text-slate-500"
+                >
+                  <span class="text-red-700 font-semibold">Đã chi trong tháng:</span>
+                  <span class="font-black text-red-600"
+                    >-{{ formatCurrency(acc.actualSpent) }}</span
+                  >
+                </div>
+                <div
+                  v-if="acc.plannedExpense > 0"
+                  class="flex items-center justify-between text-red-600"
+                >
+                  <span class="font-medium">{{
+                    (acc.actualSpent || 0) > 0
+                      ? "Dự kiến còn phải chi:"
+                      : "Dự kiến chi từ ví:"
+                  }}</span>
+                  <span class="font-black text-red-600"
+                    >-{{
+                      formatCurrency(
+                        acc.remainingPlannedExpense ?? acc.plannedExpense,
+                      )
+                    }}</span
+                  >
                 </div>
               </div>
             </div>
 
             <!-- Projected balance footer -->
-            <div class="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs">
+            <div
+              class="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between text-xs"
+            >
               <span class="font-medium text-slate-600">Dự kiến còn lại:</span>
               <span
                 :class="[
-                  'font-bold',
-                  acc.isDeficit ? 'text-rose-600 text-sm' : 'text-slate-900',
+                  'font-black',
+                  acc.isDeficit ? 'text-red-600 text-sm' : 'text-green-700',
                 ]"
               >
                 {{ formatCurrency(acc.projectedBalance) }}
@@ -265,11 +444,15 @@
 
       <!-- SECTION 3: Budget Items Table / Breakdown -->
       <div class="border border-slate-200 rounded-md overflow-hidden">
-        <div class="p-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between">
+        <div
+          class="p-4 bg-slate-50/80 border-b border-slate-200 flex items-center justify-between"
+        >
           <div class="flex items-center gap-2">
             <Coins class="w-4 h-4 text-emerald-600" />
             <h4 class="text-xs sm:text-sm font-bold text-slate-800">
-              Chi tiết các khoản phân bổ dự chi ({{ budgetPlan?.items?.length || 0 }})
+              Chi tiết các khoản phân bổ dự chi ({{
+                budgetPlan?.items?.length || 0
+              }})
             </h4>
           </div>
           <span class="text-xs text-slate-500 hidden sm:inline">
@@ -282,12 +465,18 @@
           v-if="!budgetPlan?.items || budgetPlan.items.length === 0"
           class="py-12 px-4 flex flex-col items-center justify-center text-center bg-white"
         >
-          <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+          <div
+            class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3"
+          >
             <Coins class="w-6 h-6" />
           </div>
-          <p class="text-sm font-bold text-slate-700">Chưa thiết lập khoản dự kiến chi nào</p>
+          <p class="text-sm font-bold text-slate-700">
+            Chưa thiết lập khoản dự kiến chi nào
+          </p>
           <p class="text-xs text-slate-400 max-w-sm mt-1">
-            Hãy thêm các khoản bạn dự kiến tiêu trong tháng này (như Ăn uống, Tiền nhà, Đi lại...) và chọn ví chi tiền để hệ thống tự động tính toán.
+            Hãy thêm các khoản bạn dự kiến tiêu trong tháng này (như Ăn uống,
+            Tiền nhà, Đi lại...) và chọn ví chi tiền để hệ thống tự động tính
+            toán.
           </p>
           <button
             type="button"
@@ -303,7 +492,9 @@
         <div v-else class="overflow-x-auto bg-white">
           <table class="w-full text-left border-collapse text-xs sm:text-sm">
             <thead>
-              <tr class="border-b border-slate-200 bg-slate-50/40 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <tr
+                class="border-b border-slate-200 bg-slate-50/40 text-[11px] font-bold text-slate-500 uppercase tracking-wider"
+              >
                 <th class="py-3 px-4">Khoản chi tiêu</th>
                 <th class="py-3 px-4">Chi từ ví</th>
                 <th class="py-3 px-4 text-right">Dự kiến chi</th>
@@ -324,11 +515,18 @@
                   <div class="flex items-center gap-2.5">
                     <span
                       class="w-3 h-3 rounded-full shrink-0"
-                      :style="{ backgroundColor: item.categoryColor || '#10b981' }"
+                      :style="{
+                        backgroundColor: item.categoryColor || '#10b981',
+                      }"
                     ></span>
                     <div>
-                      <span class="font-bold text-slate-800">{{ item.categoryName }}</span>
-                      <p v-if="item.note" class="text-[11px] text-slate-400 font-normal truncate max-w-xs">
+                      <span class="font-bold text-slate-800">{{
+                        item.categoryName
+                      }}</span>
+                      <p
+                        v-if="item.note"
+                        class="text-[11px] text-slate-400 font-normal truncate max-w-xs"
+                      >
                         {{ item.note }}
                       </p>
                     </div>
@@ -340,42 +538,80 @@
                   <span
                     :class="[
                       'inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold',
-                      item.accountId ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-100 text-slate-600',
+                      item.accountType === 'COMBINED' || (item.accountIds && item.accountIds.length > 1)
+                        ? 'bg-amber-50 text-amber-800 border border-amber-200/60'
+                        : item.accountId
+                          ? 'bg-indigo-50 text-indigo-700'
+                          : 'bg-slate-100 text-slate-600',
                     ]"
                   >
-                    <Banknote v-if="item.accountType === 'CASH'" class="w-3 h-3 text-emerald-600 shrink-0" />
-                    <Landmark v-else-if="item.accountType === 'BANK'" class="w-3 h-3 text-blue-600 shrink-0" />
-                    <Smartphone v-else-if="item.accountType === 'EWALLET'" class="w-3 h-3 text-pink-600 shrink-0" />
-                    <CreditCard v-else-if="item.accountType === 'CREDIT'" class="w-3 h-3 text-purple-600 shrink-0" />
+                    <Layers
+                      v-if="item.accountType === 'COMBINED' || (item.accountIds && item.accountIds.length > 1)"
+                      class="w-3 h-3 text-amber-600 shrink-0"
+                    />
+                    <Banknote
+                      v-else-if="item.accountType === 'CASH'"
+                      class="w-3 h-3 text-emerald-600 shrink-0"
+                    />
+                    <Landmark
+                      v-else-if="item.accountType === 'BANK'"
+                      class="w-3 h-3 text-blue-600 shrink-0"
+                    />
+                    <Smartphone
+                      v-else-if="item.accountType === 'EWALLET'"
+                      class="w-3 h-3 text-pink-600 shrink-0"
+                    />
+                    <CreditCard
+                      v-else-if="item.accountType === 'CREDIT'"
+                      class="w-3 h-3 text-purple-600 shrink-0"
+                    />
                     <Wallet v-else class="w-3 h-3 text-slate-500 shrink-0" />
-                    <span>{{ item.accountName || 'Tất cả ví' }}</span>
+                    <span>{{ item.accountName || "Tất cả ví" }}</span>
                   </span>
                 </td>
 
-                <!-- Planned Amount -->
-                <td class="py-3 px-4 text-right font-bold text-slate-800">
-                  {{ formatCurrency(item.plannedAmount) }}
+                <!-- Planned Amount (Tiền đi dự kiến: ĐỎ + DẤU TRỪ) -->
+                <td class="py-3 px-4 text-right font-bold text-rose-600 whitespace-nowrap">
+                  -{{ formatCurrency(item.plannedAmount) }}
                 </td>
 
-                <!-- Actual Spent -->
-                <td class="py-3 px-4 text-right font-medium text-rose-600">
-                  {{ formatCurrency(item.actualSpent) }}
+                <!-- Actual Spent (Tiền đi thực tế: ĐỎ + DẤU TRỪ) -->
+                <td class="py-3 px-4 text-right whitespace-nowrap">
+                  <div class="font-bold text-rose-600">
+                    -{{ formatCurrency(item.actualSpent) }}
+                  </div>
+                  <div
+                    v-if="item.spentBreakdown && item.spentBreakdown.length > 0"
+                    class="text-[10px] text-slate-500 font-normal mt-0.5 space-x-1"
+                  >
+                    <span>(</span>
+                    <span
+                      v-for="(bd, idx) in item.spentBreakdown"
+                      :key="bd.accountId"
+                    >
+                      <span class="font-semibold text-slate-700">{{ bd.accountName }}:</span>
+                      <span class="font-semibold text-rose-600 ml-0.5">-{{ formatCurrency(bd.amount) }}</span><span v-if="idx < item.spentBreakdown.length - 1"> • </span>
+                    </span>
+                    <span>)</span>
+                  </div>
                 </td>
 
-                <!-- Remaining / Exceeded -->
-                <td class="py-3 px-4 text-right">
+                <!-- Remaining / Exceeded (Còn lại: XANH LÁ + / Vượt: ĐỎ -) -->
+                <td class="py-3 px-4 text-right whitespace-nowrap">
                   <span
                     v-if="!item.isExceeded"
-                    class="font-medium text-slate-600"
+                    class="font-bold text-emerald-600"
                   >
-                    Còn {{ formatCurrency(item.remainingAmount) }}
+                    Còn +{{ formatCurrency(item.remainingAmount) }}
                   </span>
                   <span
                     v-else
                     class="font-bold text-rose-600 flex items-center justify-end gap-1"
                   >
                     <AlertTriangle class="w-3.5 h-3.5 text-rose-500 shrink-0" />
-                    <span>Vượt {{ formatCurrency(Math.abs(item.remainingAmount)) }}</span>
+                    <span
+                      >Vượt -{{ formatCurrency(Math.abs(item.remainingAmount)) }}</span
+                    >
                   </span>
                 </td>
 
@@ -389,8 +625,8 @@
                           item.percentageSpent >= 100
                             ? 'text-rose-600'
                             : item.percentageSpent >= 75
-                            ? 'text-amber-600'
-                            : 'text-emerald-600',
+                              ? 'text-amber-600'
+                              : 'text-emerald-600',
                         ]"
                       >
                         {{ item.percentageSpent.toFixed(1) }}%
@@ -402,17 +638,21 @@
                         Bội chi
                       </span>
                     </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div
+                      class="w-full bg-slate-100 rounded-full h-2 overflow-hidden"
+                    >
                       <div
                         :class="[
                           'h-full rounded-full transition-all duration-300',
                           item.percentageSpent >= 100
                             ? 'bg-rose-500'
                             : item.percentageSpent >= 75
-                            ? 'bg-amber-500'
-                            : 'bg-emerald-500',
+                              ? 'bg-amber-500'
+                              : 'bg-emerald-500',
                         ]"
-                        :style="{ width: `${Math.min(100, item.percentageSpent)}%` }"
+                        :style="{
+                          width: `${Math.min(100, item.percentageSpent)}%`,
+                        }"
                       ></div>
                     </div>
                   </div>
@@ -452,9 +692,17 @@
       title="Thiết lập Thu nhập dự kiến tháng"
       size="lg"
     >
-      <form @submit.prevent="submitPlanIncome" class="space-y-4 sm:space-y-5 py-1">
-        <div class="p-3.5 rounded-md bg-emerald-50/70 border border-emerald-100 text-xs sm:text-sm text-emerald-800 leading-relaxed">
-          Nhập số tiền thu nhập bạn dự kiến kiếm được trong <strong>Tháng {{ month }}/{{ year }}</strong> và chọn ví nhận tiền. Hệ thống sẽ tính số dư dự kiến của ví đó và đối soát với các mục tiêu tài chính.
+      <form
+        @submit.prevent="submitPlanIncome"
+        class="space-y-4 sm:space-y-5 py-1"
+      >
+        <div
+          class="p-3.5 rounded-md bg-emerald-50/70 border border-emerald-100 text-xs sm:text-sm text-emerald-800 leading-relaxed"
+        >
+          Nhập số tiền thu nhập bạn dự kiến kiếm được trong
+          <strong>Tháng {{ month }}/{{ year }}</strong> và chọn ví nhận tiền. Hệ
+          thống sẽ tính số dư dự kiến của ví đó và đối soát với các mục tiêu tài
+          chính.
         </div>
 
         <CurrencyInput
@@ -463,7 +711,9 @@
           placeholder="Nhập số tiền kỳ vọng..."
           :required="true"
           :min="0"
-          :quick-amounts="[5000000, 10000000, 15000000, 20000000, 30000000, 50000000]"
+          :quick-amounts="[
+            5000000, 10000000, 15000000, 20000000, 30000000, 50000000,
+          ]"
         />
 
         <!-- Chọn ví nhận tiền -->
@@ -475,7 +725,9 @@
         />
 
         <div>
-          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
+          <label
+            class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5"
+          >
             Ghi chú kế hoạch (tùy chọn)
           </label>
           <textarea
@@ -486,7 +738,9 @@
           ></textarea>
         </div>
 
-        <div class="flex items-center justify-between gap-3 pt-4 border-t border-slate-200">
+        <div
+          class="flex items-center justify-between gap-3 pt-4 border-t border-slate-200"
+        >
           <div>
             <button
               v-if="(budgetPlan?.expectedIncome || 0) > 0"
@@ -521,13 +775,20 @@
     <!-- MODAL 2: Thêm / Sửa khoản dự kiến chi -->
     <AppModal
       v-model="showBudgetItemModal"
-      :title="isEditingItem ? 'Chỉnh sửa khoản dự chi' : 'Thêm khoản dự kiến chi'"
+      :title="
+        isEditingItem ? 'Chỉnh sửa khoản dự chi' : 'Thêm khoản dự kiến chi'
+      "
       size="lg"
     >
-      <form @submit.prevent="submitBudgetItem" class="space-y-4 sm:space-y-5 py-1">
+      <form
+        @submit.prevent="submitBudgetItem"
+        class="space-y-4 sm:space-y-5 py-1"
+      >
         <!-- Danh mục chi tiêu -->
         <div>
-          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
+          <label
+            class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5"
+          >
             Khoản chi tiêu (Danh mục) <span class="text-rose-500">*</span>
           </label>
           <select
@@ -544,17 +805,22 @@
               {{ cat.name }}
             </option>
           </select>
-          <p v-if="expenseCategories.length === 0" class="text-[11px] text-amber-600 mt-1">
-            Chưa có danh mục chi tiêu nào. Bạn hãy tạo danh mục ở tab "Danh mục thu chi".
+          <p
+            v-if="expenseCategories.length === 0"
+            class="text-[11px] text-amber-600 mt-1"
+          >
+            Chưa có danh mục chi tiêu nào. Bạn hãy tạo danh mục ở tab "Danh mục
+            thu chi".
           </p>
         </div>
 
         <!-- Chọn ví chi tiền -->
         <AccountSelect
-          v-model="budgetItemForm.accountId"
+          v-model="budgetItemForm.accountIds"
           :accounts="allAccounts"
-          label="Dự kiến chi từ ví / nguồn tiền nào? (Tiền mặt, Ngân hàng...)"
-          placeholder="-- Chọn nguồn tiền (Tiền mặt hoặc Ngân hàng) --"
+          :multiple="true"
+          label="Dự kiến chi từ ví / nguồn tiền nào? (Có thể kết hợp Bank + Tiền mặt)"
+          placeholder="-- Chọn nguồn tiền (VD: Vietcombank + Tiền mặt) --"
           :required="true"
         />
 
@@ -565,12 +831,16 @@
           placeholder="Nhập số tiền dự kiến..."
           :required="true"
           :min="1000"
-          :quick-amounts="[500000, 1000000, 2000000, 3000000, 5000000, 10000000]"
+          :quick-amounts="[
+            500000, 1000000, 2000000, 3000000, 5000000, 10000000,
+          ]"
         />
 
         <!-- Ghi chú khoản chi -->
         <div>
-          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5">
+          <label
+            class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1.5"
+          >
             Ghi chú (tùy chọn)
           </label>
           <input
@@ -581,7 +851,9 @@
           />
         </div>
 
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+        <div
+          class="flex items-center justify-end gap-3 pt-4 border-t border-slate-200"
+        >
           <AppButton
             variant="secondary"
             size="md"
@@ -595,7 +867,7 @@
             type="submit"
             :loading="savingItem"
           >
-            {{ isEditingItem ? 'Cập nhật' : 'Thêm khoản dự chi' }}
+            {{ isEditingItem ? "Cập nhật" : "Thêm khoản dự chi" }}
           </AppButton>
         </div>
       </form>
@@ -639,7 +911,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from "vue";
 import {
   Calculator,
   Plus,
@@ -653,20 +925,21 @@ import {
   Landmark,
   Smartphone,
   CreditCard,
-} from 'lucide-vue-next';
-import AppModal from '../../../components/common/AppModal.vue';
-import AppButton from '../../../components/common/AppButton.vue';
-import AppConfirmDialog from '../../../components/common/AppConfirmDialog.vue';
-import CurrencyInput from '../../../components/common/CurrencyInput.vue';
-import AccountSelect from './AccountSelect.vue';
-import { financialService } from '../../../services/financial.service';
+  Layers,
+} from "lucide-vue-next";
+import AppModal from "../../../components/common/AppModal.vue";
+import AppButton from "../../../components/common/AppButton.vue";
+import AppConfirmDialog from "../../../components/common/AppConfirmDialog.vue";
+import CurrencyInput from "../../../components/common/CurrencyInput.vue";
+import AccountSelect from "./AccountSelect.vue";
+import { financialService } from "../../../services/financial.service";
 import type {
   MonthlyBudgetPlan,
   FinancialBudgetItem,
   FinancialCategory,
   FinancialAccount,
-} from '../../../types';
-import { formatCurrency } from '../../../utils/finance';
+} from "../../../types";
+import { formatCurrency } from "../../../utils/finance";
 
 const props = defineProps<{
   month: number;
@@ -674,7 +947,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'dataChanged'): void;
+  (e: "dataChanged"): void;
 }>();
 
 const loading = ref(false);
@@ -684,7 +957,7 @@ const allAccounts = ref<FinancialAccount[]>([]);
 
 // Expense Categories for dropdown
 const expenseCategories = computed(() => {
-  return allCategories.value.filter((c) => c.type === 'EXPENSE' && c.isActive);
+  return allCategories.value.filter((c) => c.type === "EXPENSE" && c.isActive);
 });
 
 // Modal 1: Plan Income State
@@ -697,7 +970,7 @@ const planIncomeForm = ref<{
 }>({
   expectedIncome: 0,
   accountId: null,
-  note: '',
+  note: "",
 });
 
 // Modal 2: Budget Item State
@@ -708,13 +981,15 @@ const editingItemId = ref<number | null>(null);
 const budgetItemForm = ref<{
   categoryId: number;
   accountId: number | null;
+  accountIds: number[];
   plannedAmount: number;
   note: string;
 }>({
   categoryId: 0,
   accountId: null,
+  accountIds: [],
   plannedAmount: 0,
-  note: '',
+  note: "",
 });
 
 // Delete Confirmation State
@@ -722,7 +997,7 @@ const showConfirmDelete = ref(false);
 const deletingItem = ref(false);
 const itemToDelete = ref<FinancialBudgetItem | null>(null);
 const deleteMessage = computed(() => {
-  if (!itemToDelete.value) return '';
+  if (!itemToDelete.value) return "";
   return `Bạn có chắc chắn muốn xóa khoản dự chi "${itemToDelete.value.categoryName}" (${formatCurrency(itemToDelete.value.plannedAmount)}) khỏi kế hoạch Tháng ${props.month}/${props.year}?`;
 });
 
@@ -731,7 +1006,7 @@ const deletingPlan = ref(false);
 
 // Error State
 const showErrorDialog = ref(false);
-const errorMessage = ref('');
+const errorMessage = ref("");
 
 function showError(msg: string) {
   errorMessage.value = msg;
@@ -745,7 +1020,7 @@ async function fetchBudgetPlan() {
     const data = await financialService.getBudgetPlan(props.month, props.year);
     budgetPlan.value = data;
   } catch (err: any) {
-    console.error('Failed to load budget plan', err);
+    console.error("Failed to load budget plan", err);
   } finally {
     loading.value = false;
   }
@@ -755,13 +1030,13 @@ async function fetchBudgetPlan() {
 async function fetchMasterData() {
   try {
     const [cats, accs] = await Promise.all([
-      financialService.getCategories('EXPENSE', true),
+      financialService.getCategories("EXPENSE", true),
       financialService.getAccounts(true),
     ]);
     allCategories.value = cats;
     allAccounts.value = accs;
   } catch (err) {
-    console.error('Failed to load master data', err);
+    console.error("Failed to load master data", err);
   }
 }
 
@@ -772,7 +1047,7 @@ function openPlanIncomeModal() {
   planIncomeForm.value = {
     expectedIncome: budgetPlan.value?.expectedIncome || 0,
     accountId: budgetPlan.value?.expectedIncomeAccountId || null,
-    note: budgetPlan.value?.planNote || '',
+    note: budgetPlan.value?.planNote || "",
   };
   showPlanIncomeModal.value = true;
 }
@@ -789,9 +1064,9 @@ async function submitPlanIncome() {
     });
     showPlanIncomeModal.value = false;
     await fetchBudgetPlan();
-    emit('dataChanged');
+    emit("dataChanged");
   } catch (err: any) {
-    showError(err.response?.data?.message || 'Không thể lưu thu nhập dự kiến');
+    showError(err.response?.data?.message || "Không thể lưu thu nhập dự kiến");
   } finally {
     savingIncome.value = false;
   }
@@ -808,9 +1083,9 @@ async function executeDeletePlanIncome() {
     showConfirmDeletePlan.value = false;
     showPlanIncomeModal.value = false;
     await fetchBudgetPlan();
-    emit('dataChanged');
+    emit("dataChanged");
   } catch (err: any) {
-    showError(err.response?.data?.message || 'Không thể xóa thu nhập dự kiến');
+    showError(err.response?.data?.message || "Không thể xóa thu nhập dự kiến");
   } finally {
     deletingPlan.value = false;
   }
@@ -822,11 +1097,13 @@ async function executeDeletePlanIncome() {
 function openAddBudgetItemModal() {
   isEditingItem.value = false;
   editingItemId.value = null;
+  const defaultAccId = allAccounts.value[0]?.id || null;
   budgetItemForm.value = {
     categoryId: expenseCategories.value[0]?.id || 0,
-    accountId: allAccounts.value[0]?.id || null,
+    accountId: defaultAccId,
+    accountIds: defaultAccId ? [defaultAccId] : [],
     plannedAmount: 0,
-    note: '',
+    note: "",
   };
   showBudgetItemModal.value = true;
 }
@@ -834,46 +1111,86 @@ function openAddBudgetItemModal() {
 function openEditBudgetItemModal(item: FinancialBudgetItem) {
   isEditingItem.value = true;
   editingItemId.value = item.id;
+  const itemAccIds =
+    item.accountIds && item.accountIds.length > 0
+      ? item.accountIds
+      : item.accountId
+        ? [item.accountId]
+        : allAccounts.value[0]?.id
+          ? [allAccounts.value[0].id]
+          : [];
   budgetItemForm.value = {
     categoryId: item.categoryId,
-    accountId: item.accountId || (allAccounts.value[0]?.id || null),
+    accountId: itemAccIds[0] || null,
+    accountIds: [...itemAccIds],
     plannedAmount: item.plannedAmount,
-    note: item.note || '',
+    note: item.note || "",
   };
   showBudgetItemModal.value = true;
 }
 
 async function submitBudgetItem() {
   if (!budgetItemForm.value.categoryId) {
-    showError('Vui lòng chọn danh mục chi tiêu');
+    showError("Vui lòng chọn danh mục chi tiêu");
     return;
   }
-  if (!budgetItemForm.value.accountId) {
-    showError('Vui lòng chọn ví thanh toán cho khoản dự chi');
+  const selectedAccIds =
+    budgetItemForm.value.accountIds &&
+    budgetItemForm.value.accountIds.length > 0
+      ? budgetItemForm.value.accountIds
+      : budgetItemForm.value.accountId
+        ? [budgetItemForm.value.accountId]
+        : [];
+
+  if (selectedAccIds.length === 0) {
+    showError(
+      "Vui lòng chọn ví thanh toán cho khoản dự chi (có thể chọn 1 hoặc nhiều ví kết hợp)",
+    );
     return;
   }
-  if (!budgetItemForm.value.plannedAmount || budgetItemForm.value.plannedAmount <= 0) {
-    showError('Vui lòng nhập số tiền dự kiến chi lớn hơn 0');
+  if (
+    !budgetItemForm.value.plannedAmount ||
+    budgetItemForm.value.plannedAmount <= 0
+  ) {
+    showError("Vui lòng nhập số tiền dự kiến chi lớn hơn 0");
     return;
   }
 
-  // Chặn cứng: Kiểm tra số dư ví hiện tại
-  const selectedAccount = allAccounts.value.find((a) => a.id === budgetItemForm.value.accountId);
-  const currentBalance = selectedAccount?.currentBalance ?? 0;
+  // Chặn cứng: Kiểm tra tổng số dư các ví đã chọn
+  const selectedAccounts = allAccounts.value.filter((a) =>
+    selectedAccIds.includes(a.id),
+  );
+  const totalBalance = selectedAccounts.reduce(
+    (sum, a) => sum + (a.currentBalance || 0),
+    0,
+  );
+  const combinedName = selectedAccounts.map((a) => a.name).join(" + ");
 
-  // Tính tổng dự chi của ví này trong tháng (loại trừ khoản đang sửa nếu có)
+  // Tính tổng dự chi của các ví này trong tháng (loại trừ khoản đang sửa nếu có)
   const otherPlannedForAccount = (budgetPlan.value?.items || [])
-    .filter((item) => item.accountId === budgetItemForm.value.accountId && item.id !== editingItemId.value)
+    .filter((item) => item.id !== editingItemId.value)
+    .filter((item) => {
+      const itemAccs =
+        item.accountIds && item.accountIds.length > 0
+          ? item.accountIds
+          : item.accountId
+            ? [item.accountId]
+            : [];
+      return itemAccs.some((id) => selectedAccIds.includes(id));
+    })
     .reduce((sum, item) => sum + (item.plannedAmount || 0), 0);
 
-  const newTotalPlanned = otherPlannedForAccount + (budgetItemForm.value.plannedAmount || 0);
+  const newTotalPlanned =
+    otherPlannedForAccount + (budgetItemForm.value.plannedAmount || 0);
 
-  if (newTotalPlanned > currentBalance) {
-    if (currentBalance <= 0) {
-      showError(`Ví "${selectedAccount?.name || 'này'}" hiện không có tiền (${formatCurrency(currentBalance)}), không thể lập khoản dự chi!`);
+  if (newTotalPlanned > totalBalance) {
+    if (totalBalance <= 0) {
+      showError(
+        `Nguồn tiền "${combinedName}" hiện không có tiền (${formatCurrency(totalBalance)}), không thể lập khoản dự chi!`,
+      );
     } else {
       showError(
-        `Số dư ví "${selectedAccount?.name}" không đủ! Hiện có ${formatCurrency(currentBalance)}, nhưng tổng dự kiến chi từ ví này sẽ là ${formatCurrency(newTotalPlanned)}.`
+        `Số dư "${combinedName}" không đủ! Hiện có ${formatCurrency(totalBalance)}, nhưng tổng dự kiến chi từ nguồn này sẽ là ${formatCurrency(newTotalPlanned)}.`,
       );
     }
     return;
@@ -886,15 +1203,16 @@ async function submitBudgetItem() {
       month: props.month,
       year: props.year,
       categoryId: budgetItemForm.value.categoryId,
-      accountId: budgetItemForm.value.accountId,
+      accountId: selectedAccIds[0],
+      accountIds: selectedAccIds,
       plannedAmount: budgetItemForm.value.plannedAmount,
       note: budgetItemForm.value.note?.trim() || undefined,
     });
     showBudgetItemModal.value = false;
     await fetchBudgetPlan();
-    emit('dataChanged');
+    emit("dataChanged");
   } catch (err: any) {
-    showError(err.response?.data?.message || 'Không thể lưu khoản dự chi');
+    showError(err.response?.data?.message || "Không thể lưu khoản dự chi");
   } finally {
     savingItem.value = false;
   }
@@ -913,9 +1231,9 @@ async function executeDeleteItem() {
     showConfirmDelete.value = false;
     itemToDelete.value = null;
     await fetchBudgetPlan();
-    emit('dataChanged');
+    emit("dataChanged");
   } catch (err: any) {
-    showError(err.response?.data?.message || 'Không thể xóa khoản dự chi');
+    showError(err.response?.data?.message || "Không thể xóa khoản dự chi");
   } finally {
     deletingItem.value = false;
   }
@@ -926,7 +1244,7 @@ watch(
   () => [props.month, props.year],
   () => {
     fetchBudgetPlan();
-  }
+  },
 );
 
 onMounted(() => {

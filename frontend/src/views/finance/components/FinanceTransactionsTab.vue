@@ -143,24 +143,24 @@
               <td class="py-3 px-4 whitespace-nowrap">
                 <span
                   v-if="tx.type === 'INCOME'"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 font-black text-xs rounded-md bg-green-100 text-green-800 border-2 border-green-400 shadow-2xs"
                 >
-                  <ArrowDownLeft class="w-3.5 h-3.5" />
-                  <span>Thu nhập</span>
+                  <ArrowDownLeft class="w-3.5 h-3.5 stroke-[3] text-green-700" />
+                  <span class="font-black text-green-800">Thu nhập</span>
                 </span>
                 <span
                   v-else-if="tx.type === 'EXPENSE'"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded bg-rose-50 text-rose-700 border border-rose-200/60"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 font-black text-xs rounded-md bg-red-100 text-red-800 border-2 border-red-400 shadow-2xs"
                 >
-                  <ArrowUpRight class="w-3.5 h-3.5" />
-                  <span>Chi tiêu</span>
+                  <ArrowUpRight class="w-3.5 h-3.5 stroke-[3] text-red-700" />
+                  <span class="font-black text-red-800">Chi tiêu</span>
                 </span>
                 <span
                   v-else
-                  class="inline-flex items-center gap-1 px-2 py-0.5 font-bold rounded bg-indigo-50 text-indigo-700 border border-indigo-200/60"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-1 font-black text-xs rounded-md bg-indigo-100 text-indigo-800 border-2 border-indigo-400 shadow-2xs"
                 >
-                  <ArrowRightLeft class="w-3.5 h-3.5" />
-                  <span>Chuyển tiền</span>
+                  <ArrowRightLeft class="w-3.5 h-3.5 stroke-[3] text-indigo-700" />
+                  <span class="font-black text-indigo-800">Chuyển tiền</span>
                 </span>
               </td>
 
@@ -200,15 +200,21 @@
               <td class="py-3 px-4 text-right whitespace-nowrap">
                 <span
                   :class="[
-                    'text-sm font-bold',
-                    tx.type === 'INCOME'
-                      ? 'text-emerald-600'
-                      : tx.type === 'EXPENSE'
-                      ? 'text-rose-600'
+                    'text-sm font-black',
+                    tx.type === 'INCOME' || (tx.type === 'TRANSFER' && selectedAccountId && tx.toAccountId === selectedAccountId)
+                      ? 'text-green-600'
+                      : tx.type === 'EXPENSE' || (tx.type === 'TRANSFER' && selectedAccountId && tx.accountId === selectedAccountId)
+                      ? 'text-red-600'
                       : 'text-indigo-600',
                   ]"
                 >
-                  {{ tx.type === 'INCOME' ? '+' : tx.type === 'EXPENSE' ? '-' : '' }}{{ formatCurrency(tx.amount) }}
+                  {{
+                    (tx.type === 'INCOME' || (tx.type === 'TRANSFER' && selectedAccountId && tx.toAccountId === selectedAccountId))
+                      ? '+'
+                      : (tx.type === 'EXPENSE' || (tx.type === 'TRANSFER' && selectedAccountId && tx.accountId === selectedAccountId))
+                      ? '-'
+                      : ''
+                  }}{{ formatCurrency(tx.amount) }}
                 </span>
               </td>
 
@@ -268,42 +274,42 @@
               type="button"
               @click="formData.type = 'EXPENSE'"
               :class="[
-                'py-2.5 px-3 rounded-md font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
+                'py-2.5 px-3 rounded-md font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 border-2 transition-all cursor-pointer',
                 formData.type === 'EXPENSE'
-                  ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-2xs'
+                  ? 'bg-red-100 border-red-500 text-red-800 shadow-xs'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50',
               ]"
             >
-              <ArrowUpRight class="w-4 h-4 text-rose-600" />
-              <span>Chi tiêu</span>
+              <ArrowUpRight class="w-4 h-4 text-red-700 stroke-[3]" />
+              <span class="font-black text-red-800">Chi tiêu</span>
             </button>
 
             <button
               type="button"
               @click="formData.type = 'INCOME'"
               :class="[
-                'py-2.5 px-3 rounded-md font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
+                'py-2.5 px-3 rounded-md font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 border-2 transition-all cursor-pointer',
                 formData.type === 'INCOME'
-                  ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-2xs'
+                  ? 'bg-green-100 border-green-500 text-green-800 shadow-xs'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50',
               ]"
             >
-              <ArrowDownLeft class="w-4 h-4 text-emerald-600" />
-              <span>Thu nhập</span>
+              <ArrowDownLeft class="w-4 h-4 text-green-700 stroke-[3]" />
+              <span class="font-black text-green-800">Thu nhập</span>
             </button>
 
             <button
               type="button"
               @click="formData.type = 'TRANSFER'"
               :class="[
-                'py-2.5 px-3 rounded-md font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border transition-all cursor-pointer',
+                'py-2.5 px-3 rounded-md font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 border-2 transition-all cursor-pointer',
                 formData.type === 'TRANSFER'
-                  ? 'bg-indigo-50 border-indigo-300 text-indigo-700 shadow-2xs'
+                  ? 'bg-indigo-100 border-indigo-500 text-indigo-800 shadow-xs'
                   : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50',
               ]"
             >
-              <ArrowRightLeft class="w-4 h-4 text-indigo-600" />
-              <span>Chuyển tiền</span>
+              <ArrowRightLeft class="w-4 h-4 text-indigo-700 stroke-[3]" />
+              <span class="font-black text-indigo-800">Chuyển tiền</span>
             </button>
           </div>
         </div>

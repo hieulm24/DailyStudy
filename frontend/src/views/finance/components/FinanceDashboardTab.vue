@@ -64,15 +64,15 @@
       <!-- 6 Key Financial KPI Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <!-- Thu nhập trong tháng -->
-        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between hover:border-emerald-300 transition-all">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between hover:border-green-400 transition-all">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-slate-500">Thu nhập tháng</span>
-            <div class="w-8 h-8 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <TrendingUp class="w-4 h-4" />
+            <div class="w-8 h-8 rounded-lg bg-green-100 text-green-700 border-2 border-green-300 flex items-center justify-center shadow-2xs">
+              <TrendingUp class="w-4 h-4 stroke-[3] text-green-700" />
             </div>
           </div>
           <div class="mt-3">
-            <span class="text-lg font-bold text-emerald-600 tracking-tight">
+            <span class="text-lg font-black text-green-600 tracking-tight">
               +{{ formatCurrency(dashboardData?.monthlyIncome) }}
             </span>
             <p class="text-[11px] text-slate-400 mt-1">Tháng {{ selectedMonth }}/{{ selectedYear }}</p>
@@ -80,15 +80,15 @@
         </div>
 
         <!-- Chi tiêu trong tháng -->
-        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between hover:border-rose-300 transition-all">
+        <div class="bg-white p-5 rounded-md border border-slate-200 shadow-xs flex flex-col justify-between hover:border-red-400 transition-all">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold text-slate-500">Chi tiêu tháng</span>
-            <div class="w-8 h-8 rounded-md bg-rose-50 text-rose-600 flex items-center justify-center">
-              <TrendingDown class="w-4 h-4" />
+            <div class="w-8 h-8 rounded-lg bg-red-100 text-red-700 border-2 border-red-300 flex items-center justify-center shadow-2xs">
+              <TrendingDown class="w-4 h-4 stroke-[3] text-red-700" />
             </div>
           </div>
           <div class="mt-3">
-            <span class="text-lg font-bold text-rose-600 tracking-tight">
+            <span class="text-lg font-black text-red-600 tracking-tight">
               -{{ formatCurrency(dashboardData?.monthlyExpense) }}
             </span>
             <p class="text-[11px] text-slate-400 mt-1">Tháng {{ selectedMonth }}/{{ selectedYear }}</p>
@@ -102,7 +102,7 @@
             <div
               :class="[
                 'w-8 h-8 rounded-md flex items-center justify-center',
-                (dashboardData?.monthlyNetBalance || 0) >= 0 ? 'bg-brand-50 text-brand-600' : 'bg-rose-50 text-rose-600',
+                (dashboardData?.monthlyNetBalance || 0) >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600',
               ]"
             >
               <Scale class="w-4 h-4" />
@@ -112,10 +112,10 @@
             <span
               :class="[
                 'text-lg font-bold tracking-tight',
-                (dashboardData?.monthlyNetBalance || 0) >= 0 ? 'text-brand-600' : 'text-rose-600',
+                (dashboardData?.monthlyNetBalance || 0) >= 0 ? 'text-emerald-600' : 'text-rose-600',
               ]"
             >
-              {{ formatCurrency(dashboardData?.monthlyNetBalance) }}
+              {{ (dashboardData?.monthlyNetBalance || 0) >= 0 ? '+' : '' }}{{ formatCurrency(dashboardData?.monthlyNetBalance) }}
             </span>
             <p class="text-[11px] text-slate-400 mt-1">Dòng tiền thuần</p>
           </div>
@@ -259,7 +259,7 @@
                 <span class="font-medium text-slate-700 truncate">{{ cat.categoryName }} ({{ cat.count }} lần)</span>
               </div>
               <div class="flex items-center gap-2 font-semibold">
-                <span class="text-slate-900">{{ formatCurrency(cat.totalAmount) }}</span>
+                <span class="text-rose-600 font-bold">-{{ formatCurrency(cat.totalAmount) }}</span>
                 <span class="text-slate-400 text-[11px]">({{ cat.percentage.toFixed(1) }}%)</span>
               </div>
             </div>
@@ -304,7 +304,7 @@
                 <span class="font-medium text-slate-700 truncate">{{ cat.categoryName }} ({{ cat.count }} lần)</span>
               </div>
               <div class="flex items-center gap-2 font-semibold">
-                <span class="text-emerald-600">{{ formatCurrency(cat.totalAmount) }}</span>
+                <span class="text-emerald-600 font-bold">+{{ formatCurrency(cat.totalAmount) }}</span>
                 <span class="text-slate-400 text-[11px]">({{ cat.percentage.toFixed(1) }}%)</span>
               </div>
             </div>
@@ -459,17 +459,17 @@
                 <div class="flex items-center gap-3 truncate">
                   <div
                     :class="[
-                      'w-8 h-8 rounded-md flex items-center justify-center shrink-0 font-bold',
+                      'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 font-black border-2 shadow-2xs',
                       tx.type === 'INCOME'
-                        ? 'bg-emerald-50 text-emerald-600'
+                        ? 'bg-green-100 text-green-700 border-green-400'
                         : tx.type === 'EXPENSE'
-                        ? 'bg-rose-50 text-rose-600'
-                        : 'bg-indigo-50 text-indigo-600',
+                        ? 'bg-red-100 text-red-700 border-red-400'
+                        : 'bg-indigo-100 text-indigo-700 border-indigo-400',
                     ]"
                   >
-                    <ArrowDownLeft v-if="tx.type === 'INCOME'" class="w-4 h-4" />
-                    <ArrowUpRight v-else-if="tx.type === 'EXPENSE'" class="w-4 h-4" />
-                    <ArrowRightLeft v-else class="w-4 h-4" />
+                    <ArrowDownLeft v-if="tx.type === 'INCOME'" class="w-4 h-4 stroke-[3] text-green-700" />
+                    <ArrowUpRight v-else-if="tx.type === 'EXPENSE'" class="w-4 h-4 stroke-[3] text-red-700" />
+                    <ArrowRightLeft v-else class="w-4 h-4 stroke-[3] text-indigo-700" />
                   </div>
                   <div class="truncate">
                     <p class="text-xs font-bold text-slate-800 truncate">
@@ -486,11 +486,11 @@
                 <div class="text-right shrink-0">
                   <span
                     :class="[
-                      'text-xs sm:text-sm font-bold',
+                      'text-xs sm:text-sm font-black',
                       tx.type === 'INCOME'
-                        ? 'text-emerald-600'
+                        ? 'text-green-600'
                         : tx.type === 'EXPENSE'
-                        ? 'text-rose-600'
+                        ? 'text-red-600'
                         : 'text-indigo-600',
                     ]"
                   >

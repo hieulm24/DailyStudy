@@ -190,6 +190,13 @@ export interface FinancialReportData {
   goalsReport: FinancialGoal[];
 }
 
+export interface AccountSpentBreakdown {
+  accountId: number;
+  accountName: string;
+  accountType?: string;
+  amount: number;
+}
+
 export interface FinancialBudgetItem {
   id: number;
   month: number;
@@ -199,6 +206,7 @@ export interface FinancialBudgetItem {
   categoryIcon?: string;
   categoryColor?: string;
   accountId?: number;
+  accountIds?: number[];
   accountName?: string;
   accountType?: string;
   plannedAmount: number;
@@ -206,6 +214,7 @@ export interface FinancialBudgetItem {
   remainingAmount: number;
   percentageSpent: number;
   isExceeded: boolean;
+  spentBreakdown?: AccountSpentBreakdown[];
   note?: string;
 }
 
@@ -222,6 +231,8 @@ export interface AccountBudgetForecast {
   remainingPlannedExpense?: number;
   actualIncome?: number;
   remainingPlannedIncome?: number;
+  incomingTransfers?: number;
+  outgoingTransfers?: number;
 }
 
 export interface GoalBudgetAssessment {
@@ -280,6 +291,7 @@ export interface SaveBudgetItemRequest {
   year: number;
   categoryId: number;
   accountId?: number | null;
+  accountIds?: number[];
   plannedAmount: number;
   note?: string;
 }

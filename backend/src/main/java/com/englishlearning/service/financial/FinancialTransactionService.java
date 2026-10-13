@@ -74,8 +74,11 @@ public class FinancialTransactionService {
         };
 
         Sort.Direction direction = "asc".equalsIgnoreCase(filter.getSortDir()) ? Sort.Direction.ASC : Sort.Direction.DESC;
-        String sortField = "transactionDate".equalsIgnoreCase(filter.getSortBy()) ? "transactionDate" : "createdAt";
-        Sort sort = Sort.by(direction, sortField).and(Sort.by(Sort.Direction.DESC, "id"));
+        String sortField = "transactionDate".equalsIgnoreCase(filter.getSortBy()) ? "transactionDate"
+                : ("id".equalsIgnoreCase(filter.getSortBy()) ? "id" : "createdAt");
+        Sort sort = "id".equalsIgnoreCase(sortField)
+                ? Sort.by(direction, "id")
+                : Sort.by(direction, sortField).and(Sort.by(Sort.Direction.DESC, "id"));
 
         Pageable pageable = PageRequest.of(Math.max(0, filter.getPage()), Math.max(1, filter.getSize()), sort);
         Page<FinancialTransaction> page = transactionRepository.findAll(spec, pageable);

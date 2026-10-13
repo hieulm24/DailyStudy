@@ -44,6 +44,7 @@ public class FinancialPhysicalNamingStrategy extends CamelCaseToUnderscoresNamin
             "note",
             "toaccountid",
             "accountid",
+            "accountids",
             "categoryid",
             "goalid",
             "transactionid",

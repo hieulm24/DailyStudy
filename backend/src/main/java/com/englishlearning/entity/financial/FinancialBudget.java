@@ -40,6 +40,9 @@ public class FinancialBudget {
     @Column(name = "AccountId")
     private Long accountId;
 
+    @Column(name = "AccountIds", length = 255)
+    private String accountIds;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountId", insertable = false, updatable = false)
     @JsonIgnore

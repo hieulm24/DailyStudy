@@ -508,14 +508,20 @@
                   <span
                     :class="[
                       'px-1.5 py-0.5 rounded font-bold text-[10.5px]',
-                      t.type === 'INCOME'
+                      t.type === 'INCOME' || (t.type === 'TRANSFER' && t.toAccountId === selectedAccountForHistory?.id)
                         ? 'bg-emerald-50 text-emerald-700'
-                        : t.type === 'EXPENSE'
-                        ? 'bg-rose-50 text-rose-700'
-                        : 'bg-indigo-50 text-indigo-700',
+                        : 'bg-rose-50 text-rose-700',
                     ]"
                   >
-                    {{ t.type === 'INCOME' ? 'Thu' : t.type === 'EXPENSE' ? 'Chi' : 'Chuyển' }}
+                    {{
+                      t.type === 'INCOME'
+                        ? 'Thu'
+                        : t.type === 'EXPENSE'
+                        ? 'Chi'
+                        : t.toAccountId === selectedAccountForHistory?.id
+                        ? 'Nhận chuyển'
+                        : 'Chuyển đi'
+                    }}
                   </span>
                 </td>
                 <td class="py-2.5 px-3 text-slate-800">
@@ -525,14 +531,16 @@
                 <td class="py-2.5 px-3 text-right font-bold whitespace-nowrap">
                   <span
                     :class="[
-                      t.type === 'INCOME'
+                      t.type === 'INCOME' || (t.type === 'TRANSFER' && t.toAccountId === selectedAccountForHistory?.id)
                         ? 'text-emerald-600'
-                        : t.type === 'EXPENSE'
-                        ? 'text-rose-600'
-                        : 'text-indigo-600',
+                        : 'text-rose-600',
                     ]"
                   >
-                    {{ t.type === 'INCOME' ? '+' : t.type === 'EXPENSE' ? '-' : '' }}{{ formatCurrency(t.amount) }}
+                    {{
+                      (t.type === 'INCOME' || (t.type === 'TRANSFER' && t.toAccountId === selectedAccountForHistory?.id))
+                        ? '+'
+                        : '-'
+                    }}{{ formatCurrency(t.amount) }}
                   </span>
                 </td>
               </tr>
